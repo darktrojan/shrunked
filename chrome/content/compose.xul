@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+
+<overlay id="shrunked-compose-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+	<script src="chrome://shrunked/content/compose.js" type="application/x-javascript;version=1.7" />
+
+</overlay>

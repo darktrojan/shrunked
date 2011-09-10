@@ -1,0 +1,27 @@
+<!ENTITY shrunked-config.title "Configuració de Shrunked Image Resizer">
+<!ENTITY shrunked-sites.label "Configuració de Lloc">
+<!ENTITY shrunked-sites.sitelist.site "Lloc">
+<!ENTITY shrunked-sites.sitelist.settings "Configuració">
+<!ENTITY shrunked-sites.forget.label "Oblida el seleccionat">
+<!ENTITY shrunked-defaults.label "Per defecte">
+<!ENTITY shrunked-defaults.quality.label "Qualitat de la codificació de JPEG:">
+<!ENTITY shrunked-defaults.quality.smaller "Arxius més petits">
+<!ENTITY shrunked-defaults.quality.better "Millor qualitat">
+<!ENTITY shrunked-options.title "Opcions de Shrunked Image Resizer">
+<!ENTITY shrunked-options.remembersite.label "Recorda la meva resposta per a aquesta web">
+<!ENTITY shrunked-options.savedefault.label "Salva la configuració com a configuració per defecte">
+<!ENTITY shrunked-noresize.label "Original">
+<!ENTITY shrunked-small.label "500px">
+<!ENTITY shrunked-medium.label "800px">
+<!ENTITY shrunked-large.label "1200px">
+<!ENTITY shrunked-custom.label "Personalitzat">
+<!ENTITY shrunked-width.label "Amplada:">
+<!ENTITY shrunked-height.label "Alçada:">
+<!ENTITY shrunked-waiting.label "Carregant imatges…">
+<!ENTITY shrunked-resizing.label "Canviant la mida de les imatges…">
+<!ENTITY shrunked-status.label "Estat:">
+<!ENTITY shrunked-progress.label "Progrés:">
+<!ENTITY shrunked-minsize.label "Minimum file size to resize:">
+<!ENTITY shrunked-minsize.kilobytes "KB">
+<!ENTITY shrunked-maxsize.label "Maximum size for your photos:">
+<!ENTITY shrunked-custom.pixels "px">

@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<!DOCTYPE prefwindow SYSTEM "chrome://shrunked/locale/shrunked.dtd">
+<prefwindow id="shrunked-config" title="&shrunked-config.title;" orient="vertical" onload="doLoad ();" ondialogaccept="doAccept ();"
+		xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+	<stringbundleset id="stringbundleset">
+		<stringbundle id="shrunked-strings" src="chrome://shrunked/locale/shrunked.properties"/>
+	</stringbundleset>
+
+	<prefpane id="shrunked-sites" label="&shrunked-sites.label;" image="chrome://shrunked/content/shrunked.png">
+		<listbox flex="1" id="sitelist" onselect="document.getElementById ('forget').disabled = this.selectedItem == null;">
+			<listhead>
+				<listheader label="&shrunked-sites.sitelist.site;" />
+				<listheader label="&shrunked-sites.sitelist.settings;" />
+			</listhead>
+			<listcols>
+				<listcol flex="1" />
+				<listcol style="width: 12em" />
+			</listcols>
+		</listbox>
+		<hbox pack="end">
+			<button id="forget" label="&shrunked-sites.forget.label;" disabled="true" oncommand="doForget ();" />
+		</hbox>
+	</prefpane>
+
+	<prefpane id="shrunked-defaults" label="&shrunked-defaults.label;" image="chrome://shrunked/content/shrunked.png">
+		<preferences>
+			<preference id="minsize" name="extensions.shrunked.fileSizeMinimum" type="int" />
+			<preference id="maxwidth" name="extensions.shrunked.default.maxWidth" type="int" />
+			<preference id="maxheight" name="extensions.shrunked.default.maxHeight" type="int" />
+			<preference id="quality" name="extensions.shrunked.default.quality" type="int" />
+		</preferences>
+
+		<hbox align="center">
+			<label value="&shrunked-minsize.label;" />
+			<textbox type="number" preference="minsize" size="5" increment="10" min="0" unit="&shrunked-minsize.kilobytes;" 
+					style="-moz-binding: url(chrome://shrunked/content/bindings.xml#numberbox)"/>
+		</hbox>
+
+		<label value="&shrunked-maxsize.label;" />
+		<radiogroup class="indent" style="margin-bottom: 1em">
+			<radio id="noresize" label="&shrunked-noresize.label;" oncommand="validate ();" />
+			<radio id="small" label="&shrunked-small.label;" oncommand="validate ();" />
+			<radio id="medium" label="&shrunked-medium.label;" oncommand="validate ();" />
+			<radio id="large" label="&shrunked-large.label;" oncommand="validate ();" />
+			<hbox align="center">
+				<radio id="custom" label="&shrunked-custom.label;" oncommand="validate ();" />
+				<label id="label1" value="&shrunked-width.label;" control="customvalue1" disabled="true" />
+				<textbox id="customvalue1" type="number" value="1500" increment="50" max="2500" size="4" disabled="true"
+					onchange="validate ();" unit="&shrunked-custom.pixels;" 
+					style="-moz-binding: url(chrome://shrunked/content/bindings.xml#numberbox)" />
+				<label id="label2" value="&shrunked-height.label;" control="customvalue2" disabled="true" />
+				<textbox id="customvalue2" type="number" value="1500" increment="50" max="2500" size="4" disabled="true"										onchange="validate ();" unit="&shrunked-custom.pixels;" 
+					style="-moz-binding: url(chrome://shrunked/content/bindings.xml#numberbox)" />
+			</hbox>
+		</radiogroup>
+		<label value="&shrunked-defaults.quality.label;" />
+		<hbox class="indent" align="center">
+			<label value="&shrunked-defaults.quality.smaller;" />
+			<tooltip id="slidertip" onpopupshowing="this.label = slider.value;" />
+			<scale min="30" max="100" id="slider" preference="quality" flex="1" increment="5" tooltip="slidertip" preference-editable="true" />
+			<label value="&shrunked-defaults.quality.better;" />
+		</hbox>
+	</prefpane>
+
+	<script src="chrome://shrunked/content/config.js" type="application/javascript;version=1.7"></script>
+
+</prefwindow>

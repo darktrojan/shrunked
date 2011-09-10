@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<!DOCTYPE dialog SYSTEM "chrome://shrunked/locale/shrunked.dtd">
+<dialog orient="vertical" id="shrunked-options" title="&shrunked-options.title;"
+	buttons="accept,cancel" ondialogaccept="doAccept ();" ondialogcancel="doCancel ();"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+	<vbox>
+		<label value="&shrunked-maxsize.label;" />
+		<radiogroup class="indent" style="margin-bottom: 1em">
+			<radio id="noresize" label="&shrunked-noresize.label;" oncommand="validate ();" />
+			<radio id="small" label="&shrunked-small.label;" oncommand="validate ();" />
+			<radio id="medium" label="&shrunked-medium.label;" oncommand="validate ();" />
+			<radio id="large" label="&shrunked-large.label;" oncommand="validate ();" />
+			<hbox align="center">
+				<radio id="custom" label="&shrunked-custom.label;" oncommand="validate ();" />
+				<label id="label1" value="&shrunked-width.label;" control="customvalue1" disabled="true" />
+				<textbox id="customvalue1" type="number" value="1500" increment="50" max="2500" size="4" disabled="true"
+						unit="&shrunked-custom.pixels;" style="-moz-binding: url(chrome://shrunked/content/bindings.xml#numberbox)" />
+				<label id="label2" value="&shrunked-height.label;" control="customvalue2" disabled="true" />
+				<textbox id="customvalue2" type="number" value="1500" increment="50" max="2500" size="4" disabled="true"
+						unit="&shrunked-custom.pixels;" style="-moz-binding: url(chrome://shrunked/content/bindings.xml#numberbox)" />
+			</hbox>
+		</radiogroup>
+		<checkbox id="remembersite" label="&shrunked-options.remembersite.label;" />
+		<checkbox id="savedefault" label="&shrunked-options.savedefault.label;" checked="true" />
+	</vbox>
+
+	<script src="chrome://shrunked/content/options.js"></script>
+
+</dialog>

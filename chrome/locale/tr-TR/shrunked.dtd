@@ -1,0 +1,27 @@
+<!ENTITY shrunked-config.title "Shrunked Image Resizer Yapılandırması">
+<!ENTITY shrunked-sites.label "Site Ayarları">
+<!ENTITY shrunked-sites.sitelist.site "Site">
+<!ENTITY shrunked-sites.sitelist.settings "Ayarları">
+<!ENTITY shrunked-sites.forget.label "Seçileni Unut">
+<!ENTITY shrunked-defaults.label "Varsayılanlar">
+<!ENTITY shrunked-defaults.quality.label "JPEG Kodlama Kalitesi:">
+<!ENTITY shrunked-defaults.quality.smaller "Küçük Dosya">
+<!ENTITY shrunked-defaults.quality.better "Daha İyi Kalite">
+<!ENTITY shrunked-options.title "Shrunked Image Resizer Seçenekleri">
+<!ENTITY shrunked-options.remembersite.label "Bu site için yanıtımı hatırla">
+<!ENTITY shrunked-options.savedefault.label "Varsayılan ayarlar olarak kaydet">
+<!ENTITY shrunked-noresize.label "Orjinal">
+<!ENTITY shrunked-small.label "500pk">
+<!ENTITY shrunked-medium.label "800px">
+<!ENTITY shrunked-large.label "1200px">
+<!ENTITY shrunked-custom.label "Diğer">
+<!ENTITY shrunked-width.label "Genişlik:">
+<!ENTITY shrunked-height.label "Yükseklik:">
+<!ENTITY shrunked-waiting.label "Resim yükleniyor…">
+<!ENTITY shrunked-resizing.label "Resim boyutlandırılıyor…">
+<!ENTITY shrunked-status.label "Durum:">
+<!ENTITY shrunked-progress.label "İlerleme:">
+<!ENTITY shrunked-minsize.label "Küçültme için en düşük dosya boyutu:">
+<!ENTITY shrunked-minsize.kilobytes "KB">
+<!ENTITY shrunked-maxsize.label "Fotoğraflarınız için en büyük boyut:">
+<!ENTITY shrunked-custom.pixels "px">

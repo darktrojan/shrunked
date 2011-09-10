@@ -1,0 +1,27 @@
+<!ENTITY shrunked-config.title "Konfiguration för Shrunked Image Resizer">
+<!ENTITY shrunked-sites.label "Webbplatsinställningar">
+<!ENTITY shrunked-sites.sitelist.site "Webbplats">
+<!ENTITY shrunked-sites.sitelist.settings "Inställningar">
+<!ENTITY shrunked-sites.forget.label "Glöm markerade">
+<!ENTITY shrunked-defaults.label "Standard">
+<!ENTITY shrunked-defaults.quality.label "JPEG-kodningskvalitet:">
+<!ENTITY shrunked-defaults.quality.smaller "Mindre filer">
+<!ENTITY shrunked-defaults.quality.better "Bättre kvalitet">
+<!ENTITY shrunked-options.title "Inställningar för Shrunked Image Resizer">
+<!ENTITY shrunked-options.remembersite.label "Kom ihåg mitt svar för denna webbplats">
+<!ENTITY shrunked-options.savedefault.label "Spara som standardinställningar">
+<!ENTITY shrunked-noresize.label "Original">
+<!ENTITY shrunked-small.label "500 px">
+<!ENTITY shrunked-medium.label "800 px">
+<!ENTITY shrunked-large.label "1200 px">
+<!ENTITY shrunked-custom.label "Anpassad">
+<!ENTITY shrunked-width.label "Bredd:">
+<!ENTITY shrunked-height.label "Höjd:">
+<!ENTITY shrunked-waiting.label "Läser in bilder…">
+<!ENTITY shrunked-resizing.label "Byter storlek på bilder…">
+<!ENTITY shrunked-status.label "Status:">
+<!ENTITY shrunked-progress.label "Förlopp:">
+<!ENTITY shrunked-minsize.label "Minsta filstorlek att storleksändra:">
+<!ENTITY shrunked-minsize.kilobytes "kB">
+<!ENTITY shrunked-maxsize.label "Maximistorlek för dina bilder:">
+<!ENTITY shrunked-custom.pixels "px">

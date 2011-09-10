@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<overlay id="shrunked-browser-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+	<stringbundleset id="stringbundleset">
+		<stringbundle id="shrunked-strings" src="chrome://shrunked/locale/shrunked.properties"/>
+	</stringbundleset>
+
+	<script src="chrome://shrunked/content/browser.js" type="application/x-javascript;version=1.7" />
+
+</overlay>

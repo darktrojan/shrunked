@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<bindings id="shrunkedBindings"
+		xmlns="http://www.mozilla.org/xbl"
+		xmlns:html="http://www.w3.org/1999/xhtml"
+		xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+		xmlns:xbl="http://www.mozilla.org/xbl">
+	<binding id="numberbox" extends="chrome://global/content/bindings/numberbox.xml#numberbox">
+		<content>
+			<xul:hbox class="textbox-input-box numberbox-input-box" flex="1" xbl:inherits="context,disabled,focused">
+				<html:input class="numberbox-input textbox-input" anonid="input" xbl:inherits="onfocus,onblur,value,maxlength,disabled,size,readonly,placeholder,tabindex,accesskey"/>
+				<xul:label style="margin: 0 2px;" xbl:inherits="value=unit" />
+			</xul:hbox>
+			<xul:spinbuttons anonid="buttons" xbl:inherits="disabled,hidden=hidespinbuttons"/>
+		</content>
+	</binding>
+</bindings>

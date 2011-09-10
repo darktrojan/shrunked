@@ -1,0 +1,27 @@
+<!ENTITY shrunked-config.title "Konfiguracja Shrunked Image Resizer">
+<!ENTITY shrunked-sites.label "Ustawienia witryny">
+<!ENTITY shrunked-sites.sitelist.site "Witryna">
+<!ENTITY shrunked-sites.sitelist.settings "Ustawienia">
+<!ENTITY shrunked-sites.forget.label "Nie pamiętaj wybranych">
+<!ENTITY shrunked-defaults.label "Domyślne">
+<!ENTITY shrunked-defaults.quality.label "Jakość kodera JPEG:">
+<!ENTITY shrunked-defaults.quality.smaller "Mniejsze pliki">
+<!ENTITY shrunked-defaults.quality.better "Lepsza jakość">
+<!ENTITY shrunked-options.title "Shrunked Image Resizer - ustawienia">
+<!ENTITY shrunked-options.remembersite.label "Zapamiętaj moją odpowiedź dla tej witryny">
+<!ENTITY shrunked-options.savedefault.label "Zapisz jako domyślne ustawienia">
+<!ENTITY shrunked-noresize.label "Oryginalny">
+<!ENTITY shrunked-small.label "500px">
+<!ENTITY shrunked-medium.label "800px">
+<!ENTITY shrunked-large.label "1200px">
+<!ENTITY shrunked-custom.label "Własny">
+<!ENTITY shrunked-width.label "Szerokość:">
+<!ENTITY shrunked-height.label "Wysokość:">
+<!ENTITY shrunked-waiting.label "Wczytywanie obrazków…">
+<!ENTITY shrunked-resizing.label "Zmiana rozmiaru obrazków…">
+<!ENTITY shrunked-status.label "Status:">
+<!ENTITY shrunked-progress.label "Postęp:">
+<!ENTITY shrunked-minsize.label "Minimum file size to resize:">
+<!ENTITY shrunked-minsize.kilobytes "KB">
+<!ENTITY shrunked-maxsize.label "Maximum size for your photos:">
+<!ENTITY shrunked-custom.pixels "px">
