@@ -3,7 +3,7 @@
 
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>shrunked@darktrojan.net</em:id>
-		<em:version>2.8</em:version>
+		<em:version>2.8.2</em:version>
 		<em:type>2</em:type>
 
 		<em:homepageURL>http://www.darktrojan.net/software/addons/shrunked/</em:homepageURL>
@@ -17,22 +17,22 @@
 		<em:targetApplication>
 			<Description>
 				<em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id><!-- firefox -->
-				<em:minVersion>4.0</em:minVersion>
-				<em:maxVersion>8.0a1</em:maxVersion>
+				<em:minVersion>6.0</em:minVersion>
+				<em:maxVersion>9.0a1</em:maxVersion>
 			</Description>
 		</em:targetApplication>
 		<em:targetApplication>
 			<Description>
 				<em:id>{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}</em:id><!-- seamonkey -->
-				<em:minVersion>2.1</em:minVersion>
-				<em:maxVersion>2.3.*</em:maxVersion>
+				<em:minVersion>2.3</em:minVersion>
+				<em:maxVersion>2.4.*</em:maxVersion>
 			</Description>
 		</em:targetApplication>
 		<em:targetApplication>
 			<Description>
 				<em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id><!-- thunderbird -->
-				<em:minVersion>5.0</em:minVersion>
-				<em:maxVersion>8.0a2</em:maxVersion>
+				<em:minVersion>6.0</em:minVersion>
+				<em:maxVersion>7.0.*</em:maxVersion>
 			</Description>
 		</em:targetApplication>
 
