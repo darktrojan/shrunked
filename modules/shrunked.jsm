@@ -10,6 +10,7 @@ Cu.import ('resource://gre/modules/Services.jsm');
 
 var tempDir = null;
 var prefs = null;
+var temporaryFiles = [];
 
 var Shrunked = {
 	document: null,
@@ -529,6 +530,8 @@ var Shrunked = {
 			stream.close ();
 		}
 
+		temporaryFiles.push (destFile);
+
 		return destFile;
 	},
 	newURI: function (uri) {
@@ -868,3 +871,36 @@ var Exif = {
 		}
 	}
 };
+
+var observer = {
+	observe: function (aSubject, aTopic, aData) {
+		switch (aTopic) {
+			case "private-browsing":
+				if (aData == "exit")
+					this.removeTempFiles ();
+				return;
+			case "quit-application-granted":
+				Services.obs.removeObserver (this, "private-browsing");
+				Services.obs.removeObserver (this, "quit-application-granted");
+				Services.obs.removeObserver (this, "browser:purge-session-history");
+				// no break
+			case "browser:purge-session-history":
+				this.removeTempFiles ();
+				return;
+		}
+	},
+
+	removeTempFiles: function () {
+		let file = temporaryFiles.pop ();
+		while (file) {
+			if (file.exists ()) {
+				file.remove (false);
+			}
+			file = temporaryFiles.pop ();
+		}
+	}
+}
+
+Services.obs.addObserver (observer, "private-browsing", false);
+Services.obs.addObserver (observer, "quit-application-granted", false);
+Services.obs.addObserver (observer, "browser:purge-session-history", false);

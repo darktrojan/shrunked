@@ -1,7 +1,6 @@
 var ShrunkedBrowser = {
 
 	strings: null,
-	temporaryFiles: [],
 
 	onLoad: function () {
 		window.removeEventListener ("load", ShrunkedBrowser.onLoad, false);
@@ -16,14 +15,12 @@ var ShrunkedBrowser = {
 		Cu.import ('resource://shrunked/shrunked.jsm');
 
 		this.contentPrefs = Cc ["@mozilla.org/content-pref/service;1"].getService (Ci.nsIContentPrefService);
-		this.observerService = Cc ["@mozilla.org/observer-service;1"].getService (Ci.nsIObserverService);
 
 		var pb = Cc ["@mozilla.org/privatebrowsing;1"];
 		if (typeof (pb) == 'undefined') {
 			this.pbService = { privateBrowsingEnabled: false };
 		} else {
 			this.pbService = pb.getService (Ci.nsIPrivateBrowsingService);
-			this.observerService.addObserver (this, "private-browsing", false);
 		}
 
 		this.strings = document.getElementById ('shrunked-strings');
@@ -32,38 +29,12 @@ var ShrunkedBrowser = {
 			appcontent.addEventListener ("change", this.onActivate, true);
 		}
 
-		this.observerService.addObserver (this, "quit-application-granted", false);
-		this.observerService.addObserver (this, "browser:purge-session-history", false);
-
 		setTimeout (function () {
 			Shrunked.showDonateNotification (gBrowser.getNotificationBox (), function (aNotificationBar, aButton) {
 				var url = 'https://addons.mozilla.org/addon/11005/about';
 				gBrowser.selectedTab = gBrowser.addTab (url);
 			});
 		}, 1000);
-	},
-
-	observe: function (aSubject, aTopic, aData) {
-		switch (aTopic) {
-			case "private-browsing":
-				if (aData == "exit")
-					ShrunkedBrowser.removeTempFiles ();
-				return;
-			case "quit-application-granted":
-			case "browser:purge-session-history":
-				ShrunkedBrowser.removeTempFiles ();
-				return;
-		}
-	},
-
-	removeTempFiles: function () {
-		for (var i = 0; i < this.temporaryFiles.length; i++) {
-			var file = this.temporaryFiles [i];
-			if (file.exists ()) {
-				file.remove (false);
-			}
-		}
-		this.temporaryFiles = [];
 	},
 
 	resetInputTag: function (event) {
@@ -249,7 +220,6 @@ var ShrunkedBrowser = {
 						if (newPaths.length == paths.length) {
 							inputTag.mozSetFileNameArray (newPaths, newPaths.length);
 						}
-						ShrunkedBrowser.temporaryFiles.push (destFile);
 					}
 				});
 			} else {
