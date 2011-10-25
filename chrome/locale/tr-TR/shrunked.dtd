@@ -11,7 +11,7 @@
 <!ENTITY shrunked-options.remembersite.label "Bu site için yanıtımı hatırla">
 <!ENTITY shrunked-options.savedefault.label "Varsayılan ayarlar olarak kaydet">
 <!ENTITY shrunked-noresize.label "Orjinal">
-<!ENTITY shrunked-small.label "500pk">
+<!ENTITY shrunked-small.label "500px">
 <!ENTITY shrunked-medium.label "800px">
 <!ENTITY shrunked-large.label "1200px">
 <!ENTITY shrunked-custom.label "Diğer">
@@ -21,7 +21,7 @@
 <!ENTITY shrunked-resizing.label "Resim boyutlandırılıyor…">
 <!ENTITY shrunked-status.label "Durum:">
 <!ENTITY shrunked-progress.label "İlerleme:">
-<!ENTITY shrunked-minsize.label "Küçültme için en düşük dosya boyutu:">
+<!ENTITY shrunked-minsize.label "Boyutlandırma için en düşük ölçü:">
 <!ENTITY shrunked-minsize.kilobytes "KB">
-<!ENTITY shrunked-maxsize.label "Fotoğraflarınız için en büyük boyut:">
+<!ENTITY shrunked-maxsize.label "Resimler için en büyük ölçü:">
 <!ENTITY shrunked-custom.pixels "px">

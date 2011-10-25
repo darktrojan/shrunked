@@ -1,22 +1,22 @@
-<!ENTITY shrunked-config.title "Impostazioni di Shrunked">
+<!ENTITY shrunked-config.title "Impostazioni di Shrunked Image Resizer">
 <!ENTITY shrunked-sites.label "Opzioni dei siti">
 <!ENTITY shrunked-sites.sitelist.site "Sito">
 <!ENTITY shrunked-sites.sitelist.settings "Dimensioni immagine">
 <!ENTITY shrunked-sites.forget.label "Elimina siti selezionati">
 <!ENTITY shrunked-defaults.label "Generali">
-<!ENTITY shrunked-defaults.quality.label "Qualità JPEG">
+<!ENTITY shrunked-defaults.quality.label "Qualità JPEG:">
 <!ENTITY shrunked-defaults.quality.smaller "Minima">
 <!ENTITY shrunked-defaults.quality.better "Massima">
-<!ENTITY shrunked-options.title "Ridimensionamento delle immagini di Shrunked">
+<!ENTITY shrunked-options.title "Ridimensionamento delle immagini di Shrunked Image Resizer">
 <!ENTITY shrunked-options.remembersite.label "Ricorda le dimensioni scelte per le immagini di questo sito web">
 <!ENTITY shrunked-options.savedefault.label "Salva come impostazioni predefinite">
-<!ENTITY shrunked-noresize.label "originarie">
+<!ENTITY shrunked-noresize.label "Originarie">
 <!ENTITY shrunked-small.label "500 pixel">
 <!ENTITY shrunked-medium.label "800 pixel">
 <!ENTITY shrunked-large.label "1200 pixel">
 <!ENTITY shrunked-custom.label "Personalizza -">
-<!ENTITY shrunked-width.label "larghezza:">
-<!ENTITY shrunked-height.label "altezza:">
+<!ENTITY shrunked-width.label "Larghezza:">
+<!ENTITY shrunked-height.label "Altezza:">
 <!ENTITY shrunked-waiting.label "Caricamento delle immagini in corso…">
 <!ENTITY shrunked-resizing.label "Ridimensionamento delle immagini in corso…">
 <!ENTITY shrunked-status.label "Stato:">
