@@ -21,7 +21,7 @@
 <!ENTITY shrunked-resizing.label "Redimensionando imagens…">
 <!ENTITY shrunked-status.label "Status:">
 <!ENTITY shrunked-progress.label "Progresso:">
-<!ENTITY shrunked-minsize.label "Tamanho mínimo de arquivo para redimensionar:">
+<!ENTITY shrunked-minsize.label "Tamanho mínimo do arquivo para redimensionar:">
 <!ENTITY shrunked-minsize.kilobytes "KB">
-<!ENTITY shrunked-maxsize.label "Tamanho máximo para suas fotos:">
+<!ENTITY shrunked-maxsize.label "Tamanho máximo para as fotos:">
 <!ENTITY shrunked-custom.pixels "px">
