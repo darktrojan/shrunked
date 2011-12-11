@@ -67,6 +67,7 @@ var Shrunked = {
 				return;
 			}
 
+			Exif.orientation = 0;
 			if (self.prefs.getBoolPref ('options.exif')) {
 				Exif.read (!!sourceFile ? sourceFile : sourceURI);
 			}
@@ -508,16 +509,14 @@ var Shrunked = {
 
 		if (this.prefs.getBoolPref ('options.exif')) {
 			try {
-				if (Exif.block1) {
-					if ('a002' in Exif.block2) {
-						Exif.block2 ['a002'].value = canvas.width;
-						Exif.block2 ['a003'].value = canvas.height;
-					}
-					Exif.serialize ();
-					bStream.writeByteArray (Exif.sBytes, Exif.sBytes.length);
-					var offset = source.charCodeAt (4) * 256 + source.charCodeAt (5) + 4;
-					source = source.substring (offset);
+				if ('a002' in Exif.exif2) {
+					Exif.exif2 ['a002'].data = Exif.bytesFromInt(canvas.width);
+					Exif.exif2 ['a003'].data = Exif.bytesFromInt(canvas.height);
 				}
+				Exif.write ();
+				bStream.writeByteArray (Exif.wBytes, Exif.wBytes.length);
+				var offset = source.charCodeAt (4) * 256 + source.charCodeAt (5) + 4;
+				source = source.substring (offset);
 			} catch (e) {
 				Cu.reportError (e);
 			}
@@ -585,289 +584,258 @@ var Shrunked = {
 	}
 };
 
+var fieldLengths = [null, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8];
+var rBaseAddress = 12;
+
 var Exif = {
-
-	bigEndian: null,
-	rIndex: 0,
-	rBytes: null,
-	sBytes: null,
-	block1: null,
-	block2: null,
-	orientation: 0,
-
-	read: function (sourceFile) {
-		this.block1 = null;
+	read: function(source) {
+		this.rIndex = 0;
+		this.rBigEndian = true;
 		this.orientation = 0;
+		this.wBytes = [];
+		this.wIndex = 0;
+		this.wDataAddress = 0;
 
-		try {
-			var istream, bstream;
-			if (sourceFile instanceof Ci.nsIFile) {
-				istream = Cc ["@mozilla.org/network/file-input-stream;1"].createInstance (Ci.nsIFileInputStream);
-				istream.init (sourceFile, -1, -1, false);
-				bstream = Cc ["@mozilla.org/binaryinputstream;1"].createInstance (Ci.nsIBinaryInputStream);
-				bstream.setInputStream (istream);
-			} else if (sourceFile.constructor.name == "String" && /^data:image\/jpeg;base64,/.test (sourceFile)) {
-				bstream = {
-					data: atob (sourceFile.substring (23)),
-					pointer: 0,
-					readBytes: function (count) {
-						var bytes = this.data.substring (this.pointer, count);
-						this.pointer += count;
-						return bytes;
-					},
-					close: function () {
-					}
-				};
-			} else {
-				throw "Unexpected type";
-			}
-
-			this.rBytes = bstream.readBytes (4);
-			if (this.rBytes.charCodeAt (2) == 0xff && this.rBytes.charCodeAt (3) == 0xe0) {
-				// JFIF header, try next block
-				this.rBytes = bstream.readBytes (2);
-				var sectionSize = this.rBytes.charCodeAt (0) * 0x0100 + this.rBytes.charCodeAt (1);
-				bstream.readBytes (sectionSize - 4); // we do it this way so that we
-				this.rBytes = bstream.readBytes (4); // still have 4 bytes for the next if
-			}
-			if (this.rBytes.charCodeAt (2) != 0xff || this.rBytes.charCodeAt (3) != 0xe1) {
-				// not an EXIF header
-				return;
-			}
-			this.rBytes = bstream.readBytes (10);
-			var sectionSize = this.rBytes.charCodeAt (0) * 0x0100 + this.rBytes.charCodeAt (1);
-			this.bigEndian = this.rBytes.charCodeAt (8) == 0x4d;
-			this.rBytes = bstream.readBytes (sectionSize);
-
-			this.rIndex = 6;
-			this.block1 = this.readSection ();
-
-			if (this.block1 ['112']) {
-				switch (this.block1 ['112'].value) {
-				case 8:
-					this.orientation = 90;
-					break;
-				case 3:
-					this.orientation = 180;
-					break;
-				case 6:
-					this.orientation = 270;
-					break;
-				}
-			}
-
-			if ('112' in this.block1) {
-				delete this.block1 ['112'];
-				this.block1.length--;
-			}
-			if ('11a' in this.block1) {
-				delete this.block1 ['11a'];
-				this.block1.length--;
-			}
-			if ('11b' in this.block1) {
-				delete this.block1 ['11b'];
-				this.block1.length--;
-			}
-			if ('128' in this.block1) {
-				delete this.block1 ['128'];
-				this.block1.length--;
-			}
-			if ('213' in this.block1) {
-				delete this.block1 ['213'];
-				this.block1.length--;
-			}
-
-			this.rIndex = this.block1 ['8769'].value - 2;
-			this.block2 = this.readSection ();
-			
-			if ('a210' in this.block2) {
-				this.block2 ['a210'].value = 1;
-			}
-		} catch (e) {
-			Cu.reportError (e);
-			this.block1 = null;
-			this.orientation = 0;
-		} finally {
-			this.rBytes = null;
-			this.rIndex = 0;
+		if (source instanceof Ci.nsIFile) {
+			istream = Cc ["@mozilla.org/network/file-input-stream;1"].createInstance (Ci.nsIFileInputStream);
+			istream.init (source, -1, -1, false);
+			bstream = Cc ["@mozilla.org/binaryinputstream;1"].createInstance (Ci.nsIBinaryInputStream);
+			bstream.setInputStream (istream);
+			this.rBytes = bstream.readBytes(bstream.available());
 			bstream.close ();
-			if (istream) {
-				istream.close ();
-			}
-		}
-	},
-
-	read2Bytes: function () {
-		if (this.bigEndian) {
-			var s =
-				this.rBytes.charCodeAt (this.rIndex++) * 0x0100 +
-				this.rBytes.charCodeAt (this.rIndex++);
+			istream.close ();
+		} else if (source.constructor.name == "String" && /^data:image\/jpeg;base64,/.test (source)) {
+			this.rBytes = atob(source.substring(23));
 		} else {
-			var s =
-				this.rBytes.charCodeAt (this.rIndex++) +
-				this.rBytes.charCodeAt (this.rIndex++) * 0x0100;
+			throw "not a file";
 		}
-		return s;
-	},
 
-	read4Bytes: function () {
-		if (this.bigEndian) {
-			var s =
-				this.rBytes.charCodeAt (this.rIndex++) * 0x01000000 +
-				this.rBytes.charCodeAt (this.rIndex++) * 0x010000 +
-				this.rBytes.charCodeAt (this.rIndex++) * 0x0100 +
-				this.rBytes.charCodeAt (this.rIndex++);
-		} else {
-			var s =
-				this.rBytes.charCodeAt (this.rIndex++) +
-				this.rBytes.charCodeAt (this.rIndex++) * 0x0100 +
-				this.rBytes.charCodeAt (this.rIndex++) * 0x010000 +
-				this.rBytes.charCodeAt (this.rIndex++) * 0x01000000;
+		if (this.read2Bytes() != 0xffd8) {
+			throw "not a jpeg";
 		}
-		return s;
-	},
+		var current = this.read2Bytes();
+		if (current == 0xffe0) {
+			var sectionLength = this.read2Bytes();
+			this.rIndex = sectionLength + 2;
+			current = this.read2Bytes();
+		}
+		if (current != 0xffe1) {
+			throw "no valid exif data";
+		}
+		this.rIndex += 8;
+		this.rBigEndian = this.read2Bytes() == 0x4d4d;
+		this.rIndex += 6;
 
-	readSection: function () {
-		var itemCount = this.read2Bytes ();
-		var data = {
-			length: itemCount
-		};
-		for (var i = 0; i < itemCount; i++) {
-			var code = this.read2Bytes ().toString (16);
-			var type = this.read2Bytes ();
-			var count = this.read4Bytes ();
-			var value = this.read4Bytes ();
-			data [code] = {
-				type: type,
-				count: count,
-				value: value
-			}
-			switch (type) {
-			case 2:
-				var str = this.rBytes.substring (value - 2, value + count - 3);
-				data [code].str = str;
+		var exif1Count = this.read2Bytes();
+		var exif1 = this.readSection(exif1Count)
+
+		this.rIndex = this.intFromBytes(exif1["8769"].data) + rBaseAddress;
+		var exif2Count = this.read2Bytes();
+		var exif2 = this.readSection(exif2Count);
+
+		var gps = null;
+		if ("8825" in exif1) {
+			this.rIndex = this.intFromBytes(exif1["8825"].data) + rBaseAddress;
+			var gpsCount = this.read2Bytes();
+			gps = this.readSection(gpsCount);
+		} else if ("a404" in exif2) {
+			this.rIndex = this.intFromBytes(exif2["a404"].data) + rBaseAddress;
+			var gpsCount = this.read2Bytes();
+			gps = this.readSection(gpsCount);
+		}
+
+		if ("112" in exif1) {
+			switch (this.shortFromBytes(exif1["112"].data)) {
+			case 8:
+				this.orientation = 90;
 				break;
-			case 5:
-			case 10:
-			case 12:
-				var str = this.rBytes.substring (value - 2, value + 6);
-				data [code].str = str;
+			case 3:
+				this.orientation = 180;
+				break;
+			case 6:
+				this.orientation = 270;
 				break;
 			}
 		}
-		return data;
-	},
 
-	serialize2Bytes: function (s, forceBigEndian) {
-		var bE = this.bigEndian;
-		if (typeof forceBigEndian == 'boolean') {
-			bE = forceBigEndian;
+		["112", "11a", "11b", "128", "213"].forEach(function(key) {
+			delete exif1[key];
+		});
+		["972c", "a210"].forEach(function(key) {
+			delete exif2[key];
+		});
+
+		this.exif1 = exif1;
+		this.exif2 = exif2;
+		this.gps = gps;
+	},
+	write: function() {
+		this.write2Bytes(0xD8FF); // SOI marker, big endian
+		this.write2Bytes(0xE1FF); // APP1 marker, big endian
+		this.write2Bytes(0x0000); // APP1 size, corrected later
+		this.write4Bytes(0x66697845); // Exif, big endian
+		this.write2Bytes(0x0000);
+		this.write2Bytes(0x4949);
+		this.write2Bytes(0x002A);
+		this.write4Bytes(0x00000008);
+
+		var exif1Address = this.wIndex - rBaseAddress;
+		var exif2Address = exif1Address + this.getSectionSize(this.exif1);
+		this.exif1["8769"].data = this.bytesFromInt(exif2Address);
+
+		if (this.gps) {
+			var gpsAddress = exif2Address + this.getSectionSize(this.exif2);
+			if ("8825" in this.exif1) {
+				this.exif1["8825"].data = this.bytesFromInt(gpsAddress);
+			}
+			if ("a404" in this.exif2) {
+				this.exif2["a404"].data = this.bytesFromInt(gpsAddress);
+			}
 		}
-		if (bE) {
-			this.sBytes.push ((s & 0xff00) >> 8);
-			this.sBytes.push (s & 0x00ff);
+
+		this.writeSection(this.exif1);
+		this.wIndex = this.wDataAddress;
+		this.writeSection(this.exif2);
+		if (this.gps) {
+			this.wIndex = this.wDataAddress;
+			this.writeSection(this.gps);
+		}
+
+		var length = this.wDataAddress - 4;
+		this.wBytes[4] = (length & 0xff00) >> 8;
+		this.wBytes[5] = length & 0x00ff;
+	},
+	shortFromBytes: function(bytes) {
+		if (this.rBigEndian) {
+			return bytes.charCodeAt(0) * 0x0100 +
+				bytes.charCodeAt(1);
 		} else {
-			this.sBytes.push (s & 0x00ff);
-			this.sBytes.push ((s & 0xff00) >> 8);
+			return bytes.charCodeAt(0) +
+				bytes.charCodeAt(1) * 0x0100;
 		}
 	},
-
-	serialize4Bytes: function (s) {
-		if (this.bigEndian) {
-			this.sBytes.push ((s & 0xff000000) >> 24);
-			this.sBytes.push ((s & 0x00ff0000) >> 16);
-			this.sBytes.push ((s & 0x0000ff00) >> 8);
-			this.sBytes.push (s & 0x000000ff);
+	intFromBytes: function(bytes) {
+		if (this.rBigEndian) {
+			return bytes.charCodeAt(0) * 0x01000000 +
+				bytes.charCodeAt(1) * 0x010000 +
+				bytes.charCodeAt(2) * 0x0100 +
+				bytes.charCodeAt(3);
 		} else {
-			this.sBytes.push (s & 0x000000ff);
-			this.sBytes.push ((s & 0x0000ff00) >> 8);
-			this.sBytes.push ((s & 0x00ff0000) >> 16);
-			this.sBytes.push ((s & 0xff000000) >> 24);
+			return bytes.charCodeAt(0) +
+				bytes.charCodeAt(1) * 0x0100 +
+				bytes.charCodeAt(2) * 0x010000 +
+				bytes.charCodeAt(3) * 0x01000000;
 		}
 	},
-
-	serializeAscii: function (s) {
-		for (var i = 0; i < s.length; i++) {
-			this.sBytes.push (s.charCodeAt (i));
+	bytesFromInt: function(aInt) {
+		return String.fromCharCode(aInt & 0x000000ff, (aInt & 0x0000ff00) >> 8, (aInt & 0x00ff0000) >> 16, (aInt & 0xff000000) >> 24);
+	},
+	read2Bytes: function() {
+		if (this.rBigEndian) {
+			return this.rBytes.charCodeAt(this.rIndex++) * 0x0100 +
+				this.rBytes.charCodeAt(this.rIndex++);
+		} else {
+			return this.rBytes.charCodeAt(this.rIndex++) +
+				this.rBytes.charCodeAt(this.rIndex++) * 0x0100;
 		}
 	},
+	read4Bytes: function() {
+		if (this.rBigEndian) {
+			return this.rBytes.charCodeAt(this.rIndex++) * 0x01000000 +
+				this.rBytes.charCodeAt(this.rIndex++) * 0x010000 +
+				this.rBytes.charCodeAt(this.rIndex++) * 0x0100 +
+				this.rBytes.charCodeAt(this.rIndex++);
+		} else {
+			return this.rBytes.charCodeAt(this.rIndex++) +
+				this.rBytes.charCodeAt(this.rIndex++) * 0x0100 +
+				this.rBytes.charCodeAt(this.rIndex++) * 0x010000 +
+				this.rBytes.charCodeAt(this.rIndex++) * 0x01000000;
+		}
+	},
+	readField: function() {
+		var code = this.read2Bytes().toString(16);
+		var type = this.read2Bytes();
+		var count = this.read4Bytes();
+		var value = this.read4Bytes();
+		var size = count * fieldLengths[type];
 
-	serialize: function () {
-		this.sBytes = [];
+		var field = {
+			code: code,
+			type: type,
+			count: count,
+			size: size
+		}
 
-		try {
-			this.serialize2Bytes (0xFFD8, true); // SOI marker
-			this.serialize2Bytes (0xFFE1, true); // APP1 marker
-			this.serialize2Bytes (0x0000, true); // APP1 size FIXME
-			this.serializeAscii ('Exif'); // Exif
-			this.serialize2Bytes (0x0000, true);
-			if (this.bigEndian) {
-				this.serializeAscii ('MM');
-			} else {
-				this.serializeAscii ('II');
+		if (code == "927c") {
+			field.count = 4;
+			field.size = 4;
+			field.data = "****";
+			return field;
+		}
+
+		if (size <= 4) {
+			field.data = this.rBytes.substr(this.rIndex - 4, size);
+		} else {
+			field.data = this.rBytes.substr(value + rBaseAddress, size);
+		}
+		return field;
+	},
+	readSection: function(count) {
+		var section = {};
+		for (var i = 0; i < count; i++) {
+			var field = this.readField();
+			section[field.code] = field;
+		}
+		return section;
+	},
+	getSectionSize: function(data) {
+		var size = 6;
+		for (var e in data) {
+			size += 12;
+			if (data[e].size > 4) {
+				size += data[e].size;
 			}
-			this.serialize2Bytes (0x2A);
-			this.serialize4Bytes (0x08);
-
-			var extraData = '';
-			var extraDataCounter = this.block1.length * 12 + 14;
-
-			this.serialize2Bytes (this.block1.length);
-			for (var e in this.block1) {
-				if (e == 'length') continue;
-
-				this.serialize2Bytes (parseInt (e, 16));
-				this.serialize2Bytes (this.block1 [e].type);
-				this.serialize4Bytes (this.block1 [e].count);
-				if (this.block1 [e].type == 2) {
-					this.serialize4Bytes (extraDataCounter);
-					extraData += this.block1 [e].str + '\0';
-					extraDataCounter += this.block1 [e].count;
-				} else if (e == '8769') {
-					this.serialize4Bytes (extraDataCounter);
-				} else {
-					this.serialize4Bytes (this.block1 [e].value);
-				}
+		}
+		return size;
+	},
+	write2Bytes: function(s) {
+		this.wBytes[this.wIndex++] = (s & 0x00ff);
+		this.wBytes[this.wIndex++] = ((s & 0xff00) >> 8);
+	},
+	write4Bytes: function(s) {
+		this.wBytes[this.wIndex++] = (s & 0x000000ff);
+		this.wBytes[this.wIndex++] = ((s & 0x0000ff00) >> 8);
+		this.wBytes[this.wIndex++] = ((s & 0x00ff0000) >> 16);
+		this.wBytes[this.wIndex++] = ((s & 0xff000000) >> 24);
+	},
+	writeField: function(field) {
+		this.write2Bytes(parseInt(field.code, 16));
+		this.write2Bytes(field.type);
+		this.write4Bytes(field.count);
+		if (field.size <= 4) {
+			for (var i = 0; i < 4; i++) {
+				this.wBytes[this.wIndex++] = (field.data.charCodeAt(i) || 0);
 			}
-			this.serialize4Bytes (0);
-			this.serializeAscii (extraData);
-
-			extraData = '';
-			extraDataCounter += this.block2.length * 12 + 6;
-
-			this.serialize2Bytes (this.block2.length);
-			for (var e in this.block2) {
-				if (e == 'length') continue;
-
-				this.serialize2Bytes (parseInt (e, 16));
-				this.serialize2Bytes (this.block2 [e].type);
-				this.serialize4Bytes (this.block2 [e].count);
-				switch (this.block2 [e].type) {
-				case 2:
-					this.serialize4Bytes (extraDataCounter);
-					extraData += this.block2 [e].str + '\0';
-					extraDataCounter += this.block2 [e].count;
-					break;
-				case 5:
-				case 10:
-				case 12:
-					this.serialize4Bytes (extraDataCounter);
-					extraData += this.block2 [e].str;
-					extraDataCounter += 8;
-					break;
-				default:
-					this.serialize4Bytes (this.block2 [e].value);
-					break;
-				}
+		} else {
+			var start = this.wDataAddress;
+			this.write4Bytes(start - 12);
+			this.wDataAddress += field.size;
+			for (var i = 0; i < field.data.length; i++) {
+				this.wBytes[start++] = (field.data.charCodeAt(i));
 			}
-			this.serialize4Bytes (0);
-			this.serializeAscii (extraData);
+		}
+	},
+	writeSection: function(data) {
+		var count = 0;
+		this.wDataAddress = this.wIndex + 6;
+		for (var e in data) {
+			count++;
+			this.wDataAddress += 12;
+		}
 
-			var length = this.sBytes.length - 4;
-			this.sBytes [4] = (length & 0xff00) >> 8;
-			this.sBytes [5] = length & 0x00ff;
-		} catch (e) {
-			Cu.reportError (e);
+		this.write2Bytes(count);
+		for (var e in data) {
+			this.writeField(data[e]);
 		}
 	}
 };
