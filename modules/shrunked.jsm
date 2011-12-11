@@ -590,10 +590,10 @@ var Shrunked = {
 	}
 };
 
-var fieldLengths = [null, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8];
-var rBaseAddress = 12;
-
 var Exif = {
+	fieldLengths: [null, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8],
+	rBaseAddress: 12,
+
 	read: function(source) {
 		this.rIndex = 0;
 		this.rBigEndian = true;
@@ -635,13 +635,13 @@ var Exif = {
 		var exif1Count = this.read2Bytes();
 		var exif1 = this.readSection(exif1Count)
 
-		this.rIndex = this.intFromBytes(exif1["8769"].data) + rBaseAddress;
+		this.rIndex = this.intFromBytes(exif1["8769"].data) + this.rBaseAddress;
 		var exif2Count = this.read2Bytes();
 		var exif2 = this.readSection(exif2Count);
 
 		var gps = null;
-		if ("8825" in exif1) {
-			this.rIndex = this.intFromBytes(exif1["8825"].data) + rBaseAddress;
+		if (Shrunked.prefs.getBoolPref("options.gps") && "8825" in exif1) {
+			this.rIndex = this.intFromBytes(exif1["8825"].data) + this.rBaseAddress;
 			var gpsCount = this.read2Bytes();
 			gps = this.readSection(gpsCount);
 		}
@@ -660,10 +660,9 @@ var Exif = {
 			}
 		}
 
-		["112", "11a", "11b", "128", "213"].forEach(function(key) {
+		var blacklist = JSON.parse(Shrunked.prefs.getCharPref("exif.blacklist"));
+		blacklist.forEach(function(key) {
 			delete exif1[key];
-		});
-		["927c", "9286", "a005", "a210"].forEach(function(key) {
 			delete exif2[key];
 		});
 
@@ -681,16 +680,20 @@ var Exif = {
 		this.write2Bytes(0x002A);
 		this.write4Bytes(0x00000008);
 
-		var exif1Address = this.wIndex - rBaseAddress;
+		var exif1Address = this.wIndex - this.rBaseAddress;
 		var exif2Address = exif1Address + this.getSectionSize(this.exif1);
-		this.exif1["8769"].data = this.bytesFromInt(exif2Address);
 
 		if (this.gps) {
 			var gpsAddress = exif2Address + this.getSectionSize(this.exif2);
 			if ("8825" in this.exif1) {
 				this.exif1["8825"].data = this.bytesFromInt(gpsAddress);
 			}
+		} else if ("8825" in this.exif1){
+			delete this.exif1["8825"];
+			exif2Address -= 12;
 		}
+
+		this.exif1["8769"].data = this.bytesFromInt(exif2Address);
 
 		this.writeSection(this.exif1);
 		this.wIndex = this.wDataAddress;
@@ -756,7 +759,7 @@ var Exif = {
 		var type = this.read2Bytes();
 		var count = this.read4Bytes();
 		var value = this.read4Bytes();
-		var size = count * fieldLengths[type];
+		var size = count * this.fieldLengths[type];
 
 		var field = {
 			code: code,
@@ -775,7 +778,7 @@ var Exif = {
 		if (size <= 4) {
 			field.data = this.rBytes.substr(this.rIndex - 4, size);
 		} else {
-			field.data = this.rBytes.substr(value + rBaseAddress, size);
+			field.data = this.rBytes.substr(value + this.rBaseAddress, size);
 		}
 		return field;
 	},
