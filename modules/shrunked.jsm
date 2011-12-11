@@ -68,8 +68,14 @@ var Shrunked = {
 			}
 
 			Exif.orientation = 0;
+			Exif.ready = false;
 			if (self.prefs.getBoolPref ('options.exif')) {
-				Exif.read (!!sourceFile ? sourceFile : sourceURI);
+				try {
+					Exif.read (!!sourceFile ? sourceFile : sourceURI);
+					Exif.ready = true;
+				} catch (e) {
+					Cu.reportError(e);
+				}
 			}
 
 			var destFile = Shrunked.resize (this, sourceFile ? sourceFile.leafName : null, maxWidth, maxHeight, quality);
@@ -507,7 +513,7 @@ var Shrunked = {
 		source = source.substring (source.indexOf (',') + 1);
 		source = atob (source);
 
-		if (this.prefs.getBoolPref ('options.exif')) {
+		if (this.prefs.getBoolPref ('options.exif') && Exif.ready) {
 			try {
 				if ('a002' in Exif.exif2) {
 					Exif.exif2 ['a002'].data = Exif.bytesFromInt(canvas.width);
