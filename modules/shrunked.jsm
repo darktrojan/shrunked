@@ -644,10 +644,6 @@ var Exif = {
 			this.rIndex = this.intFromBytes(exif1["8825"].data) + rBaseAddress;
 			var gpsCount = this.read2Bytes();
 			gps = this.readSection(gpsCount);
-		} else if ("a404" in exif2) {
-			this.rIndex = this.intFromBytes(exif2["a404"].data) + rBaseAddress;
-			var gpsCount = this.read2Bytes();
-			gps = this.readSection(gpsCount);
 		}
 
 		if ("112" in exif1) {
@@ -667,7 +663,7 @@ var Exif = {
 		["112", "11a", "11b", "128", "213"].forEach(function(key) {
 			delete exif1[key];
 		});
-		["972c", "a210"].forEach(function(key) {
+		["927c", "9286", "a005", "a210"].forEach(function(key) {
 			delete exif2[key];
 		});
 
@@ -693,9 +689,6 @@ var Exif = {
 			var gpsAddress = exif2Address + this.getSectionSize(this.exif2);
 			if ("8825" in this.exif1) {
 				this.exif1["8825"].data = this.bytesFromInt(gpsAddress);
-			}
-			if ("a404" in this.exif2) {
-				this.exif2["a404"].data = this.bytesFromInt(gpsAddress);
 			}
 		}
 

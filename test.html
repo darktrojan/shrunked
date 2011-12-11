@@ -10,7 +10,7 @@ function doRead(input) {
 		var header = doIt(e.target.result);
 		var source = atob(e.target.result.substr(23));
 		var offset = source.charCodeAt(4) * 256 + source.charCodeAt(5) + 4;
-		p.textContent = btoa(header + source.substr(offset, 2000));
+		//p.textContent = btoa(header + source.substr(offset, 2000));
     };
     reader.readAsDataURL(input.files[0]);
 }
@@ -80,12 +80,12 @@ var Exif = {
 			//alert(gpsCount);
 			//if (gpsCount != 7) throw "bad";
 			gps = this.readSection(gpsCount);
-		} else if ("a404" in exif2) {
+		/*} else if ("a404" in exif2) {
 			this.rIndex = this.intFromBytes(exif2["a404"].data) + rBaseAddress;
 			var gpsCount = this.read2Bytes();
 			//alert(gpsCount);
 			//if (gpsCount != 7) throw "bad";
-			gps = this.readSection(gpsCount);
+			gps = this.readSection(gpsCount);*/
 		}
 
 		if ("112" in exif1) {
@@ -105,7 +105,7 @@ var Exif = {
 		["112", "11a", "11b", "128", "213"].forEach(function(key) {
 			delete exif1[key];
 		});
-		["972c", "a210"].forEach(function(key) {
+		["927c", "9286", "a005", "a210"].forEach(function(key) {
 			delete exif2[key];
 		});
 
@@ -134,10 +134,10 @@ var Exif = {
 				this.exif1["8825"].data = this.bytesFromInt(gpsAddress);
 				//this.exif1["8825"].values[0] = gpsAddress;
 			}
-			if ("a404" in this.exif2) {
+			/*if ("a404" in this.exif2) {
 				this.exif2["a404"].data = this.bytesFromInt(gpsAddress);
 				//this.exif2["a404"].values[0] = gpsAddress;
-			}
+			}*/
 		}
 
 		this.writeSection(this.exif1);
@@ -318,11 +318,11 @@ var Exif = {
 		}
 	},
 	writeSection: function(data) {
-		//p.textContent += '-----------------\n';
+		p.textContent += '-----------------\n';
 		var count = 0;
 		this.wDataAddress = this.wIndex + 6;
 		for (var e in data) {
-			//p.textContent += JSON.stringify(data[e]) + '\n';
+			p.textContent += JSON.stringify(data[e]) + '\n';
 			count++;
 			this.wDataAddress += 12;
 		}
