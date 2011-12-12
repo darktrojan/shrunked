@@ -542,21 +542,11 @@ var Shrunked = {
 		if (Shrunked.prefs.getPrefType ('version') == Ci.nsIPrefBranch.PREF_STRING) {
 			oldVersion = Shrunked.prefs.getCharPref ('version');
 		}
-		if ('@mozilla.org/extensions/manager;1' in Cc) {
-			currentVersion = Cc ['@mozilla.org/extensions/manager;1']
-					.getService (Ci.nsIExtensionManager).getItemForID (ID).version;
+		Cu.import ('resource://gre/modules/AddonManager.jsm');
+		AddonManager.getAddonByID (ID, function (addon) {
+			currentVersion = addon.version;
 			Shrunked.prefs.setCharPref ('version', currentVersion);
-			doShow ();
-		} else {
-			Cu.import ('resource://gre/modules/AddonManager.jsm');
-			AddonManager.getAddonByID (ID, function (addon) {
-				currentVersion = addon.version;
-				Shrunked.prefs.setCharPref ('version', currentVersion);
-				doShow ();
-			});
-		}
 
-		function doShow () {
 			if (oldVersion == 0 || parseFloat (oldVersion) >= parseFloat (currentVersion)) {
 				return;
 			}
@@ -578,7 +568,7 @@ var Shrunked = {
 			Shrunked.prefs.setIntPref ('donationreminder', Date.now () / 1000);
 			notifyBox.appendNotification (label, value,
 					'chrome://shrunked/content/shrunked.png', notifyBox.PRIORITY_INFO_LOW, buttons);
-		}
+		});
 	}
 };
 XPCOMUtils.defineLazyGetter(Shrunked, "prefs", function() {
