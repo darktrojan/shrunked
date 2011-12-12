@@ -41,7 +41,6 @@ var Shrunked = {
 	},
 
 	resizeAsync: function (document, sourceFile, maxWidth, maxHeight, quality, callback) {
-		var self = this;
 		this.busy = true;
 		var sourceURI;
 		if (typeof sourceFile == 'string') {
@@ -56,7 +55,7 @@ var Shrunked = {
 		}
 		this.document = document;
 		var image = this.document.createElementNS (XHTMLNS, 'img');
-		image.onload = function () {
+		image.onload = (function() {
 			// https://bugzilla.mozilla.org/show_bug.cgi?id=574330#c54
 			if (!image.complete) {
 				image.src = image.src;
@@ -74,22 +73,22 @@ var Shrunked = {
 				}
 			}
 
-			var destFile = Shrunked.resize (this, sourceFile ? sourceFile.leafName : null, maxWidth, maxHeight, quality);
-			self.document = null;
+			var destFile = Shrunked.resize(image, sourceFile ? sourceFile.leafName : null, maxWidth, maxHeight, quality);
+			this.document = null;
 			if (callback) {
 				callback (destFile);
 			}
-			self.busy = false;
-			self.dequeue ();
-		};
-		image.onerror = function () {
-			self.document = null;
+			this.busy = false;
+			this.dequeue();
+		}).bind(this);
+		image.onerror = (function() {
+			this.document = null;
 			if (callback) {
 				callback (null);
 			}
-			self.busy = false;
-			self.dequeue ();
-		};
+			this.busy = false;
+			this.dequeue();
+		}).bind(this);
 		image.src = sourceURI;
 	},
 	resize: function (image, filename, maxWidth, maxHeight, quality) {
