@@ -7,19 +7,15 @@ const ID = 'shrunked@darktrojan.net';
 const XHTMLNS = 'http://www.w3.org/1999/xhtml';
 
 Cu.import ('resource://gre/modules/Services.jsm');
+Cu.import ('resource://gre/modules/XPCOMUtils.jsm');
 
-var tempDir = null;
-var prefs = null;
+XPCOMUtils.defineLazyGetter(this, "tempDir", function() {
+	return Services.dirsvc.get('TmpD', Ci.nsIFile);
+});
 var temporaryFiles = [];
 
 var Shrunked = {
 	document: null,
-	get prefs () {
-		if (!prefs) {
-			prefs = Services.prefs.getBranch ('extensions.shrunked.').QueryInterface (Ci.nsIPrefBranch2);
-		}
-		return prefs;
-	},
 
 	queue: [],
 	enqueue: function (document, sourceFile, maxWidth, maxHeight, quality, callback) {
@@ -69,7 +65,7 @@ var Shrunked = {
 
 			Exif.orientation = 0;
 			Exif.ready = false;
-			if (self.prefs.getBoolPref ('options.exif')) {
+			if (Shrunked.prefs.getBoolPref ('options.exif')) {
 				try {
 					Exif.read (!!sourceFile ? sourceFile : sourceURI);
 					Exif.ready = true;
@@ -131,7 +127,7 @@ var Shrunked = {
 			}
 			return this.rotateUnscaled (image);
 		}
-		if (!this.prefs.getBoolPref ('options.resample')) {
+		if (!Shrunked.prefs.getBoolPref ('options.resample')) {
 			return this.resizeUnresampled (image, 1 / ratio);
 		}
 		if (ratio >= 3) {
@@ -493,9 +489,6 @@ var Shrunked = {
 		return newCanvas;
 	},
 	saveCanvas: function (canvas, filename, quality) {
-		if (!tempDir) {
-			tempDir = Services.dirsvc.get ('TmpD', Ci.nsIFile);
-		}
 		var destFile = tempDir.clone ();
 		if (filename) {
 			destFile.append (filename);
@@ -513,7 +506,7 @@ var Shrunked = {
 		source = source.substring (source.indexOf (',') + 1);
 		source = atob (source);
 
-		if (this.prefs.getBoolPref ('options.exif') && Exif.ready) {
+		if (Shrunked.prefs.getBoolPref ('options.exif') && Exif.ready) {
 			try {
 				if ('a002' in Exif.exif2) {
 					Exif.exif2 ['a002'].data = Exif.bytesFromInt(canvas.width);
@@ -546,20 +539,19 @@ var Shrunked = {
 		let currentVersion = 0;
 		let oldVersion = 0;
 
-		// prefs is defined after the first call to this.prefs
-		if (this.prefs.getPrefType ('version') == Ci.nsIPrefBranch.PREF_STRING) {
-			oldVersion = prefs.getCharPref ('version');
+		if (Shrunked.prefs.getPrefType ('version') == Ci.nsIPrefBranch.PREF_STRING) {
+			oldVersion = Shrunked.prefs.getCharPref ('version');
 		}
 		if ('@mozilla.org/extensions/manager;1' in Cc) {
 			currentVersion = Cc ['@mozilla.org/extensions/manager;1']
 					.getService (Ci.nsIExtensionManager).getItemForID (ID).version;
-			prefs.setCharPref ('version', currentVersion);
+			Shrunked.prefs.setCharPref ('version', currentVersion);
 			doShow ();
 		} else {
 			Cu.import ('resource://gre/modules/AddonManager.jsm');
 			AddonManager.getAddonByID (ID, function (addon) {
 				currentVersion = addon.version;
-				prefs.setCharPref ('version', currentVersion);
+				Shrunked.prefs.setCharPref ('version', currentVersion);
 				doShow ();
 			});
 		}
@@ -583,12 +575,15 @@ var Shrunked = {
 				popup: null,
 				callback: callback
 			}];
-			prefs.setIntPref ('donationreminder', Date.now () / 1000);
+			Shrunked.prefs.setIntPref ('donationreminder', Date.now () / 1000);
 			notifyBox.appendNotification (label, value,
 					'chrome://shrunked/content/shrunked.png', notifyBox.PRIORITY_INFO_LOW, buttons);
 		}
 	}
 };
+XPCOMUtils.defineLazyGetter(Shrunked, "prefs", function() {
+	return Services.prefs.getBranch('extensions.shrunked.').QueryInterface(Ci.nsIPrefBranch2);
+});
 
 var Exif = {
 	fieldLengths: [null, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8],
