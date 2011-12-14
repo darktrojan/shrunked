@@ -8,6 +8,7 @@ const XHTMLNS = 'http://www.w3.org/1999/xhtml';
 
 Cu.import ('resource://gre/modules/Services.jsm');
 Cu.import ('resource://gre/modules/XPCOMUtils.jsm');
+Cu.import ("resource://gre/modules/NetUtil.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "tempDir", function() {
 	return Services.dirsvc.get('TmpD', Ci.nsIFile);
@@ -62,24 +63,23 @@ var Shrunked = {
 				return;
 			}
 
+			var onloadOnReady = (function() {
+				var destFile = Shrunked.resize(image, sourceFile ? sourceFile.leafName : null, maxWidth, maxHeight, quality);
+				this.document = null;
+				if (callback) {
+					callback (destFile);
+				}
+				this.busy = false;
+				this.dequeue();
+			}).bind(this);
+
 			Exif.orientation = 0;
 			Exif.ready = false;
 			if (Shrunked.prefs.getBoolPref ('options.exif')) {
-				try {
-					Exif.read (!!sourceFile ? sourceFile : sourceURI);
-					Exif.ready = true;
-				} catch (e) {
-					Cu.reportError(e);
-				}
+				Exif.read(!!sourceFile ? sourceFile : sourceURI, onloadOnReady);
+			} else {
+				onloadOnReady();
 			}
-
-			var destFile = Shrunked.resize(image, sourceFile ? sourceFile.leafName : null, maxWidth, maxHeight, quality);
-			this.document = null;
-			if (callback) {
-				callback (destFile);
-			}
-			this.busy = false;
-			this.dequeue();
 		}).bind(this);
 		image.onerror = (function() {
 			this.document = null;
@@ -528,6 +528,7 @@ var Shrunked = {
 		}
 
 		temporaryFiles.push (destFile);
+		Exif.cleanup();
 
 		return destFile;
 	},
@@ -578,7 +579,11 @@ var Exif = {
 	fieldLengths: [null, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8],
 	rBaseAddress: 12,
 
-	read: function(source) {
+	cleanup: function() {
+		delete this.rBytes;
+		delete this.wBytes;
+	},
+	read: function(source, callback) {
 		this.rIndex = 0;
 		this.rBigEndian = true;
 		this.orientation = 0;
@@ -587,72 +592,85 @@ var Exif = {
 		this.wDataAddress = 0;
 
 		if (source instanceof Ci.nsIFile) {
-			istream = Cc ["@mozilla.org/network/file-input-stream;1"].createInstance (Ci.nsIFileInputStream);
-			istream.init (source, -1, -1, false);
-			bstream = Cc ["@mozilla.org/binaryinputstream;1"].createInstance (Ci.nsIBinaryInputStream);
-			bstream.setInputStream (istream);
-			this.rBytes = bstream.readBytes(bstream.available());
-			bstream.close ();
-			istream.close ();
+			NetUtil.asyncFetch(source, (function(inputStream, status) {  
+				if (!Components.isSuccessCode(status)) {  
+					// abort
+					callback();
+					return;  
+				}  
+
+				this.rBytes = NetUtil.readInputStreamToString(inputStream, inputStream.available());  
+				this.readOnReady(callback);
+			}).bind(this));
 		} else if (source.constructor.name == "String" && /^data:image\/jpeg;base64,/.test (source)) {
 			this.rBytes = atob(source.substring(23));
+			this.readOnReady(callback);
 		} else {
 			throw "not a file";
 		}
-
-		if (this.read2Bytes() != 0xffd8) {
-			throw "not a jpeg";
-		}
-		var current = this.read2Bytes();
-		if (current == 0xffe0) {
-			var sectionLength = this.read2Bytes();
-			this.rIndex = sectionLength + 2;
-			current = this.read2Bytes();
-		}
-		if (current != 0xffe1) {
-			throw "no valid exif data";
-		}
-		this.rIndex += 8;
-		this.rBigEndian = this.read2Bytes() == 0x4d4d;
-		this.rIndex += 6;
-
-		var exif1Count = this.read2Bytes();
-		var exif1 = this.readSection(exif1Count)
-
-		this.rIndex = this.intFromBytes(exif1["8769"].data) + this.rBaseAddress;
-		var exif2Count = this.read2Bytes();
-		var exif2 = this.readSection(exif2Count);
-
-		var gps = null;
-		if (Shrunked.prefs.getBoolPref("options.gps") && "8825" in exif1) {
-			this.rIndex = this.intFromBytes(exif1["8825"].data) + this.rBaseAddress;
-			var gpsCount = this.read2Bytes();
-			gps = this.readSection(gpsCount);
-		}
-
-		if ("112" in exif1) {
-			switch (this.shortFromBytes(exif1["112"].data)) {
-			case 8:
-				this.orientation = 90;
-				break;
-			case 3:
-				this.orientation = 180;
-				break;
-			case 6:
-				this.orientation = 270;
-				break;
+	},
+	readOnReady: function(callback) {
+		try {
+			if (this.read2Bytes() != 0xffd8) {
+				throw "not a jpeg";
 			}
+			var current = this.read2Bytes();
+			if (current == 0xffe0) {
+				var sectionLength = this.read2Bytes();
+				this.rIndex = sectionLength + 2;
+				current = this.read2Bytes();
+			}
+			if (current != 0xffe1) {
+				throw "no valid exif data";
+			}
+			this.rIndex += 8;
+			this.rBigEndian = this.read2Bytes() == 0x4d4d;
+			this.rIndex += 6;
+
+			var exif1Count = this.read2Bytes();
+			var exif1 = this.readSection(exif1Count)
+
+			this.rIndex = this.intFromBytes(exif1["8769"].data) + this.rBaseAddress;
+			var exif2Count = this.read2Bytes();
+			var exif2 = this.readSection(exif2Count);
+
+			var gps = null;
+			if (Shrunked.prefs.getBoolPref("options.gps") && "8825" in exif1) {
+				this.rIndex = this.intFromBytes(exif1["8825"].data) + this.rBaseAddress;
+				var gpsCount = this.read2Bytes();
+				gps = this.readSection(gpsCount);
+			}
+
+			if ("112" in exif1) {
+				switch (this.shortFromBytes(exif1["112"].data)) {
+				case 8:
+					this.orientation = 90;
+					break;
+				case 3:
+					this.orientation = 180;
+					break;
+				case 6:
+					this.orientation = 270;
+					break;
+				}
+			}
+
+			var blacklist = JSON.parse(Shrunked.prefs.getCharPref("exif.blacklist"));
+			blacklist.forEach(function(key) {
+				delete exif1[key];
+				delete exif2[key];
+			});
+
+			this.exif1 = exif1;
+			this.exif2 = exif2;
+			this.gps = gps;
+
+			this.ready = true;
+		} catch (e) {
+			Cu.reportError(e);
+		} finally {
+			callback();
 		}
-
-		var blacklist = JSON.parse(Shrunked.prefs.getCharPref("exif.blacklist"));
-		blacklist.forEach(function(key) {
-			delete exif1[key];
-			delete exif2[key];
-		});
-
-		this.exif1 = exif1;
-		this.exif2 = exif2;
-		this.gps = gps;
 	},
 	write: function() {
 		this.write2Bytes(0xD8FF); // SOI marker, big endian
