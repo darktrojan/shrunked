@@ -2,6 +2,7 @@ var EXPORTED_SYMBOLS = ['Shrunked'];
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
+const Cr = Components.results;
 
 const ID = 'shrunked@darktrojan.net';
 const XHTMLNS = 'http://www.w3.org/1999/xhtml';
@@ -591,28 +592,32 @@ var Exif = {
 		this.wIndex = 0;
 		this.wDataAddress = 0;
 
-		if (source instanceof Ci.nsIFile) {
-			NetUtil.asyncFetch(source, (function(inputStream, status) {
-				if (!Components.isSuccessCode(status)) {
-					// abort
-					callback();
-					return;
-				}
+		try {
+			if (source instanceof Ci.nsIFile) {
+				NetUtil.asyncFetch(source, (function(inputStream, status) {
+					if (!Components.isSuccessCode(status)) {
+						// abort
+						callback();
+						return;
+					}
 
-				this.rBytes = NetUtil.readInputStreamToString(inputStream, inputStream.available());
+					this.rBytes = NetUtil.readInputStreamToString(inputStream, inputStream.available());
+					this.readOnReady(callback);
+				}).bind(this));
+			} else if (source.constructor.name == "String" && /^data:image\/jpeg;base64,/.test (source)) {
+				this.rBytes = atob(source.substring(23));
 				this.readOnReady(callback);
-			}).bind(this));
-		} else if (source.constructor.name == "String" && /^data:image\/jpeg;base64,/.test (source)) {
-			this.rBytes = atob(source.substring(23));
-			this.readOnReady(callback);
-		} else {
-			throw "not a file";
+			}
+			throw Cr.NS_ERROR_UNEXPECTED;
+		} catch (e) {
+			Cu.reportError(e);
+			callback();
 		}
 	},
 	readOnReady: function(callback) {
 		try {
 			if (this.read2Bytes() != 0xffd8) {
-				throw "not a jpeg";
+				throw "File is not a JPEG";
 			}
 			var current = this.read2Bytes();
 			if (current == 0xffe0) {
@@ -621,7 +626,7 @@ var Exif = {
 				current = this.read2Bytes();
 			}
 			if (current != 0xffe1) {
-				throw "no valid exif data";
+				throw "No valid EXIF data";
 			}
 			this.rIndex += 8;
 			this.rBigEndian = this.read2Bytes() == 0x4d4d;
