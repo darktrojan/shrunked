@@ -592,14 +592,14 @@ var Exif = {
 		this.wDataAddress = 0;
 
 		if (source instanceof Ci.nsIFile) {
-			NetUtil.asyncFetch(source, (function(inputStream, status) {  
-				if (!Components.isSuccessCode(status)) {  
+			NetUtil.asyncFetch(source, (function(inputStream, status) {
+				if (!Components.isSuccessCode(status)) {
 					// abort
 					callback();
-					return;  
-				}  
+					return;
+				}
 
-				this.rBytes = NetUtil.readInputStreamToString(inputStream, inputStream.available());  
+				this.rBytes = NetUtil.readInputStreamToString(inputStream, inputStream.available());
 				this.readOnReady(callback);
 			}).bind(this));
 		} else if (source.constructor.name == "String" && /^data:image\/jpeg;base64,/.test (source)) {

@@ -125,7 +125,7 @@ var ShrunkedBrowser = {
 			popup: null,
 			inputTag: inputTag
 		});
-		
+
 		var uri = inputTag.ownerDocument.documentURIObject;
 		if (!ShrunkedBrowser.pbService.privateBrowsingEnabled &&
 				(uri.schemeIs ('http') || uri.schemeIs ('https'))) {

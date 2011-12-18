@@ -4,15 +4,15 @@
 
 var p = document.getElementById('p');
 function doRead(input) {
-	var reader = new FileReader();  
-    reader.onload = function(e) {
-    	p.textContent = '';
+	var reader = new FileReader();
+	reader.onload = function(e) {
+		p.textContent = '';
 		var header = doIt(e.target.result);
 		var source = atob(e.target.result.substr(23));
 		var offset = source.charCodeAt(4) * 256 + source.charCodeAt(5) + 4;
 		//p.textContent = btoa(header + source.substr(offset, 2000));
-    };
-    reader.readAsDataURL(input.files[0]);
+	};
+	reader.readAsDataURL(input.files[0]);
 }
 
 var fieldLengths = [null, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8];
