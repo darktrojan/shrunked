@@ -107,7 +107,7 @@ var ShrunkedCompose = {
 			try {
 				for (var index = 0; index < bucket.getRowCount (); index++) {
 					var item = bucket.getItemAtIndex (index);
-					if (/\.jpe?g$/i.test (item.attachment.url) && item.attachment.size >= minimum) {
+					if (/\.jpe?g$/i.test (item.attachment.url) && (item.attachment.size == -1 || item.attachment.size >= minimum)) {
 						images.push ({ url: item.attachment.url, item: item });
 					}
 				}

@@ -35,6 +35,13 @@
 				<em:maxVersion>9.*</em:maxVersion>
 			</Description>
 		</em:targetApplication>
+		<em:targetApplication>
+			<Description>
+				<em:id>postbox@postbox-inc.com</em:id><!-- postbox -->
+				<em:minVersion>3.0</em:minVersion>
+				<em:maxVersion>3.*</em:maxVersion>
+			</Description>
+		</em:targetApplication>
 
 		<em:localized>
 			<Description>
