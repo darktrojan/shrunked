@@ -5,9 +5,10 @@ overlay chrome://messenger/content/messenger.xul chrome://shrunked/content/messe
 overlay chrome://messenger/content/messengercompose/messengercompose.xul chrome://shrunked/content/compose.xul
 resource shrunked modules/
 
+locale shrunked en-US chrome/locale/en-US/
+
 locale shrunked ca-AD chrome/locale/ca-AD/
 locale shrunked de chrome/locale/de/
-locale shrunked en-US chrome/locale/en-US/
 locale shrunked fr chrome/locale/fr/
 locale shrunked it chrome/locale/it/
 locale shrunked pl chrome/locale/pl/
