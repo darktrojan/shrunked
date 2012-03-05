@@ -604,11 +604,13 @@ var Exif = {
 					this.rBytes = NetUtil.readInputStreamToString(inputStream, inputStream.available());
 					this.readOnReady(callback);
 				}).bind(this));
+				return;
 			} else if (source.constructor.name == "String" && /^data:image\/jpeg;base64,/.test (source)) {
 				this.rBytes = atob(source.substring(23));
 				this.readOnReady(callback);
+				return;
 			}
-			throw Cr.NS_ERROR_UNEXPECTED;
+			throw "Unexpected source: " + source.toString();
 		} catch (e) {
 			Cu.reportError(e);
 			callback();
