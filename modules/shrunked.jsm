@@ -605,7 +605,7 @@ var Exif = {
 					this.readOnReady(callback);
 				}).bind(this));
 				return;
-			} else if (source.constructor.name == "String" && /^data:image\/jpeg;base64,/.test (source)) {
+			} else if (source.constructor.name == "String" && /^data:(image\/jpeg|application\/x-moz-file);base64,/.test (source)) {
 				this.rBytes = atob(source.substring(23));
 				this.readOnReady(callback);
 				return;

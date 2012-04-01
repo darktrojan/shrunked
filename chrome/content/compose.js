@@ -37,7 +37,7 @@ var ShrunkedCompose = {
 
 			ShrunkedCompose.timeout = setTimeout (function () {
 				var minimum = Shrunked.prefs.getIntPref ('fileSizeMinimum') * 1024;
-				var minimumData = 4 * minimum / 3 + 23; // length of |data:image/jpeg;base64,|
+				var minimumData = 4 * minimum / 3;
 
 				for (var i = 0; i < ShrunkedCompose.inlineImages.length; i++) {
 					var img = ShrunkedCompose.inlineImages [i];
@@ -47,7 +47,9 @@ var ShrunkedCompose = {
 						if (file.fileSize >= minimum && img.width >= 100 && img.height >= 100 && !img.hasAttribute ('shrunked:resized')) {
 							keep = true;
 						}
-					} else if (/^data:image\/jpeg;base64,/.test (img.src) && img.src.length >= minimumData) {
+					} else if (/^data:application\/x-moz-file;base64,/.test(img.src) && img.src.length - 35 >= minimumData) {
+						keep = true;
+					} else if (/^data:image\/jpeg;base64,/.test(img.src) && img.src.length - 23 >= minimumData) {
 						keep = true;
 					}
 					if (!keep) {
