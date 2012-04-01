@@ -47,7 +47,7 @@ var ShrunkedCompose = {
 						if (file.fileSize >= minimum && img.width >= 100 && img.height >= 100 && !img.hasAttribute ('shrunked:resized')) {
 							keep = true;
 						}
-					} else if (/^data:application\/x-moz-file;base64,/.test(img.src) && img.src.length - 35 >= minimumData) {
+					} else if (/^data:application\/x-moz-file;base64,\/9j\//.test(img.src) && img.src.length - 35 >= minimumData) {
 						keep = true;
 					} else if (/^data:image\/jpeg;base64,/.test(img.src) && img.src.length - 23 >= minimumData) {
 						keep = true;
