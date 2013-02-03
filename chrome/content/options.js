@@ -5,7 +5,8 @@ const Cu = Components.utils;
 var returnValues = window.arguments[0];
 
 Cu.import('resource://shrunked/shrunked.jsm');
-var pbService;
+Cu.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
+var windowIsPrivate = PrivateBrowsingUtils.isWindowPrivate(window.opener);
 
 var noresize = document.getElementById('noresize');
 var small = document.getElementById('small');
@@ -21,13 +22,6 @@ var savedefault = document.getElementById('savedefault');
 var acceptButton = document.documentElement.getButton('accept');
 
 (function() {
-	var pb = Cc['@mozilla.org/privatebrowsing;1'];
-	if (typeof (pb) == 'undefined') {
-		pbService = { privateBrowsingEnabled: false };
-	} else {
-		pbService = pb.getService(Ci.nsIPrivateBrowsingService);
-	}
-
 	var maxWidth = Shrunked.prefs.getIntPref('default.maxWidth');
 	var maxHeight = Shrunked.prefs.getIntPref('default.maxHeight');
 
@@ -55,8 +49,7 @@ var acceptButton = document.documentElement.getButton('accept');
 		}
 
 		var uri = returnValues.inputTag.ownerDocument.documentURIObject;
-		remembersite.disabled = pbService.privateBrowsingEnabled ||
-				!(uri.schemeIs('http') || uri.schemeIs('https'));
+		remembersite.disabled = windowIsPrivate || !(uri.schemeIs('http') || uri.schemeIs('https'));
 	} else {
 		remembersite.collapsed = true;
 	}

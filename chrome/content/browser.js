@@ -14,15 +14,6 @@ var ShrunkedBrowser = {
 
 		Cu.import('resource://shrunked/shrunked.jsm');
 
-		this.contentPrefs = Cc['@mozilla.org/content-pref/service;1'].getService(Ci.nsIContentPrefService);
-
-		var pb = Cc['@mozilla.org/privatebrowsing;1'];
-		if (typeof (pb) == 'undefined') {
-			this.pbService = { privateBrowsingEnabled: false };
-		} else {
-			this.pbService = pb.getService(Ci.nsIPrivateBrowsingService);
-		}
-
 		this.strings = document.getElementById('shrunked-strings');
 		var appcontent = document.getElementById('appcontent');
 		if (appcontent) {
@@ -82,14 +73,14 @@ var ShrunkedBrowser = {
 			inputTag.setAttribute('shrunkedclick', 'true');
 			inputTag.addEventListener('click', ShrunkedBrowser.resetInputTag, true);
 
+			var context = PrivateBrowsingUtils.privacyContextFromWindow(window);
 			var uri = inputTag.ownerDocument.documentURIObject;
-			if (!ShrunkedBrowser.pbService.privateBrowsingEnabled &&
-					(uri.schemeIs('http') || uri.schemeIs('https'))) {
-				if (ShrunkedBrowser.contentPrefs.hasPref(uri, 'extensions.shrunked.disabled')) {
+			if (uri.schemeIs('http') || uri.schemeIs('https')) {
+				if (Services.contentPrefs.hasPref(uri, 'extensions.shrunked.disabled', context)) {
 					return;
 				}
-				var maxWidth = ShrunkedBrowser.contentPrefs.getPref(uri, 'extensions.shrunked.maxWidth');
-				var maxHeight = ShrunkedBrowser.contentPrefs.getPref(uri, 'extensions.shrunked.maxHeight');
+				var maxWidth = Services.contentPrefs.getPref(uri, 'extensions.shrunked.maxWidth', context);
+				var maxHeight = Services.contentPrefs.getPref(uri, 'extensions.shrunked.maxHeight', context);
 				if (maxWidth && maxHeight) {
 					ShrunkedBrowser.resize(inputTag, maxWidth, maxHeight,
 						Shrunked.prefs.getIntPref('default.quality'));
@@ -127,7 +118,7 @@ var ShrunkedBrowser = {
 		});
 
 		var uri = inputTag.ownerDocument.documentURIObject;
-		if (!ShrunkedBrowser.pbService.privateBrowsingEnabled &&
+		if (!PrivateBrowsingUtils.isWindowPrivate(window) &&
 				(uri.schemeIs('http') || uri.schemeIs('https'))) {
 			buttons.push({
 				accessKey: this.strings.getString('never_accesskey'),
@@ -159,8 +150,9 @@ var ShrunkedBrowser = {
 	},
 
 	disableForSite: function(notification, buttonObject) {
+		var context = PrivateBrowsingUtils.privacyContextFromWindow(window);
 		var uri = buttonObject.uri;
-		ShrunkedBrowser.contentPrefs.setPref(uri, 'extensions.shrunked.disabled', true);
+		Services.contentPrefs.setPref(uri, 'extensions.shrunked.disabled', true, context);
 	},
 
 	showOptionsDialog: function(notification, buttonObject) {
@@ -191,12 +183,11 @@ var ShrunkedBrowser = {
 				Shrunked.prefs.getIntPref('default.quality'));
 		}
 
+		var context = PrivateBrowsingUtils.privacyContextFromWindow(window);
 		var uri = inputTag.ownerDocument.documentURIObject;
-		if (returnValues.rememberSite && !ShrunkedBrowser.pbService.privateBrowsingEnabled &&
-				(uri.schemeIs('http') || uri.schemeIs('https'))) {
-
-			ShrunkedBrowser.contentPrefs.setPref(uri, 'extensions.shrunked.maxWidth', returnValues.maxWidth);
-			ShrunkedBrowser.contentPrefs.setPref(uri, 'extensions.shrunked.maxHeight', returnValues.maxHeight);
+		if (returnValues.rememberSite && (uri.schemeIs('http') || uri.schemeIs('https'))) {
+			Services.contentPrefs.setPref(uri, 'extensions.shrunked.maxWidth', returnValues.maxWidth, context);
+			Services.contentPrefs.setPref(uri, 'extensions.shrunked.maxHeight', returnValues.maxHeight, context);
 		}
 	},
 

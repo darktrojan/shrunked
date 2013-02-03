@@ -55,7 +55,7 @@ function doLoad() {
 	} else {
 		var data = {};
 		['disabled', 'maxWidth', 'maxHeight'].forEach(function(name) {
-			let prefs = Services.contentPrefs.getPrefsByName('extensions.shrunked.' + name);
+			let prefs = Services.contentPrefs.getPrefsByName('extensions.shrunked.' + name, null);
 			let enumerator = prefs.enumerator;
 			while (enumerator.hasMoreElements()) {
 				var property = enumerator.getNext().QueryInterface(Components.interfaces.nsIProperty);
@@ -127,9 +127,9 @@ function doForget() {
 		var site = item.firstChild.getAttribute('label');
 		var u = Services.io.newURI('http://' + site + '/', null, null);
 
-		Services.contentPrefs.removePref(u, 'extensions.shrunked.maxHeight');
-		Services.contentPrefs.removePref(u, 'extensions.shrunked.maxWidth');
-		Services.contentPrefs.removePref(u, 'extensions.shrunked.disabled');
+		Services.contentPrefs.removePref(u, 'extensions.shrunked.maxHeight', null);
+		Services.contentPrefs.removePref(u, 'extensions.shrunked.maxWidth', null);
+		Services.contentPrefs.removePref(u, 'extensions.shrunked.disabled', null);
 	}
 	siteList.removeChild(item);
 }

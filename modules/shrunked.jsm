@@ -854,15 +854,12 @@ var Exif = {
 var observer = {
 	observe: function(aSubject, aTopic, aData) {
 		switch (aTopic) {
-			case 'private-browsing':
-				if (aData == 'exit')
-					this.removeTempFiles();
-				return;
 			case 'quit-application-granted':
-				Services.obs.removeObserver(this, 'private-browsing');
+				Services.obs.removeObserver(this, 'last-pb-context-exited');
 				Services.obs.removeObserver(this, 'quit-application-granted');
 				Services.obs.removeObserver(this, 'browser:purge-session-history');
 				// no break
+			case 'last-pb-context-exited':
 			case 'browser:purge-session-history':
 				this.removeTempFiles();
 				return;
@@ -880,6 +877,6 @@ var observer = {
 	}
 };
 
-Services.obs.addObserver(observer, 'private-browsing', false);
+Services.obs.addObserver(observer, 'last-pb-context-exited', false);
 Services.obs.addObserver(observer, 'quit-application-granted', false);
 Services.obs.addObserver(observer, 'browser:purge-session-history', false);
