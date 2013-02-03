@@ -2,7 +2,7 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 
 <!DOCTYPE prefwindow SYSTEM "chrome://shrunked/locale/shrunked.dtd">
-<prefwindow id="shrunked-config" title="&shrunked-config.title;" orient="vertical" onload="doLoad ();" ondialogaccept="doAccept ();"
+<prefwindow id="shrunked-config" title="&shrunked-config.title;" orient="vertical" onload="doLoad();" ondialogaccept="doAccept();"
 		xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
 	<stringbundleset id="stringbundleset">
@@ -10,7 +10,7 @@
 	</stringbundleset>
 
 	<prefpane id="shrunked-sites" label="&shrunked-sites.label;" image="chrome://shrunked/content/shrunked.png">
-		<listbox flex="1" id="sitelist" onselect="document.getElementById ('forget').disabled = this.selectedItem == null;">
+		<listbox flex="1" id="sitelist" onselect="document.getElementById('forget').disabled = this.selectedItem == null;">
 			<listhead>
 				<listheader label="&shrunked-sites.sitelist.site;" />
 				<listheader label="&shrunked-sites.sitelist.settings;" />
@@ -21,7 +21,7 @@
 			</listcols>
 		</listbox>
 		<hbox pack="end">
-			<button id="forget" label="&shrunked-sites.forget.label;" disabled="true" oncommand="doForget ();" />
+			<button id="forget" label="&shrunked-sites.forget.label;" disabled="true" oncommand="doForget();" />
 		</hbox>
 	</prefpane>
 
@@ -41,19 +41,19 @@
 
 		<label value="&shrunked-maxsize.label;" />
 		<radiogroup class="indent" style="margin-bottom: 1em">
-			<radio id="noresize" label="&shrunked-noresize.label;" oncommand="validate ();" />
-			<radio id="small" label="&shrunked-small.label;" oncommand="validate ();" />
-			<radio id="medium" label="&shrunked-medium.label;" oncommand="validate ();" />
-			<radio id="large" label="&shrunked-large.label;" oncommand="validate ();" />
+			<radio id="noresize" label="&shrunked-noresize.label;" oncommand="validate();" />
+			<radio id="small" label="&shrunked-small.label;" oncommand="validate();" />
+			<radio id="medium" label="&shrunked-medium.label;" oncommand="validate();" />
+			<radio id="large" label="&shrunked-large.label;" oncommand="validate();" />
 			<hbox align="center">
-				<radio id="custom" label="&shrunked-custom.label;" oncommand="validate ();" />
+				<radio id="custom" label="&shrunked-custom.label;" oncommand="validate();" />
 				<label id="label1" value="&shrunked-width.label;" control="customvalue1" disabled="true" />
 				<textbox id="customvalue1" type="number" value="1500" increment="50" max="2500" size="4" disabled="true"
-					onchange="validate ();" unit="&shrunked-custom.pixels;"
+					onchange="validate();" unit="&shrunked-custom.pixels;"
 					style="-moz-binding: url(chrome://shrunked/content/bindings.xml#numberbox)" />
 				<label id="label2" value="&shrunked-height.label;" control="customvalue2" disabled="true" />
 				<textbox id="customvalue2" type="number" value="1500" increment="50" max="2500" size="4" disabled="true"
-					onchange="validate ();" unit="&shrunked-custom.pixels;"
+					onchange="validate();" unit="&shrunked-custom.pixels;"
 					style="-moz-binding: url(chrome://shrunked/content/bindings.xml#numberbox)" />
 			</hbox>
 		</radiogroup>

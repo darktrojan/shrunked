@@ -2,70 +2,70 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
 
-Cu.import ('resource://gre/modules/Services.jsm');
+Cu.import('resource://gre/modules/Services.jsm');
 
 const IS_FIREFOX = Services.appinfo.name == 'Firefox';
 const IS_THUNDERBIRD = Services.appinfo.name == 'Thunderbird';
 
 if (!IS_THUNDERBIRD) {
-	var siteList = document.getElementById ('sitelist');
+	var siteList = document.getElementById('sitelist');
 }
 
-var maxWidthPref = document.getElementById ('maxwidth');
-var maxHeightPref = document.getElementById ('maxheight');
-var qualityPref = document.getElementById ('quality');
+var maxWidthPref = document.getElementById('maxwidth');
+var maxHeightPref = document.getElementById('maxheight');
+var qualityPref = document.getElementById('quality');
 
-var noresize = document.getElementById ('noresize');
-var small = document.getElementById ('small');
-var medium = document.getElementById ('medium');
-var large = document.getElementById ('large');
-var custom = document.getElementById ('custom');
-var label1 = document.getElementById ('label1');
-var customvalue1 = document.getElementById ('customvalue1');
-var label2 = document.getElementById ('label2');
-var customvalue2 = document.getElementById ('customvalue2');
-var slider = document.getElementById ('slider');
+var noresize = document.getElementById('noresize');
+var small = document.getElementById('small');
+var medium = document.getElementById('medium');
+var large = document.getElementById('large');
+var custom = document.getElementById('custom');
+var label1 = document.getElementById('label1');
+var customvalue1 = document.getElementById('customvalue1');
+var label2 = document.getElementById('label2');
+var customvalue2 = document.getElementById('customvalue2');
+var slider = document.getElementById('slider');
 
-var strings = document.getElementById ('shrunked-strings');
+var strings = document.getElementById('shrunked-strings');
 
-function doLoad () {
-	let lastSelected = document.documentElement.getAttribute ('lastSelected');
+function doLoad() {
+	let lastSelected = document.documentElement.getAttribute('lastSelected');
 	if (lastSelected) {
-		let lastSelectedPane = document.getElementById (lastSelected);
+		let lastSelectedPane = document.getElementById(lastSelected);
 		if (lastSelectedPane) {
-			document.documentElement.showPane (lastSelectedPane);
+			document.documentElement.showPane(lastSelectedPane);
 		}
 	}
 
-	let sitesPane = document.getElementById ('shrunked-sites');
-	let defaultsPane = document.getElementById ('shrunked-defaults');
+	let sitesPane = document.getElementById('shrunked-sites');
+	let defaultsPane = document.getElementById('shrunked-defaults');
 
 	if (IS_FIREFOX) {
 		noresize.collapsed = true;
 	}
 	if (IS_THUNDERBIRD) {
 		try {
-			document.documentElement.showPane (defaultsPane);
+			document.documentElement.showPane(defaultsPane);
 		} catch (e) {
-			Cu.reportError (e);
+			Cu.reportError(e);
 		}
-		sitesPane.setAttribute ('collapsed', 'true');
-		var selector = document.getAnonymousElementByAttribute (document.documentElement, 'anonid', 'selector');
-		selector.setAttribute ('collapsed', 'true');
+		sitesPane.setAttribute('collapsed', 'true');
+		var selector = document.getAnonymousElementByAttribute(document.documentElement, 'anonid', 'selector');
+		selector.setAttribute('collapsed', 'true');
 	} else {
 		var data = {};
-		['disabled', 'maxWidth', 'maxHeight'].forEach (function (name) {
-			let prefs = Services.contentPrefs.getPrefsByName ('extensions.shrunked.' + name);
+		['disabled', 'maxWidth', 'maxHeight'].forEach(function(name) {
+			let prefs = Services.contentPrefs.getPrefsByName('extensions.shrunked.' + name);
 			let enumerator = prefs.enumerator;
 			while (enumerator.hasMoreElements()) {
 				var property = enumerator.getNext().QueryInterface(Components.interfaces.nsIProperty);
 				if (!(property.name in data)) {
-					data [property.name] = {};
+					data[property.name] = {};
 				}
-				data [property.name][name] = property.value;
+				data[property.name][name] = property.value;
 			}
 		});
-		handleData (data);
+		handleData(data);
 	}
 
 	var maxWidth = maxWidthPref.value;
@@ -87,54 +87,54 @@ function doLoad () {
 
 	slider.value = qualityPref.value;
 
-	validate ();
-};
+	validate();
+}
 
-function handleData (data) {
+function handleData(data) {
 	for (var site in data) {
-		var disabled = data [site]['disabled'];
-		var maxWidth = data [site]['maxWidth'];
-		var maxHeight = data [site]['maxHeight'];
+		var disabled = data[site]['disabled'];
+		var maxWidth = data[site]['maxWidth'];
+		var maxHeight = data[site]['maxHeight'];
 		if (disabled) {
-			var item = document.createElement ('listitem');
-			item.setAttribute ('style', 'color: #666; font-style: italic');
-			var siteCell = document.createElement ('listcell');
-			siteCell.setAttribute ('label', site);
-			item.appendChild (siteCell);
-			var disabledCell = document.createElement ('listcell');
-			disabledCell.setAttribute ('label', strings.getString ('disabled'));
-			disabledCell.setAttribute ('style', 'text-align: center');
-			item.appendChild (disabledCell);
-			siteList.appendChild (item);
+			var item = document.createElement('listitem');
+			item.setAttribute('style', 'color: #666; font-style: italic');
+			var siteCell = document.createElement('listcell');
+			siteCell.setAttribute('label', site);
+			item.appendChild(siteCell);
+			var disabledCell = document.createElement('listcell');
+			disabledCell.setAttribute('label', strings.getString('disabled'));
+			disabledCell.setAttribute('style', 'text-align: center');
+			item.appendChild(disabledCell);
+			siteList.appendChild(item);
 		}
 		if (maxWidth && maxHeight) {
-			var item = document.createElement ('listitem');
-			var siteCell = document.createElement ('listcell');
-			siteCell.setAttribute ('label', site);
-			item.appendChild (siteCell);
-			var widthCell = document.createElement ('listcell');
-			widthCell.setAttribute ('label', strings.getFormattedString ('dimensions', [maxWidth, maxHeight]));
-			widthCell.setAttribute ('style', 'text-align: center');
-			item.appendChild (widthCell);
-			siteList.appendChild (item);
+			var item = document.createElement('listitem');
+			var siteCell = document.createElement('listcell');
+			siteCell.setAttribute('label', site);
+			item.appendChild(siteCell);
+			var widthCell = document.createElement('listcell');
+			widthCell.setAttribute('label', strings.getFormattedString('dimensions', [maxWidth, maxHeight]));
+			widthCell.setAttribute('style', 'text-align: center');
+			item.appendChild(widthCell);
+			siteList.appendChild(item);
 		}
 	}
 }
 
-function doForget () {
-	var item = siteList.getSelectedItem (0);
+function doForget() {
+	var item = siteList.getSelectedItem(0);
 	if (item) {
-		var site = item.firstChild.getAttribute ('label');
-		var u = Services.io.newURI ('http://' + site + '/', null, null);
+		var site = item.firstChild.getAttribute('label');
+		var u = Services.io.newURI('http://' + site + '/', null, null);
 
-		Services.contentPrefs.removePref (u, 'extensions.shrunked.maxHeight');
-		Services.contentPrefs.removePref (u, 'extensions.shrunked.maxWidth');
-		Services.contentPrefs.removePref (u, 'extensions.shrunked.disabled');
+		Services.contentPrefs.removePref(u, 'extensions.shrunked.maxHeight');
+		Services.contentPrefs.removePref(u, 'extensions.shrunked.maxWidth');
+		Services.contentPrefs.removePref(u, 'extensions.shrunked.disabled');
 	}
-	siteList.removeChild (item);
+	siteList.removeChild(item);
 }
 
-function validate () {
+function validate() {
 	label1.disabled = customvalue1.disabled = label2.disabled = customvalue2.disabled = !custom.selected;
 	if (noresize.selected) {
 		maxWidthPref.value = -1;
@@ -154,6 +154,6 @@ function validate () {
 	}
 }
 
-function doAccept () {
-	document.documentElement.setAttribute ('lastSelected', document.documentElement.currentPane.id);
+function doAccept() {
+	document.documentElement.setAttribute('lastSelected', document.documentElement.currentPane.id);
 }

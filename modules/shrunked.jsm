@@ -7,11 +7,11 @@ const Cr = Components.results;
 const ID = 'shrunked@darktrojan.net';
 const XHTMLNS = 'http://www.w3.org/1999/xhtml';
 
-Cu.import ('resource://gre/modules/Services.jsm');
-Cu.import ('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import ("resource://gre/modules/NetUtil.jsm");
+Cu.import('resource://gre/modules/Services.jsm');
+Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Cu.import('resource://gre/modules/NetUtil.jsm');
 
-XPCOMUtils.defineLazyGetter(this, "tempDir", function() {
+XPCOMUtils.defineLazyGetter(this, 'tempDir', function() {
 	return Services.dirsvc.get('TmpD', Ci.nsIFile);
 });
 var temporaryFiles = [];
@@ -20,43 +20,43 @@ var Shrunked = {
 	document: null,
 
 	queue: [],
-	enqueue: function (document, sourceFile, maxWidth, maxHeight, quality, callback) {
+	enqueue: function(document, sourceFile, maxWidth, maxHeight, quality, callback) {
 		if (this.busy) {
-			this.queue.push ([document, sourceFile, maxWidth, maxHeight, quality, callback]);
+			this.queue.push([document, sourceFile, maxWidth, maxHeight, quality, callback]);
 		} else {
 			try {
-				this.resizeAsync (document, sourceFile, maxWidth, maxHeight, quality, callback);
+				this.resizeAsync(document, sourceFile, maxWidth, maxHeight, quality, callback);
 			} catch (e) {
-				Cu.reportError (e);
+				Cu.reportError(e);
 			}
 		}
 	},
-	dequeue: function () {
-		var args = this.queue.shift ();
+	dequeue: function() {
+		var args = this.queue.shift();
 		if (args) {
 			try {
-				this.resizeAsync (args [0], args [1], args [2], args [3], args [4], args [5]);
+				this.resizeAsync(args[0], args[1], args[2], args[3], args[4], args[5]);
 			} catch (e) {
-				Cu.reportError (e);
+				Cu.reportError(e);
 			}
 		}
 	},
 
-	resizeAsync: function (document, sourceFile, maxWidth, maxHeight, quality, callback) {
+	resizeAsync: function(document, sourceFile, maxWidth, maxHeight, quality, callback) {
 		this.busy = true;
 		var sourceURI;
 		if (typeof sourceFile == 'string') {
 			sourceURI = sourceFile;
-			if (/^data/.test (sourceURI)) {
+			if (/^data/.test(sourceURI)) {
 				sourceFile = null;
 			} else {
-				sourceFile = Services.io.newURI (sourceFile, null, null).QueryInterface (Ci.nsIFileURL).file;
+				sourceFile = Services.io.newURI(sourceFile, null, null).QueryInterface(Ci.nsIFileURL).file;
 			}
 		} else {
-			sourceURI = Services.io.newFileURI (sourceFile).spec;
+			sourceURI = Services.io.newFileURI(sourceFile).spec;
 		}
 		this.document = document;
-		var image = this.document.createElementNS (XHTMLNS, 'img');
+		var image = this.document.createElementNS(XHTMLNS, 'img');
 		image.onload = (function() {
 			// https://bugzilla.mozilla.org/show_bug.cgi?id=574330#c54
 			if (!image.complete) {
@@ -68,7 +68,7 @@ var Shrunked = {
 				var destFile = Shrunked.resize(image, sourceFile ? sourceFile.leafName : null, maxWidth, maxHeight, quality);
 				this.document = null;
 				if (callback) {
-					callback (destFile);
+					callback(destFile);
 				}
 				this.busy = false;
 				this.dequeue();
@@ -76,7 +76,7 @@ var Shrunked = {
 
 			Exif.orientation = 0;
 			Exif.ready = false;
-			if (Shrunked.prefs.getBoolPref ('options.exif')) {
+			if (Shrunked.prefs.getBoolPref('options.exif')) {
 				Exif.read(!!sourceFile ? sourceFile : sourceURI, onloadOnReady);
 			} else {
 				onloadOnReady();
@@ -85,28 +85,28 @@ var Shrunked = {
 		image.onerror = (function() {
 			this.document = null;
 			if (callback) {
-				callback (null);
+				callback(null);
 			}
 			this.busy = false;
 			this.dequeue();
 		}).bind(this);
 		image.src = sourceURI;
 	},
-	resize: function (image, filename, maxWidth, maxHeight, quality) {
+	resize: function(image, filename, maxWidth, maxHeight, quality) {
 		var destFile;
 		try {
-			var canvas = this.createCanvas (image, maxWidth, maxHeight);
+			var canvas = this.createCanvas(image, maxWidth, maxHeight);
 			if (canvas == image) {
 				return null;
 			}
 
-			destFile = this.saveCanvas (canvas, filename, quality);
+			destFile = this.saveCanvas(canvas, filename, quality);
 		} catch (e) {
-			Cu.reportError (e);
+			Cu.reportError(e);
 		}
 		return destFile;
 	},
-	createCanvas: function (image, maxWidth, maxHeight) {
+	createCanvas: function(image, maxWidth, maxHeight) {
 		var w, h;
 		switch (Exif.orientation) {
 		case 0:
@@ -120,81 +120,81 @@ var Shrunked = {
 			h = image.width;
 			break;
 		}
-		var ratio = Math.max (1, Math.max (w / maxWidth, h / maxHeight));
+		var ratio = Math.max(1, Math.max(w / maxWidth, h / maxHeight));
 		if (ratio <= 1) {
 			if (Exif.orientation == 0) {
 				return image;
 			}
-			return this.rotateUnscaled (image);
+			return this.rotateUnscaled(image);
 		}
-		if (!Shrunked.prefs.getBoolPref ('options.resample')) {
-			return this.resizeUnresampled (image, 1 / ratio);
+		if (!Shrunked.prefs.getBoolPref('options.resample')) {
+			return this.resizeUnresampled(image, 1 / ratio);
 		}
 		if (ratio >= 3) {
-			return this.nineResample (image, 1 / ratio);
+			return this.nineResample(image, 1 / ratio);
 		}
 		if (ratio >= 2) {
-			return this.fourResample (image, 1 / ratio);
+			return this.fourResample(image, 1 / ratio);
 		}
-		return this.floatResample (image, ratio);
+		return this.floatResample(image, ratio);
 	},
-	rotateUnscaled: function (image) {
-		var canvas = this.document.createElementNS (XHTMLNS, 'canvas');
-		var context = canvas.getContext ('2d');
+	rotateUnscaled: function(image) {
+		var canvas = this.document.createElementNS(XHTMLNS, 'canvas');
+		var context = canvas.getContext('2d');
 
 		switch (Exif.orientation) {
 		case 90:
 			canvas.width = image.height;
 			canvas.height = image.width;
-			context.translate (0, image.width);
-			context.rotate (-0.5 * Math.PI);
+			context.translate(0, image.width);
+			context.rotate(-0.5 * Math.PI);
 			break;
 		case 180:
 			canvas.width = image.width;
 			canvas.height = image.height;
-			context.translate (image.width, image.height);
-			context.rotate (Math.PI);
+			context.translate(image.width, image.height);
+			context.rotate(Math.PI);
 			break;
 		case 270:
 			canvas.width = image.height;
 			canvas.height = image.width;
-			context.translate (image.height, 0);
-			context.rotate (0.5 * Math.PI);
+			context.translate(image.height, 0);
+			context.rotate(0.5 * Math.PI);
 			break;
 		}
-		context.drawImage (image, 0, 0);
+		context.drawImage(image, 0, 0);
 		return canvas;
 	},
-	resizeUnresampled: function (image, ratio) {
-		var canvas = this.document.createElementNS (XHTMLNS, 'canvas');
-		var context = canvas.getContext ('2d');
-		canvas.width = Math.floor (image.width * ratio + 0.025);
-		canvas.height = Math.floor (image.height * ratio + 0.025);
-		context.drawImage (image, 0, 0, image.width * ratio, image.height * ratio);
+	resizeUnresampled: function(image, ratio) {
+		var canvas = this.document.createElementNS(XHTMLNS, 'canvas');
+		var context = canvas.getContext('2d');
+		canvas.width = Math.floor(image.width * ratio + 0.025);
+		canvas.height = Math.floor(image.height * ratio + 0.025);
+		context.drawImage(image, 0, 0, image.width * ratio, image.height * ratio);
 
 		return canvas;
 	},
-	nineResample: function (image, ratio) {
-		var newWidth = Math.floor (image.width * ratio + 0.025);
-		var newHeight = Math.floor (image.height * ratio + 0.025);
+	nineResample: function(image, ratio) {
+		var newWidth = Math.floor(image.width * ratio + 0.025);
+		var newHeight = Math.floor(image.height * ratio + 0.025);
 		var oldWidth = newWidth * 3;
 		var oldHeight = newHeight * 3;
 
-		var oldCanvas = this.document.createElementNS (XHTMLNS, 'canvas');
-		var oldContext = oldCanvas.getContext ('2d');
+		var oldCanvas = this.document.createElementNS(XHTMLNS, 'canvas');
+		var oldContext = oldCanvas.getContext('2d');
 
 		switch (Exif.orientation) {
 		case 0:
 			oldCanvas.width = oldWidth;
 			oldCanvas.height = oldHeight;
-			oldContext.drawImage (image, 0, 0, oldCanvas.width, oldCanvas.height);
+			oldContext.drawImage(image, 0, 0, oldCanvas.width, oldCanvas.height);
 			break;
 		case 90:
 			oldCanvas.width = oldHeight;
 			oldCanvas.height = oldWidth;
-			oldContext.translate (0, oldWidth);
-			oldContext.rotate (-0.5 * Math.PI);
-			oldContext.drawImage (image, 0, 0, oldCanvas.height, oldCanvas.width);
+			oldContext.translate(0, oldWidth);
+			oldContext.rotate(-0.5 * Math.PI);
+			oldContext.drawImage(image, 0, 0, oldCanvas.height, oldCanvas.width);
 			var temp = newWidth;
 			newWidth = newHeight;
 			newHeight = temp;
@@ -203,16 +203,16 @@ var Shrunked = {
 		case 180:
 			oldCanvas.width = oldWidth;
 			oldCanvas.height = oldHeight;
-			oldContext.translate (oldWidth, oldHeight);
-			oldContext.rotate (Math.PI);
-			oldContext.drawImage (image, 0, 0, oldCanvas.width, oldCanvas.height);
+			oldContext.translate(oldWidth, oldHeight);
+			oldContext.rotate(Math.PI);
+			oldContext.drawImage(image, 0, 0, oldCanvas.width, oldCanvas.height);
 			break;
 		case 270:
 			oldCanvas.width = oldHeight;
 			oldCanvas.height = oldWidth;
-			oldContext.translate (oldHeight, 0);
-			oldContext.rotate (0.5 * Math.PI);
-			oldContext.drawImage (image, 0, 0, oldCanvas.height, oldCanvas.width);
+			oldContext.translate(oldHeight, 0);
+			oldContext.rotate(0.5 * Math.PI);
+			oldContext.drawImage(image, 0, 0, oldCanvas.height, oldCanvas.width);
 			var temp = newWidth;
 			newWidth = newHeight;
 			newHeight = temp;
@@ -220,14 +220,14 @@ var Shrunked = {
 			break;
 		}
 
-		var oldData = oldContext.getImageData (0, 0, oldCanvas.width, oldCanvas.height);
+		var oldData = oldContext.getImageData(0, 0, oldCanvas.width, oldCanvas.height);
 		var oldPix = oldData.data;
 
-		var newCanvas = this.document.createElementNS (XHTMLNS, 'canvas');
-		var newContext = newCanvas.getContext ('2d');
+		var newCanvas = this.document.createElementNS(XHTMLNS, 'canvas');
+		var newContext = newCanvas.getContext('2d');
 		newCanvas.width = newWidth;
 		newCanvas.height = newHeight;
-		var newData = newContext.createImageData (newWidth, newHeight);
+		var newData = newContext.createImageData(newWidth, newHeight);
 		var newPix = newData.data;
 		var newLength = newPix.length;
 
@@ -244,79 +244,79 @@ var Shrunked = {
 			while (row0 < nextRow) {
 				r = g = b = 0;
 
-				r += oldPix [row0++];
-				g += oldPix [row0++];
-				b += oldPix [row0++];
+				r += oldPix[row0++];
+				g += oldPix[row0++];
+				b += oldPix[row0++];
 				row0++;
-				r += oldPix [row0++];
-				g += oldPix [row0++];
-				b += oldPix [row0++];
+				r += oldPix[row0++];
+				g += oldPix[row0++];
+				b += oldPix[row0++];
 				row0++;
-				r += oldPix [row0++];
-				g += oldPix [row0++];
-				b += oldPix [row0++];
+				r += oldPix[row0++];
+				g += oldPix[row0++];
+				b += oldPix[row0++];
 				row0++;
 
-				r += oldPix [row1++];
-				g += oldPix [row1++];
-				b += oldPix [row1++];
+				r += oldPix[row1++];
+				g += oldPix[row1++];
+				b += oldPix[row1++];
 				row1++;
-				r += oldPix [row1++];
-				g += oldPix [row1++];
-				b += oldPix [row1++];
+				r += oldPix[row1++];
+				g += oldPix[row1++];
+				b += oldPix[row1++];
 				row1++;
-				r += oldPix [row1++];
-				g += oldPix [row1++];
-				b += oldPix [row1++];
+				r += oldPix[row1++];
+				g += oldPix[row1++];
+				b += oldPix[row1++];
 				row1++;
 
-				r += oldPix [row2++];
-				g += oldPix [row2++];
-				b += oldPix [row2++];
+				r += oldPix[row2++];
+				g += oldPix[row2++];
+				b += oldPix[row2++];
 				row2++;
-				r += oldPix [row2++];
-				g += oldPix [row2++];
-				b += oldPix [row2++];
+				r += oldPix[row2++];
+				g += oldPix[row2++];
+				b += oldPix[row2++];
 				row2++;
-				r += oldPix [row2++];
-				g += oldPix [row2++];
-				b += oldPix [row2++];
+				r += oldPix[row2++];
+				g += oldPix[row2++];
+				b += oldPix[row2++];
 				row2++;
 
-				newPix [offset++] = r * 0.11111;
-				newPix [offset++] = g * 0.11111;
-				newPix [offset++] = b * 0.11111;
-				newPix [offset++] = 255;
+				newPix[offset++] = r * 0.11111;
+				newPix[offset++] = g * 0.11111;
+				newPix[offset++] = b * 0.11111;
+				newPix[offset++] = 255;
 			}
 			row0 += rowLengthTimes2;
 			row1 += rowLengthTimes2;
 			row2 += rowLengthTimes2;
 		}
 
-		newContext.putImageData (newData, 0, 0);
+		newContext.putImageData(newData, 0, 0);
 		return newCanvas;
 	},
-	fourResample: function (image, ratio) {
-		var newWidth = Math.floor (image.width * ratio + 0.025);
-		var newHeight = Math.floor (image.height * ratio + 0.025);
+	fourResample: function(image, ratio) {
+		var newWidth = Math.floor(image.width * ratio + 0.025);
+		var newHeight = Math.floor(image.height * ratio + 0.025);
 		var oldWidth = newWidth * 2;
 		var oldHeight = newHeight * 2;
 
-		var oldCanvas = this.document.createElementNS (XHTMLNS, 'canvas');
-		var oldContext = oldCanvas.getContext ('2d');
+		var oldCanvas = this.document.createElementNS(XHTMLNS, 'canvas');
+		var oldContext = oldCanvas.getContext('2d');
 
 		switch (Exif.orientation) {
 		case 0:
 			oldCanvas.width = oldWidth;
 			oldCanvas.height = oldHeight;
-			oldContext.drawImage (image, 0, 0, oldCanvas.width, oldCanvas.height);
+			oldContext.drawImage(image, 0, 0, oldCanvas.width, oldCanvas.height);
 			break;
 		case 90:
 			oldCanvas.width = oldHeight;
 			oldCanvas.height = oldWidth;
-			oldContext.translate (0, oldWidth);
-			oldContext.rotate (-0.5 * Math.PI);
-			oldContext.drawImage (image, 0, 0, oldCanvas.height, oldCanvas.width);
+			oldContext.translate(0, oldWidth);
+			oldContext.rotate(-0.5 * Math.PI);
+			oldContext.drawImage(image, 0, 0, oldCanvas.height, oldCanvas.width);
 			var temp = newWidth;
 			newWidth = newHeight;
 			newHeight = temp;
@@ -325,16 +325,16 @@ var Shrunked = {
 		case 180:
 			oldCanvas.width = oldWidth;
 			oldCanvas.height = oldHeight;
-			oldContext.translate (oldWidth, oldHeight);
-			oldContext.rotate (Math.PI);
-			oldContext.drawImage (image, 0, 0, oldCanvas.width, oldCanvas.height);
+			oldContext.translate(oldWidth, oldHeight);
+			oldContext.rotate(Math.PI);
+			oldContext.drawImage(image, 0, 0, oldCanvas.width, oldCanvas.height);
 			break;
 		case 270:
 			oldCanvas.width = oldHeight;
 			oldCanvas.height = oldWidth;
-			oldContext.translate (oldHeight, 0);
-			oldContext.rotate (0.5 * Math.PI);
-			oldContext.drawImage (image, 0, 0, oldCanvas.height, oldCanvas.width);
+			oldContext.translate(oldHeight, 0);
+			oldContext.rotate(0.5 * Math.PI);
+			oldContext.drawImage(image, 0, 0, oldCanvas.height, oldCanvas.width);
 			var temp = newWidth;
 			newWidth = newHeight;
 			newHeight = temp;
@@ -342,14 +342,14 @@ var Shrunked = {
 			break;
 		}
 
-		var oldData = oldContext.getImageData (0, 0, oldCanvas.width, oldCanvas.height);
+		var oldData = oldContext.getImageData(0, 0, oldCanvas.width, oldCanvas.height);
 		var oldPix = oldData.data;
 
-		var newCanvas = this.document.createElementNS (XHTMLNS, 'canvas');
-		var newContext = newCanvas.getContext ('2d');
+		var newCanvas = this.document.createElementNS(XHTMLNS, 'canvas');
+		var newContext = newCanvas.getContext('2d');
 		newCanvas.width = newWidth;
 		newCanvas.height = newHeight;
-		var newData = newContext.createImageData (newWidth, newHeight);
+		var newData = newContext.createImageData(newWidth, newHeight);
 		var newPix = newData.data;
 		var newLength = newPix.length;
 
@@ -364,57 +364,57 @@ var Shrunked = {
 			while (row0 < nextRow) {
 				r = g = b = 0;
 
-				r += oldPix [row0++];
-				g += oldPix [row0++];
-				b += oldPix [row0++];
+				r += oldPix[row0++];
+				g += oldPix[row0++];
+				b += oldPix[row0++];
 				row0++;
-				r += oldPix [row0++];
-				g += oldPix [row0++];
-				b += oldPix [row0++];
+				r += oldPix[row0++];
+				g += oldPix[row0++];
+				b += oldPix[row0++];
 				row0++;
 
-				r += oldPix [row1++];
-				g += oldPix [row1++];
-				b += oldPix [row1++];
+				r += oldPix[row1++];
+				g += oldPix[row1++];
+				b += oldPix[row1++];
 				row1++;
-				r += oldPix [row1++];
-				g += oldPix [row1++];
-				b += oldPix [row1++];
+				r += oldPix[row1++];
+				g += oldPix[row1++];
+				b += oldPix[row1++];
 				row1++;
 
-				newPix [offset++] = r * 0.25;
-				newPix [offset++] = g * 0.25;
-				newPix [offset++] = b * 0.25;
-				newPix [offset++] = 255;
+				newPix[offset++] = r * 0.25;
+				newPix[offset++] = g * 0.25;
+				newPix[offset++] = b * 0.25;
+				newPix[offset++] = 255;
 			}
 			row0 += rowLength;
 			row1 += rowLength;
 		}
 
-		newContext.putImageData (newData, 0, 0);
+		newContext.putImageData(newData, 0, 0);
 		return newCanvas;
 	},
-	floatResample: function (image, ratio) {
-		var newWidth = Math.floor (image.width / ratio + 0.025);
-		var newHeight = Math.floor (image.height / ratio + 0.025);
+	floatResample: function(image, ratio) {
+		var newWidth = Math.floor(image.width / ratio + 0.025);
+		var newHeight = Math.floor(image.height / ratio + 0.025);
 		var oldWidth = image.width;
 		var oldHeight = image.height;
 
-		var oldCanvas = this.document.createElementNS (XHTMLNS, 'canvas');
-		var oldContext = oldCanvas.getContext ('2d');
+		var oldCanvas = this.document.createElementNS(XHTMLNS, 'canvas');
+		var oldContext = oldCanvas.getContext('2d');
 
 		switch (Exif.orientation) {
 		case 0:
 			oldCanvas.width = oldWidth;
 			oldCanvas.height = oldHeight;
-			oldContext.drawImage (image, 0, 0, oldCanvas.width, oldCanvas.height);
+			oldContext.drawImage(image, 0, 0, oldCanvas.width, oldCanvas.height);
 			break;
 		case 90:
 			oldCanvas.width = oldHeight;
 			oldCanvas.height = oldWidth;
-			oldContext.translate (0, oldWidth);
-			oldContext.rotate (-0.5 * Math.PI);
-			oldContext.drawImage (image, 0, 0, oldCanvas.height, oldCanvas.width);
+			oldContext.translate(0, oldWidth);
+			oldContext.rotate(-0.5 * Math.PI);
+			oldContext.drawImage(image, 0, 0, oldCanvas.height, oldCanvas.width);
 			var temp = newWidth;
 			newWidth = newHeight;
 			newHeight = temp;
@@ -423,16 +423,16 @@ var Shrunked = {
 		case 180:
 			oldCanvas.width = oldWidth;
 			oldCanvas.height = oldHeight;
-			oldContext.translate (oldWidth, oldHeight);
-			oldContext.rotate (Math.PI);
-			oldContext.drawImage (image, 0, 0, oldCanvas.width, oldCanvas.height);
+			oldContext.translate(oldWidth, oldHeight);
+			oldContext.rotate(Math.PI);
+			oldContext.drawImage(image, 0, 0, oldCanvas.width, oldCanvas.height);
 			break;
 		case 270:
 			oldCanvas.width = oldHeight;
 			oldCanvas.height = oldWidth;
-			oldContext.translate (oldHeight, 0);
-			oldContext.rotate (0.5 * Math.PI);
-			oldContext.drawImage (image, 0, 0, oldCanvas.height, oldCanvas.width);
+			oldContext.translate(oldHeight, 0);
+			oldContext.rotate(0.5 * Math.PI);
+			oldContext.drawImage(image, 0, 0, oldCanvas.height, oldCanvas.width);
 			var temp = newWidth;
 			newWidth = newHeight;
 			newHeight = temp;
@@ -440,14 +440,14 @@ var Shrunked = {
 			break;
 		}
 
-		var oldData = oldContext.getImageData (0, 0, oldCanvas.width, oldCanvas.height);
+		var oldData = oldContext.getImageData(0, 0, oldCanvas.width, oldCanvas.height);
 		var oldPix = oldData.data;
 
-		var newCanvas = this.document.createElementNS (XHTMLNS, 'canvas');
-		var newContext = newCanvas.getContext ('2d');
+		var newCanvas = this.document.createElementNS(XHTMLNS, 'canvas');
+		var newContext = newCanvas.getContext('2d');
 		newCanvas.width = newWidth;
 		newCanvas.height = newHeight;
-		var newData = newContext.createImageData (newWidth, newHeight);
+		var newData = newContext.createImageData(newWidth, newHeight);
 		var newPix = newData.data;
 
 		var y, startY, endY, oldY;
@@ -458,12 +458,12 @@ var Shrunked = {
 		endY = 0;
 		for (y = 1; y <= newHeight; ++y) {
 			startY = endY;
-			endY = Math.floor (y * ratio);
+			endY = Math.floor(y * ratio);
 
 			endX = 0;
 			for (x = 1; x <= newWidth; ++x) {
 				startX = endX;
-				endX = Math.floor (x * ratio);
+				endX = Math.floor(x * ratio);
 
 				r = g = b = 0;
 				count = (endX - startX) * (endY - startY);
@@ -472,93 +472,93 @@ var Shrunked = {
 				for (oldY = startY; oldY < endY; ++oldY) {
 					for (oldX = startX; oldX < endX; ++oldX) {
 						offset = (i + oldX) * 4;
-						r += oldPix [offset++];
-						g += oldPix [offset++];
-						b += oldPix [offset++];
+						r += oldPix[offset++];
+						g += oldPix[offset++];
+						b += oldPix[offset++];
 					}
 					i += oldWidth;
 				}
 
-				newPix [newIndex++] = r / count;
-				newPix [newIndex++] = g / count;
-				newPix [newIndex++] = b / count;
-				newPix [newIndex++] = 255;
+				newPix[newIndex++] = r / count;
+				newPix[newIndex++] = g / count;
+				newPix[newIndex++] = b / count;
+				newPix[newIndex++] = 255;
 			}
 		}
-		newContext.putImageData (newData, 0, 0);
+		newContext.putImageData(newData, 0, 0);
 		return newCanvas;
 	},
-	saveCanvas: function (canvas, filename, quality) {
-		var destFile = tempDir.clone ();
+	saveCanvas: function(canvas, filename, quality) {
+		var destFile = tempDir.clone();
 		if (filename) {
-			destFile.append (filename);
+			destFile.append(filename);
 		} else {
-			destFile.append ('shrunked-image.jpg');
-			destFile.createUnique (Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
+			destFile.append('shrunked-image.jpg');
+			destFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
 		}
 
-		var stream = Cc ["@mozilla.org/network/safe-file-output-stream;1"].createInstance (Ci.nsIFileOutputStream);
-		stream.init (destFile, 0x04 | 0x08 | 0x20, 0600, 0); // write, create, truncate
-		var bStream = Cc ["@mozilla.org/binaryoutputstream;1"].createInstance (Ci.nsIBinaryOutputStream);
-		bStream.setOutputStream (stream);
+		var stream = Cc['@mozilla.org/network/safe-file-output-stream;1'].createInstance(Ci.nsIFileOutputStream);
+		stream.init(destFile, 0x04 | 0x08 | 0x20, 0600, 0); // write, create, truncate
+		var bStream = Cc['@mozilla.org/binaryoutputstream;1'].createInstance(Ci.nsIBinaryOutputStream);
+		bStream.setOutputStream(stream);
 
-		var source = canvas.toDataURL ('image/jpeg', 'quality=' + quality);
-		source = source.substring (source.indexOf (',') + 1);
-		source = atob (source);
+		var source = canvas.toDataURL('image/jpeg', 'quality=' + quality);
+		source = source.substring(source.indexOf(',') + 1);
+		source = atob(source);
 
-		if (Shrunked.prefs.getBoolPref ('options.exif') && Exif.ready) {
+		if (Shrunked.prefs.getBoolPref('options.exif') && Exif.ready) {
 			try {
 				if ('a002' in Exif.exif2) {
-					Exif.exif2 ['a002'].data = Exif.bytesFromInt(canvas.width);
-					Exif.exif2 ['a003'].data = Exif.bytesFromInt(canvas.height);
+					Exif.exif2['a002'].data = Exif.bytesFromInt(canvas.width);
+					Exif.exif2['a003'].data = Exif.bytesFromInt(canvas.height);
 				}
-				Exif.write ();
-				bStream.writeByteArray (Exif.wBytes, Exif.wBytes.length);
-				var offset = source.charCodeAt (4) * 256 + source.charCodeAt (5) + 4;
-				source = source.substring (offset);
+				Exif.write();
+				bStream.writeByteArray(Exif.wBytes, Exif.wBytes.length);
+				var offset = source.charCodeAt(4) * 256 + source.charCodeAt(5) + 4;
+				source = source.substring(offset);
 			} catch (e) {
-				Cu.reportError (e);
+				Cu.reportError(e);
 			}
 		}
 
-		bStream.writeBytes (source, source.length);
+		bStream.writeBytes(source, source.length);
 		if (stream instanceof Ci.nsISafeOutputStream) {
-			stream.finish ();
+			stream.finish();
 		} else {
-			stream.close ();
+			stream.close();
 		}
 
-		temporaryFiles.push (destFile);
+		temporaryFiles.push(destFile);
 		Exif.cleanup();
 
 		return destFile;
 	},
-	newURI: function (uri) {
-		return Services.io.newURI (uri, null, null);
+	newURI: function(uri) {
+		return Services.io.newURI(uri, null, null);
 	},
-	showDonateNotification: function (notifyBox, callback) {
+	showDonateNotification: function(notifyBox, callback) {
 		let currentVersion = 0;
 		let oldVersion = 0;
 
-		if (Shrunked.prefs.getPrefType ('version') == Ci.nsIPrefBranch.PREF_STRING) {
-			oldVersion = Shrunked.prefs.getCharPref ('version');
+		if (Shrunked.prefs.getPrefType('version') == Ci.nsIPrefBranch.PREF_STRING) {
+			oldVersion = Shrunked.prefs.getCharPref('version');
 		}
-		Cu.import ('resource://gre/modules/AddonManager.jsm');
-		AddonManager.getAddonByID (ID, function (addon) {
+		Cu.import('resource://gre/modules/AddonManager.jsm');
+		AddonManager.getAddonByID(ID, function(addon) {
 			currentVersion = addon.version;
-			Shrunked.prefs.setCharPref ('version', currentVersion);
+			Shrunked.prefs.setCharPref('version', currentVersion);
 
-			if (oldVersion == 0 || parseFloat (oldVersion) >= parseFloat (currentVersion)) {
+			if (oldVersion == 0 || parseFloat(oldVersion) >= parseFloat(currentVersion)) {
 				return;
 			}
 
-			if (Cc ['@mozilla.org/chrome/chrome-registry;1']
-					.getService (Ci.nsIXULChromeRegistry).getSelectedLocale ('shrunked') != 'en-US') {
+			if (Cc['@mozilla.org/chrome/chrome-registry;1']
+					.getService(Ci.nsIXULChromeRegistry).getSelectedLocale('shrunked') != 'en-US') {
 				return;
 			}
 
-			let label = 'Shrunked Image Resizer has been updated to version ' + currentVersion +'. ' +
-					'This update was made possible by donations.'
+			let label = 'Shrunked Image Resizer has been updated to version ' + currentVersion + '. ' +
+					'This update was made possible by donations.';
 			let value = 'shrunked-donate';
 			let buttons = [{
 				label: 'Donate',
@@ -566,13 +566,13 @@ var Shrunked = {
 				popup: null,
 				callback: callback
 			}];
-			Shrunked.prefs.setIntPref ('donationreminder', Date.now () / 1000);
-			notifyBox.appendNotification (label, value,
+			Shrunked.prefs.setIntPref('donationreminder', Date.now() / 1000);
+			notifyBox.appendNotification(label, value,
 					'chrome://shrunked/content/shrunked.png', notifyBox.PRIORITY_INFO_LOW, buttons);
 		});
 	}
 };
-XPCOMUtils.defineLazyGetter(Shrunked, "prefs", function() {
+XPCOMUtils.defineLazyGetter(Shrunked, 'prefs', function() {
 	return Services.prefs.getBranch('extensions.shrunked.').QueryInterface(Ci.nsIPrefBranch2);
 });
 
@@ -605,12 +605,12 @@ var Exif = {
 					this.readOnReady(callback);
 				}).bind(this));
 				return;
-			} else if (source.constructor.name == "String" && /^data:(image\/jpeg|application\/x-moz-file);base64,/.test (source)) {
+			} else if (source.constructor.name == 'String' && /^data:(image\/jpeg|application\/x-moz-file);base64,/.test(source)) {
 				this.rBytes = atob(source.substring(23));
 				this.readOnReady(callback);
 				return;
 			}
-			throw "Unexpected source: " + source.toString();
+			throw 'Unexpected source: ' + source.toString();
 		} catch (e) {
 			Cu.reportError(e);
 			callback();
@@ -619,7 +619,7 @@ var Exif = {
 	readOnReady: function(callback) {
 		try {
 			if (this.read2Bytes() != 0xffd8) {
-				throw "File is not a JPEG";
+				throw 'File is not a JPEG';
 			}
 			var current = this.read2Bytes();
 			if (current == 0xffe0) {
@@ -628,28 +628,28 @@ var Exif = {
 				current = this.read2Bytes();
 			}
 			if (current != 0xffe1) {
-				throw "No valid EXIF data";
+				throw 'No valid EXIF data';
 			}
 			this.rIndex += 8;
 			this.rBigEndian = this.read2Bytes() == 0x4d4d;
 			this.rIndex += 6;
 
 			var exif1Count = this.read2Bytes();
-			var exif1 = this.readSection(exif1Count)
+			var exif1 = this.readSection(exif1Count);
 
-			this.rIndex = this.intFromBytes(exif1["8769"].data) + this.rBaseAddress;
+			this.rIndex = this.intFromBytes(exif1['8769'].data) + this.rBaseAddress;
 			var exif2Count = this.read2Bytes();
 			var exif2 = this.readSection(exif2Count);
 
 			var gps = null;
-			if (Shrunked.prefs.getBoolPref("options.gps") && "8825" in exif1) {
-				this.rIndex = this.intFromBytes(exif1["8825"].data) + this.rBaseAddress;
+			if (Shrunked.prefs.getBoolPref('options.gps') && '8825' in exif1) {
+				this.rIndex = this.intFromBytes(exif1['8825'].data) + this.rBaseAddress;
 				var gpsCount = this.read2Bytes();
 				gps = this.readSection(gpsCount);
 			}
 
-			if ("112" in exif1) {
-				switch (this.shortFromBytes(exif1["112"].data)) {
+			if ('112' in exif1) {
+				switch (this.shortFromBytes(exif1['112'].data)) {
 				case 8:
 					this.orientation = 90;
 					break;
@@ -662,7 +662,7 @@ var Exif = {
 				}
 			}
 
-			var blacklist = JSON.parse(Shrunked.prefs.getCharPref("exif.blacklist"));
+			var blacklist = JSON.parse(Shrunked.prefs.getCharPref('exif.blacklist'));
 			blacklist.forEach(function(key) {
 				delete exif1[key];
 				delete exif2[key];
@@ -694,15 +694,15 @@ var Exif = {
 
 		if (this.gps) {
 			var gpsAddress = exif2Address + this.getSectionSize(this.exif2);
-			if ("8825" in this.exif1) {
-				this.exif1["8825"].data = this.bytesFromInt(gpsAddress);
+			if ('8825' in this.exif1) {
+				this.exif1['8825'].data = this.bytesFromInt(gpsAddress);
 			}
-		} else if ("8825" in this.exif1){
-			delete this.exif1["8825"];
+		} else if ('8825' in this.exif1) {
+			delete this.exif1['8825'];
 			exif2Address -= 12;
 		}
 
-		this.exif1["8769"].data = this.bytesFromInt(exif2Address);
+		this.exif1['8769'].data = this.bytesFromInt(exif2Address);
 
 		this.writeSection(this.exif1);
 		this.wIndex = this.wDataAddress;
@@ -775,12 +775,12 @@ var Exif = {
 			type: type,
 			count: count,
 			size: size
-		}
+		};
 
-		if (code == "927c") {
+		if (code == '927c') {
 			field.count = 4;
 			field.size = 4;
-			field.data = "****";
+			field.data = '****';
 			return field;
 		}
 
@@ -852,34 +852,34 @@ var Exif = {
 };
 
 var observer = {
-	observe: function (aSubject, aTopic, aData) {
+	observe: function(aSubject, aTopic, aData) {
 		switch (aTopic) {
-			case "private-browsing":
-				if (aData == "exit")
-					this.removeTempFiles ();
+			case 'private-browsing':
+				if (aData == 'exit')
+					this.removeTempFiles();
 				return;
-			case "quit-application-granted":
-				Services.obs.removeObserver (this, "private-browsing");
-				Services.obs.removeObserver (this, "quit-application-granted");
-				Services.obs.removeObserver (this, "browser:purge-session-history");
+			case 'quit-application-granted':
+				Services.obs.removeObserver(this, 'private-browsing');
+				Services.obs.removeObserver(this, 'quit-application-granted');
+				Services.obs.removeObserver(this, 'browser:purge-session-history');
 				// no break
-			case "browser:purge-session-history":
-				this.removeTempFiles ();
+			case 'browser:purge-session-history':
+				this.removeTempFiles();
 				return;
 		}
 	},
 
-	removeTempFiles: function () {
-		let file = temporaryFiles.pop ();
+	removeTempFiles: function() {
+		let file = temporaryFiles.pop();
 		while (file) {
-			if (file.exists ()) {
-				file.remove (false);
+			if (file.exists()) {
+				file.remove(false);
 			}
-			file = temporaryFiles.pop ();
+			file = temporaryFiles.pop();
 		}
 	}
-}
+};
 
-Services.obs.addObserver (observer, "private-browsing", false);
-Services.obs.addObserver (observer, "quit-application-granted", false);
-Services.obs.addObserver (observer, "browser:purge-session-history", false);
+Services.obs.addObserver(observer, 'private-browsing', false);
+Services.obs.addObserver(observer, 'quit-application-granted', false);
+Services.obs.addObserver(observer, 'browser:purge-session-history', false);
