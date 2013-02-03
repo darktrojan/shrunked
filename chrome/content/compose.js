@@ -18,19 +18,29 @@ var ShrunkedCompose = {
 
 		// the editor's document isn't available immediately
 		setTimeout(function() {
-			document.getElementById('content-frame').contentDocument.body
-				.addEventListener('DOMNodeInserted', ShrunkedCompose.resizeInline, false);
+			var target = document.getElementById('content-frame').contentDocument.body;
+			var config = { attributes: false, childList: true, characterData: false };
+			var observer = new MutationObserver(function(mutations) {
+				mutations.forEach(function(mutation) {
+					if (mutation.addedNodes) {
+						for (var target of mutation.addedNodes) {
+							ShrunkedCompose.resizeInline(target);
+						}
+					}
+				});
+			});
+			observer.observe(target, config);
 		}, 500);
 	},
 
 	inlineImages: [],
 	timeout: null,
-	resizeInline: function(event) {
+	resizeInline: function(target) {
 		const Ci = Components.interfaces;
 		const Cu = Components.utils;
 
-		if (event.target.nodeName == 'IMG') {
-			ShrunkedCompose.inlineImages.push(event.target);
+		if (target.nodeName == 'IMG') {
+			ShrunkedCompose.inlineImages.push(target);
 			if (ShrunkedCompose.timeout) {
 				clearTimeout(ShrunkedCompose.timeout);
 			}

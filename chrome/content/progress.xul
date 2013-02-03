@@ -3,6 +3,7 @@
 
 <!DOCTYPE dialog SYSTEM "chrome://shrunked/locale/shrunked.dtd">
 <dialog id="sendProgress" title="" style="width: 36em;" buttons="cancel"
+		onload="doResize(images[0]);"
 		xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
 	<grid flex="1">
