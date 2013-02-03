@@ -548,7 +548,8 @@ var Shrunked = {
 			currentVersion = addon.version;
 			Shrunked.prefs.setCharPref('version', currentVersion);
 
-			if (oldVersion == 0 || parseFloat(oldVersion) >= parseFloat(currentVersion)) {
+			var comparator = Cc['@mozilla.org/xpcom/version-comparator;1'].createInstance(Ci.nsIVersionComparator);
+			if (oldVersion == 0 || comparator.compare(oldVersion, currentVersion) >= 0) {
 				return;
 			}
 
@@ -558,7 +559,7 @@ var Shrunked = {
 			}
 
 			let label = 'Shrunked Image Resizer has been updated to version ' + currentVersion + '. ' +
-					'This update was made possible by donations.';
+					'Please consider making a donation.';
 			let value = 'shrunked-donate';
 			let buttons = [{
 				label: 'Donate',
