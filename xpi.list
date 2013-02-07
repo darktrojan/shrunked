@@ -25,3 +25,4 @@ icon.png
 install.rdf
 modules
 modules/shrunked.jsm
+modules/worker.js

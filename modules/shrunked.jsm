@@ -15,6 +15,7 @@ XPCOMUtils.defineLazyGetter(this, 'tempDir', function() {
 	return Services.dirsvc.get('TmpD', Ci.nsIFile);
 });
 var temporaryFiles = [];
+var worker = new Worker('resource://shrunked/worker.js');
 
 var Shrunked = {
 	document: null,
@@ -65,13 +66,15 @@ var Shrunked = {
 			}
 
 			var onloadOnReady = (function() {
-				var destFile = Shrunked.resize(image, sourceFile ? sourceFile.leafName : null, maxWidth, maxHeight, quality);
-				this.document = null;
-				if (callback) {
-					callback(destFile);
-				}
-				this.busy = false;
-				this.dequeue();
+				Shrunked.resize(image, sourceFile ? sourceFile.leafName : null,
+					maxWidth, maxHeight, quality, (function(destFile) {
+						this.document = null;
+						if (callback) {
+							callback(destFile);
+						}
+						this.busy = false;
+						this.dequeue();
+					}).bind(this));
 			}).bind(this);
 
 			Exif.orientation = 0;
@@ -92,21 +95,22 @@ var Shrunked = {
 		}).bind(this);
 		image.src = sourceURI;
 	},
-	resize: function(image, filename, maxWidth, maxHeight, quality) {
+	resize: function(image, filename, maxWidth, maxHeight, quality, callback) {
 		var destFile;
 		try {
-			var canvas = this.createCanvas(image, maxWidth, maxHeight);
-			if (canvas == image) {
-				return null;
-			}
+			this.createCanvas(image, maxWidth, maxHeight, (function(canvas) {
+				if (canvas == image) {
+					return null;
+				}
 
-			destFile = this.saveCanvas(canvas, filename, quality);
+				destFile = this.saveCanvas(canvas, filename, quality);
+				callback(destFile);
+			}).bind(this));
 		} catch (e) {
 			Cu.reportError(e);
 		}
-		return destFile;
 	},
-	createCanvas: function(image, maxWidth, maxHeight) {
+	createCanvas: function(image, maxWidth, maxHeight, callback) {
 		var w, h;
 		switch (Exif.orientation) {
 		case 0:
@@ -123,20 +127,19 @@ var Shrunked = {
 		var ratio = Math.max(1, Math.max(w / maxWidth, h / maxHeight));
 		if (ratio <= 1) {
 			if (Exif.orientation == 0) {
-				return image;
+				callback(image);
+			} else {
+				callback(this.rotateUnscaled(image));
 			}
-			return this.rotateUnscaled(image);
+		} else if (!Shrunked.prefs.getBoolPref('options.resample')) {
+			callback(this.resizeUnresampled(image, 1 / ratio));
+		} else if (ratio >= 3) {
+			this.nineResample(image, 1 / ratio, callback);
+		} else if (ratio >= 2) {
+			this.fourResample(image, 1 / ratio, callback);
+		} else {
+			this.floatResample(image, ratio, callback);
 		}
-		if (!Shrunked.prefs.getBoolPref('options.resample')) {
-			return this.resizeUnresampled(image, 1 / ratio);
-		}
-		if (ratio >= 3) {
-			return this.nineResample(image, 1 / ratio);
-		}
-		if (ratio >= 2) {
-			return this.fourResample(image, 1 / ratio);
-		}
-		return this.floatResample(image, ratio);
 	},
 	rotateUnscaled: function(image) {
 		var canvas = this.document.createElementNS(XHTMLNS, 'canvas');
@@ -174,7 +177,7 @@ var Shrunked = {
 
 		return canvas;
 	},
-	nineResample: function(image, ratio) {
+	nineResample: function(image, ratio, callback) {
 		var newWidth = Math.floor(image.width * ratio + 0.025);
 		var newHeight = Math.floor(image.height * ratio + 0.025);
 		var oldWidth = newWidth * 3;
@@ -221,82 +224,24 @@ var Shrunked = {
 		}
 
 		var oldData = oldContext.getImageData(0, 0, oldCanvas.width, oldCanvas.height);
-		var oldPix = oldData.data;
 
 		var newCanvas = this.document.createElementNS(XHTMLNS, 'canvas');
 		var newContext = newCanvas.getContext('2d');
 		newCanvas.width = newWidth;
 		newCanvas.height = newHeight;
 		var newData = newContext.createImageData(newWidth, newHeight);
-		var newPix = newData.data;
-		var newLength = newPix.length;
 
-		var rowLength = oldWidth * 4;
-		var rowLengthTimes2 = rowLength * 2;
-		var row0 = 0;
-		var row1 = rowLength;
-		var row2 = rowLengthTimes2;
-		var r, g, b, nextRow;
-		var offset = 0;
-
-		while (offset < newLength) {
-			nextRow = row1;
-			while (row0 < nextRow) {
-				r = g = b = 0;
-
-				r += oldPix[row0++];
-				g += oldPix[row0++];
-				b += oldPix[row0++];
-				row0++;
-				r += oldPix[row0++];
-				g += oldPix[row0++];
-				b += oldPix[row0++];
-				row0++;
-				r += oldPix[row0++];
-				g += oldPix[row0++];
-				b += oldPix[row0++];
-				row0++;
-
-				r += oldPix[row1++];
-				g += oldPix[row1++];
-				b += oldPix[row1++];
-				row1++;
-				r += oldPix[row1++];
-				g += oldPix[row1++];
-				b += oldPix[row1++];
-				row1++;
-				r += oldPix[row1++];
-				g += oldPix[row1++];
-				b += oldPix[row1++];
-				row1++;
-
-				r += oldPix[row2++];
-				g += oldPix[row2++];
-				b += oldPix[row2++];
-				row2++;
-				r += oldPix[row2++];
-				g += oldPix[row2++];
-				b += oldPix[row2++];
-				row2++;
-				r += oldPix[row2++];
-				g += oldPix[row2++];
-				b += oldPix[row2++];
-				row2++;
-
-				newPix[offset++] = r * 0.11111;
-				newPix[offset++] = g * 0.11111;
-				newPix[offset++] = b * 0.11111;
-				newPix[offset++] = 255;
-			}
-			row0 += rowLengthTimes2;
-			row1 += rowLengthTimes2;
-			row2 += rowLengthTimes2;
+		worker.onmessage = function(event) {
+			newContext.putImageData(event.data, 0, 0);
+			callback(newCanvas);
 		}
-
-		newContext.putImageData(newData, 0, 0);
-		return newCanvas;
+		worker.postMessage({
+			oldData: oldData,
+			newData: newData,
+			func: 'nineResample'
+		});
 	},
-	fourResample: function(image, ratio) {
+	fourResample: function(image, ratio, callback) {
 		var newWidth = Math.floor(image.width * ratio + 0.025);
 		var newHeight = Math.floor(image.height * ratio + 0.025);
 		var oldWidth = newWidth * 2;
@@ -343,58 +288,24 @@ var Shrunked = {
 		}
 
 		var oldData = oldContext.getImageData(0, 0, oldCanvas.width, oldCanvas.height);
-		var oldPix = oldData.data;
 
 		var newCanvas = this.document.createElementNS(XHTMLNS, 'canvas');
 		var newContext = newCanvas.getContext('2d');
 		newCanvas.width = newWidth;
 		newCanvas.height = newHeight;
 		var newData = newContext.createImageData(newWidth, newHeight);
-		var newPix = newData.data;
-		var newLength = newPix.length;
 
-		var rowLength = oldWidth * 4;
-		var row0 = 0;
-		var row1 = rowLength;
-		var r, g, b, nextRow;
-		var offset = 0;
-
-		while (offset < newLength) {
-			nextRow = row1;
-			while (row0 < nextRow) {
-				r = g = b = 0;
-
-				r += oldPix[row0++];
-				g += oldPix[row0++];
-				b += oldPix[row0++];
-				row0++;
-				r += oldPix[row0++];
-				g += oldPix[row0++];
-				b += oldPix[row0++];
-				row0++;
-
-				r += oldPix[row1++];
-				g += oldPix[row1++];
-				b += oldPix[row1++];
-				row1++;
-				r += oldPix[row1++];
-				g += oldPix[row1++];
-				b += oldPix[row1++];
-				row1++;
-
-				newPix[offset++] = r * 0.25;
-				newPix[offset++] = g * 0.25;
-				newPix[offset++] = b * 0.25;
-				newPix[offset++] = 255;
-			}
-			row0 += rowLength;
-			row1 += rowLength;
+		worker.onmessage = function(event) {
+			newContext.putImageData(event.data, 0, 0);
+			callback(newCanvas);
 		}
-
-		newContext.putImageData(newData, 0, 0);
-		return newCanvas;
+		worker.postMessage({
+			oldData: oldData,
+			newData: newData,
+			func: 'fourResample'
+		});
 	},
-	floatResample: function(image, ratio) {
+	floatResample: function(image, ratio, callback) {
 		var newWidth = Math.floor(image.width / ratio + 0.025);
 		var newHeight = Math.floor(image.height / ratio + 0.025);
 		var oldWidth = image.width;
@@ -441,52 +352,23 @@ var Shrunked = {
 		}
 
 		var oldData = oldContext.getImageData(0, 0, oldCanvas.width, oldCanvas.height);
-		var oldPix = oldData.data;
 
 		var newCanvas = this.document.createElementNS(XHTMLNS, 'canvas');
 		var newContext = newCanvas.getContext('2d');
 		newCanvas.width = newWidth;
 		newCanvas.height = newHeight;
 		var newData = newContext.createImageData(newWidth, newHeight);
-		var newPix = newData.data;
 
-		var y, startY, endY, oldY;
-		var x, startX, endX, oldX;
-		var r, g, b, count, i, offset;
-		var newIndex = 0;
-
-		endY = 0;
-		for (y = 1; y <= newHeight; ++y) {
-			startY = endY;
-			endY = Math.floor(y * ratio);
-
-			endX = 0;
-			for (x = 1; x <= newWidth; ++x) {
-				startX = endX;
-				endX = Math.floor(x * ratio);
-
-				r = g = b = 0;
-				count = (endX - startX) * (endY - startY);
-				i = startY * oldWidth;
-
-				for (oldY = startY; oldY < endY; ++oldY) {
-					for (oldX = startX; oldX < endX; ++oldX) {
-						offset = (i + oldX) * 4;
-						r += oldPix[offset++];
-						g += oldPix[offset++];
-						b += oldPix[offset++];
-					}
-					i += oldWidth;
-				}
-
-				newPix[newIndex++] = r / count;
-				newPix[newIndex++] = g / count;
-				newPix[newIndex++] = b / count;
-				newPix[newIndex++] = 255;
-			}
+		worker.onmessage = function(event) {
+			newContext.putImageData(event.data, 0, 0);
+			callback(newCanvas);
 		}
-		newContext.putImageData(newData, 0, 0);
-		return newCanvas;
+		worker.postMessage({
+			oldData: oldData,
+			newData: newData,
+			ratio: ratio,
+			func: 'floatResample'
+		});
 	},
 	saveCanvas: function(canvas, filename, quality) {
 		var destFile = tempDir.clone();
