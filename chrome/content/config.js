@@ -88,6 +88,7 @@ function doLoad() {
 	slider.value = qualityPref.value;
 
 	validate();
+	window.sizeToContent();
 }
 
 function handleData(data) {
