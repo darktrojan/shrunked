@@ -19,6 +19,7 @@ defaults
 defaults/preferences
 defaults/preferences/prefs.js
 icon.png
+icon64.png
 install.rdf
 modules
 modules/shrunked.jsm
