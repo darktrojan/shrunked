@@ -6,8 +6,7 @@
 		<em:version>3.0.1</em:version>
 		<em:type>2</em:type>
 
-		<em:homepageURL>http://www.darktrojan.net/software/addons/shrunked/</em:homepageURL>
-		<em:iconURL>chrome://shrunked/content/shrunked.png</em:iconURL>
+		<em:homepageURL>http://www.darktrojan.net/software/addons/shrunked</em:homepageURL>
 		<em:optionsURL>chrome://shrunked/content/config.xul</em:optionsURL>
 
 		<em:name>Shrunked Image Resizer</em:name>

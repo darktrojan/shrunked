@@ -7,9 +7,6 @@ chrome/content/config.js
 chrome/content/config.xul
 chrome/content/options.js
 chrome/content/options.xul
-chrome/content/shrunked-defaults.png
-chrome/content/shrunked-siteprefs.png
-chrome/content/shrunked.png
 chrome/content/browser.js
 chrome/content/browser.xul
 chrome/content/progress.js
