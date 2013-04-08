@@ -45,17 +45,25 @@ var Shrunked = {
 
 	resizeAsync: function(document, sourceFile, maxWidth, maxHeight, quality, callback) {
 		this.busy = true;
+
 		var sourceURI;
+		var filename = null;
 		if (typeof sourceFile == 'string') {
 			sourceURI = sourceFile;
-			if (/^data/.test(sourceURI)) {
-				sourceFile = null;
-			} else {
+			if (/^file:/.test(sourceURI)) {
 				sourceFile = Services.io.newURI(sourceFile, null, null).QueryInterface(Ci.nsIFileURL).file;
+				filename = sourceFile.leafName;
+			} else {
+				sourceFile = null;
+				var match;
+				if (match = /[?&]filename=([\w.-]+)/.exec(sourceURI)) {
+					filename = match[1];
+				}
 			}
 		} else {
 			sourceURI = Services.io.newFileURI(sourceFile).spec;
 		}
+
 		this.document = document;
 		var image = this.document.createElementNS(XHTMLNS, 'img');
 		image.onload = (function() {
@@ -66,7 +74,7 @@ var Shrunked = {
 			}
 
 			var onloadOnReady = (function() {
-				Shrunked.resize(image, sourceFile ? sourceFile.leafName : null,
+				Shrunked.resize(image, filename,
 					maxWidth, maxHeight, quality, (function(destFile) {
 						this.document = null;
 						if (callback) {
@@ -80,7 +88,7 @@ var Shrunked = {
 			Exif.orientation = 0;
 			Exif.ready = false;
 			if (Shrunked.prefs.getBoolPref('options.exif')) {
-				Exif.read(!!sourceFile ? sourceFile : sourceURI, onloadOnReady);
+				Exif.read(sourceURI, onloadOnReady);
 			} else {
 				onloadOnReady();
 			}
@@ -480,29 +488,16 @@ var Exif = {
 		this.wIndex = 0;
 		this.wDataAddress = 0;
 
-		try {
-			if (source instanceof Ci.nsIFile) {
-				NetUtil.asyncFetch(source, (function(inputStream, status) {
-					if (!Components.isSuccessCode(status)) {
-						// abort
-						callback();
-						return;
-					}
-
-					this.rBytes = NetUtil.readInputStreamToString(inputStream, inputStream.available());
-					this.readOnReady(callback);
-				}).bind(this));
-				return;
-			} else if (source.constructor.name == 'String' && /^data:(image\/jpeg|application\/x-moz-file);base64,/.test(source)) {
-				this.rBytes = atob(source.substring(23));
-				this.readOnReady(callback);
+		NetUtil.asyncFetch(source, (function(inputStream, status) {
+			if (!Components.isSuccessCode(status)) {
+				// abort
+				callback();
 				return;
 			}
-			throw 'Unexpected source: ' + source.toString();
-		} catch (e) {
-			Cu.reportError(e);
-			callback();
-		}
+
+			this.rBytes = NetUtil.readInputStreamToString(inputStream, inputStream.available());
+			this.readOnReady(callback);
+		}).bind(this));
 	},
 	readOnReady: function(callback) {
 		try {
@@ -516,7 +511,8 @@ var Exif = {
 				current = this.read2Bytes();
 			}
 			if (current != 0xffe1) {
-				throw 'No valid EXIF data';
+				Services.console.logStringMessage('No valid EXIF data');
+				return;
 			}
 			this.rIndex += 8;
 			this.rBigEndian = this.read2Bytes() == 0x4d4d;

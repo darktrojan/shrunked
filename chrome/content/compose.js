@@ -61,6 +61,8 @@ var ShrunkedCompose = {
 						keep = true;
 					} else if (/^data:image\/jpeg;base64,/.test(img.src) && img.src.length - 23 >= minimumData) {
 						keep = true;
+					} else if (/type=image\/jpeg/.test(img.src) || /\.jpe?g$/i.test(img.src)) {
+						keep = true;
 					}
 					if (!keep) {
 						ShrunkedCompose.inlineImages.splice(i, 1);
@@ -94,6 +96,10 @@ var ShrunkedCompose = {
 				ShrunkedCompose.inlineImages = [];
 				ShrunkedCompose.timeout = null;
 			}, 500);
+		} else {
+			for (var child of target.children) {
+				this.resizeInline(child);
+			}
 		}
 	},
 	doResizeInline: function(img, maxWidth, maxHeight, quality) {
