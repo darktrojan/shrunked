@@ -19,7 +19,7 @@ var progressText = document.getElementById('progressText');
 progressText.value = '0/' + imageCount;
 
 function doResize(image) {
-	Shrunked.enqueue(document, image.url, maxWidth, maxHeight, quality, function(destFile) {
+	Shrunked.enqueue(image.url, maxWidth, maxHeight, quality, function(destFile) {
 		progress.setAttribute('value', ++currentImage);
 		progressText.setAttribute('value', currentImage + '/' + imageCount);
 		image.destFile = destFile;

@@ -103,7 +103,7 @@ var ShrunkedCompose = {
 		}
 	},
 	doResizeInline: function(img, maxWidth, maxHeight, quality) {
-		Shrunked.enqueue(document, img.src, maxWidth, maxHeight, quality, function(destFile) {
+		Shrunked.enqueue(img.src, maxWidth, maxHeight, quality, function(destFile) {
 			if (destFile) {
 				img.src = Services.io.newFileURI(destFile).spec;
 				img.removeAttribute('width');

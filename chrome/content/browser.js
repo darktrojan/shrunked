@@ -204,7 +204,7 @@ var ShrunkedBrowser = {
 			if (/\.jpe?g$/i.test(paths[i])) {
 				var sourceFile = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
 				sourceFile.initWithPath(paths[i]);
-				Shrunked.enqueue(document, sourceFile, maxWidth, maxHeight, quality, function(destFile) {
+				Shrunked.enqueue(sourceFile, maxWidth, maxHeight, quality, function(destFile) {
 					if (destFile) {
 						// this is async, we need to wait for it
 						newPaths.push(destFile.path);
