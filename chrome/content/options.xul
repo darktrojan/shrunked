@@ -16,10 +16,10 @@
 			<hbox align="center">
 				<radio id="custom" label="&shrunked-custom.label;" oncommand="validate();" />
 				<label id="label1" value="&shrunked-width.label;" control="customvalue1" disabled="true" />
-				<textbox id="customvalue1" type="number" value="1500" increment="50" max="2500" size="4" disabled="true"
+				<textbox id="customvalue1" type="number" value="1500" increment="50" min="250" max="2500" size="4" disabled="true"
 						unit="&shrunked-custom.pixels;" style="-moz-binding: url(chrome://shrunked/content/bindings.xml#numberbox)" />
 				<label id="label2" value="&shrunked-height.label;" control="customvalue2" disabled="true" />
-				<textbox id="customvalue2" type="number" value="1500" increment="50" max="2500" size="4" disabled="true"
+				<textbox id="customvalue2" type="number" value="1500" increment="50" min="250" max="2500" size="4" disabled="true"
 						unit="&shrunked-custom.pixels;" style="-moz-binding: url(chrome://shrunked/content/bindings.xml#numberbox)" />
 			</hbox>
 		</radiogroup>

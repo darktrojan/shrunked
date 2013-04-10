@@ -61,7 +61,8 @@ var ShrunkedCompose = {
 						keep = true;
 					} else if (/^data:image\/jpeg;base64,/.test(img.src) && img.src.length - 23 >= minimumData) {
 						keep = true;
-					} else if (/type=image\/jpeg/.test(img.src) || /\.jpe?g$/i.test(img.src)) {
+					// } else if (/type=image\/jpeg/.test(img.src) || /\.jpe?g$/i.test(img.src)) {
+					} else if (img.width > 100 || img.height > 100) {
 						keep = true;
 					}
 					if (!keep) {
@@ -96,7 +97,7 @@ var ShrunkedCompose = {
 				ShrunkedCompose.inlineImages = [];
 				ShrunkedCompose.timeout = null;
 			}, 500);
-		} else {
+		} else if (target.nodeType == Node.ELEMENT_NODE) {
 			for (var child of target.children) {
 				this.resizeInline(child);
 			}

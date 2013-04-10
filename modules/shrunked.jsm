@@ -501,7 +501,8 @@ var Exif = {
 	readOnReady: function(callback) {
 		try {
 			if (this.read2Bytes() != 0xffd8) {
-				throw 'File is not a JPEG';
+				Services.console.logStringMessage('File is not a JPEG');
+				return;
 			}
 			var current = this.read2Bytes();
 			if (current == 0xffe0) {
