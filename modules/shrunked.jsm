@@ -460,8 +460,7 @@ var Shrunked = {
 				callback: callback
 			}];
 			Shrunked.prefs.setIntPref('donationreminder', Date.now() / 1000);
-			notifyBox.appendNotification(label, value,
-					'chrome://shrunked/content/shrunked.png', notifyBox.PRIORITY_INFO_LOW, buttons);
+			notifyBox.appendNotification(label, value, null, notifyBox.PRIORITY_INFO_LOW, buttons);
 		});
 	}
 };

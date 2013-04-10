@@ -140,7 +140,7 @@ var ShrunkedBrowser = {
 		var notification = notifyBox.appendNotification(
 			this.strings.getString('question'),
 			'shrunked-notification',
-			'chrome://shrunked/content/shrunked.png',
+			null,
 			notifyBox.PRIORITY_INFO_HIGH, buttons
 		);
 
