@@ -18,15 +18,15 @@ var temporaryFiles = [];
 var worker = new Worker('resource://shrunked/worker.js');
 
 var Shrunked = {
-	document: Services.appShell.hiddenDOMWindow.document,
+	document: null,
 
 	queue: [],
-	enqueue: function(sourceFile, maxWidth, maxHeight, quality, callback) {
+	enqueue: function(document, sourceFile, maxWidth, maxHeight, quality, callback) {
 		if (this.busy) {
-			this.queue.push([sourceFile, maxWidth, maxHeight, quality, callback]);
+			this.queue.push([document, sourceFile, maxWidth, maxHeight, quality, callback]);
 		} else {
 			try {
-				this.resizeAsync(sourceFile, maxWidth, maxHeight, quality, callback);
+				this.resizeAsync(document, sourceFile, maxWidth, maxHeight, quality, callback);
 			} catch (e) {
 				Cu.reportError(e);
 			}
@@ -36,14 +36,14 @@ var Shrunked = {
 		var args = this.queue.shift();
 		if (args) {
 			try {
-				this.resizeAsync(args[0], args[1], args[2], args[3], args[4]);
+				this.resizeAsync(args[0], args[1], args[2], args[3], args[4], args[5]);
 			} catch (e) {
 				Cu.reportError(e);
 			}
 		}
 	},
 
-	resizeAsync: function(sourceFile, maxWidth, maxHeight, quality, callback) {
+	resizeAsync: function(document, sourceFile, maxWidth, maxHeight, quality, callback) {
 		this.busy = true;
 
 		var sourceURI;
@@ -64,6 +64,7 @@ var Shrunked = {
 			sourceURI = Services.io.newFileURI(sourceFile).spec;
 		}
 
+		this.document = document;
 		var image = this.document.createElementNS(XHTMLNS, 'img');
 		image.onload = (function() {
 			// https://bugzilla.mozilla.org/show_bug.cgi?id=574330#c54
@@ -75,6 +76,7 @@ var Shrunked = {
 			var onloadOnReady = (function() {
 				Shrunked.resize(image, filename,
 					maxWidth, maxHeight, quality, (function(destFile) {
+						this.document = null;
 						if (callback) {
 							callback(destFile);
 						}
@@ -92,6 +94,7 @@ var Shrunked = {
 			}
 		}).bind(this);
 		image.onerror = (function() {
+			this.document = null;
 			if (callback) {
 				callback(null);
 			}
