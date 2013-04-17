@@ -21,6 +21,7 @@
 			<preference id="p_quality" name="extensions.shrunked.default.quality" type="int" />
 			<preference id="p_resample" name="extensions.shrunked.options.resample" type="bool" />
 			<preference id="p_exif" name="extensions.shrunked.options.exif" type="bool" />
+			<preference id="p_orient" name="extensions.shrunked.options.orientation" type="bool" />
 			<preference id="p_gps" name="extensions.shrunked.options.gps" type="bool" />
 		</preferences>
 		<tabbox>
@@ -139,7 +140,7 @@
 						preference="p_exif"
 						oncommand="enableExif();" />
 					<vbox class="indent">
-						<!-- <checkbox label="Automatically rotate images" checked="true" /> -->
+						<checkbox id="cb_orient" label="Automatically rotate images" preference="p_orient" />
 						<checkbox id="cb_gps" label="Transfer GPS data" preference="p_gps" />
 					</vbox>
 				</tabpanel>

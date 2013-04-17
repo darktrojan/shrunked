@@ -540,7 +540,7 @@ var Exif = {
 				gps = this.readSection(gpsCount);
 			}
 
-			if ('112' in exif1) {
+			if (Shrunked.prefs.getBoolPref('options.orientation') && '112' in exif1) {
 				switch (this.shortFromBytes(exif1['112'].data)) {
 				case 8:
 					this.orientation = 90;

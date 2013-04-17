@@ -79,7 +79,7 @@ function setSize() {
 }
 
 function enableExif() {
-	cb_gps.disabled = !cb_exif.checked;
+	cb_orient.disabled = cb_gps.disabled = !cb_exif.checked;
 }
 
 function handleData(data) {
