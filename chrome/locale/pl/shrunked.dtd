@@ -25,3 +25,8 @@
 <!ENTITY shrunked-minsize.kilobytes "KB">
 <!ENTITY shrunked-maxsize.label "Maximum size for your photos:">
 <!ENTITY shrunked-custom.pixels "px">
+<!ENTITY shrunked-advanced.label "Advanced">
+<!ENTITY shrunked-advanced.resample.label "Resample images using javascript">
+<!ENTITY shrunked-advanced.exif.label "Transfer EXIF data">
+<!ENTITY shrunked-advanced.orient.label "Automatically rotate images">
+<!ENTITY shrunked-advanced.gps.label "Transfer GPS data">
