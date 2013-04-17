@@ -2,93 +2,94 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
 
-var returnValues = window.arguments[0];
-
 Cu.import('resource://shrunked/shrunked.jsm');
 Cu.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
-var windowIsPrivate = PrivateBrowsingUtils.isWindowPrivate(window.opener);
 
-var noresize = document.getElementById('noresize');
-var small = document.getElementById('small');
-var medium = document.getElementById('medium');
-var large = document.getElementById('large');
-var custom = document.getElementById('custom');
-var label1 = document.getElementById('label1');
-var customvalue1 = document.getElementById('customvalue1');
-var label2 = document.getElementById('label2');
-var customvalue2 = document.getElementById('customvalue2');
-var remembersite = document.getElementById('remembersite');
-var savedefault = document.getElementById('savedefault');
-var acceptButton = document.documentElement.getButton('accept');
+let returnValues = window.arguments[0];
+let windowIsPrivate = PrivateBrowsingUtils.isWindowPrivate(window.opener);
 
-(function() {
-	var maxWidth = Shrunked.prefs.getIntPref('default.maxWidth');
-	var maxHeight = Shrunked.prefs.getIntPref('default.maxHeight');
+for (let element of document.querySelectorAll('[id]')) {
+	window[element.id] = element;
+}
+
+function load() {
+	let maxWidth = Shrunked.prefs.getIntPref('default.maxWidth');
+	let maxHeight = Shrunked.prefs.getIntPref('default.maxHeight');
 
 	if (maxWidth == -1 && maxHeight == -1) {
-		medium.parentNode.selectedIndex = 0;
+		rg_size.selectedIndex = 0;
 	} else if (maxWidth == 500 && maxHeight == 500) {
-		medium.parentNode.selectedIndex = 1;
+		rg_size.selectedIndex = 1;
 	} else if (maxWidth == 800 && maxHeight == 800) {
-		medium.parentNode.selectedIndex = 2;
+		rg_size.selectedIndex = 2;
 	} else if (maxWidth == 1200 && maxHeight == 1200) {
-		medium.parentNode.selectedIndex = 3;
+		rg_size.selectedIndex = 3;
 	} else {
-		medium.parentNode.selectedIndex = 4;
-		customvalue1.value = maxWidth;
-		customvalue2.value = maxHeight;
+		rg_size.selectedIndex = 4;
+		tb_width.value = maxWidth;
+		tb_height.value = maxHeight;
 	}
 
-	remembersite.checked = Shrunked.prefs.getBoolPref('default.rememberSite');
-	savedefault.checked = Shrunked.prefs.getBoolPref('default.saveDefault');
+	cb_remembersite.checked = Shrunked.prefs.getBoolPref('default.rememberSite');
+	cb_savedefault.checked = Shrunked.prefs.getBoolPref('default.saveDefault');
 
 	if (returnValues.inputTag) {
-		noresize.collapsed = true;
-		if (noresize.selected) {
-			medium.parentNode.selectedIndex = 1;
+		r_noresize.collapsed = true;
+		if (r_noresize.selected) {
+			rg_size.selectedIndex = 1;
 		}
 
-		var uri = returnValues.inputTag.ownerDocument.documentURIObject;
-		remembersite.disabled = windowIsPrivate || !(uri.schemeIs('http') || uri.schemeIs('https'));
+		let uri = returnValues.inputTag.ownerDocument.documentURIObject;
+		cb_remembersite.disabled = windowIsPrivate || !(uri.schemeIs('http') || uri.schemeIs('https'));
 	} else {
-		remembersite.collapsed = true;
+		cb_remembersite.collapsed = true;
 	}
 
-	validate();
-})();
-
-function validate() {
-	label1.disabled = customvalue1.disabled = label2.disabled = customvalue2.disabled = !custom.selected;
+	setSize();
+	window.sizeToContent();
 }
 
-function doAccept() {
+function setSize() {
+	l_width.disabled = tb_width.disabled =
+		l_height.disabled = tb_height.disabled = !r_custom.selected;
+}
+
+function accept() {
 	returnValues.cancelDialog = false;
-	if (noresize.selected) {
+
+	switch (rg_size.selectedIndex) {
+	case 0:
 		returnValues.maxWidth = -1;
 		returnValues.maxHeight = -1;
-	} else if (small.selected) {
+		break;
+	case 1:
 		returnValues.maxWidth = 500;
 		returnValues.maxHeight = 500;
-	} else if (medium.selected) {
+		break;
+	case 2:
 		returnValues.maxWidth = 800;
 		returnValues.maxHeight = 800;
-	} else if (large.selected) {
+		break;
+	case 3:
 		returnValues.maxWidth = 1200;
 		returnValues.maxHeight = 1200;
-	} else {
-		returnValues.maxWidth = customvalue1.value;
-		returnValues.maxHeight = customvalue2.value;
+		break;
+	case 4:
+		returnValues.maxWidth = tb_width.value;
+		returnValues.maxHeight = tb_height.value;
+		break;
 	}
-	returnValues.rememberSite = !remembersite.disabled && remembersite.checked;
+	returnValues.rememberSite = !cb_remembersite.disabled && cb_remembersite.checked;
 
-	if (savedefault.checked) {
+	if (cb_savedefault.checked) {
 		Shrunked.prefs.setIntPref('default.maxWidth', returnValues.maxWidth);
 		Shrunked.prefs.setIntPref('default.maxHeight', returnValues.maxHeight);
-		if (!remembersite.disabled) Shrunked.prefs.setBoolPref('default.rememberSite', returnValues.rememberSite);
+		if (!cb_remembersite.disabled)
+			Shrunked.prefs.setBoolPref('default.rememberSite', returnValues.rememberSite);
 	}
-	Shrunked.prefs.setBoolPref('default.saveDefault', savedefault.checked);
+	Shrunked.prefs.setBoolPref('default.saveDefault', cb_savedefault.checked);
 }
 
-function doCancel() {
+function cancel() {
 	returnValues.cancelDialog = true;
 }
