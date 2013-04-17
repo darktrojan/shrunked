@@ -29,17 +29,21 @@ var Shrunked = {
 				this.resizeAsync(document, sourceFile, maxWidth, maxHeight, quality, callback);
 			} catch (e) {
 				Cu.reportError(e);
+				callback(null);
 			}
 		}
 	},
 	dequeue: function() {
-		var args = this.queue.shift();
-		if (args) {
-			try {
-				this.resizeAsync(args[0], args[1], args[2], args[3], args[4], args[5]);
-			} catch (e) {
-				Cu.reportError(e);
-			}
+		if (this.queue.length == 0) {
+			return;
+		}
+
+		var [document, sourceFile, maxWidth, maxHeight, quality, callback] = this.queue.shift();
+		try {
+			this.resizeAsync(document, sourceFile, maxWidth, maxHeight, quality, callback);
+		} catch (e) {
+			Cu.reportError(e);
+			callback(null);
 		}
 	},
 
@@ -60,8 +64,12 @@ var Shrunked = {
 					filename = match[1];
 				}
 			}
-		} else {
+		} else if (sourceFile instanceof Ci.nsIFile) {
 			sourceURI = Services.io.newFileURI(sourceFile).spec;
+			filename = sourceFile.leafName;
+		} else {
+			Services.console.logStringMessage('Unexpected sourceFile passed to Shrunked.resizeAsync');
+			return callback(null);
 		}
 
 		this.document = document;
