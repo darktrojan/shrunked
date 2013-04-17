@@ -28,7 +28,7 @@
 			<tabs>
 				<tab id="t_defaults" label="&shrunked-defaults.label;" />
 				<tab id="t_sites" label="&shrunked-sites.label;" />
-				<tab id="t_advanced" label="Advanced" />
+				<tab id="t_advanced" label="&shrunked-advanced.label;" />
 			</tabs>
 			<tabpanels>
 				<tabpanel id="tp_defaults" orient="vertical">
@@ -133,15 +133,24 @@
 					</hbox>
 				</tabpanel>
 				<tabpanel id="tp_advanced" orient="vertical">
-					<checkbox id="cb_resample" label="Resample images using javascript" preference="p_resample" />
+					<checkbox
+						id="cb_resample"
+						label="&shrunked-advanced.resample.label;"
+						preference="p_resample" />
 					<checkbox
 						id="cb_exif"
-						label="Transfer EXIF data"
+						label="&shrunked-advanced.exif.label;"
 						preference="p_exif"
 						oncommand="enableExif();" />
 					<vbox class="indent">
-						<checkbox id="cb_orient" label="Automatically rotate images" preference="p_orient" />
-						<checkbox id="cb_gps" label="Transfer GPS data" preference="p_gps" />
+						<checkbox
+							id="cb_orient"
+							label="&shrunked-advanced.orient.label;"
+							preference="p_orient" />
+						<checkbox
+							id="cb_gps"
+							label="&shrunked-advanced.gps.label;"
+							preference="p_gps" />
 					</vbox>
 				</tabpanel>
 			</tabpanels>
