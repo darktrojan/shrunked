@@ -17,8 +17,10 @@ var ShrunkedCompose = {
 		window.GenericSendMessage = this.newGenericSendMessage;
 
 		// the editor's document isn't available immediately
-		setTimeout(function() {
-			var target = document.getElementById('content-frame').contentDocument.body;
+		let editFrame = document.getElementById('content-frame');
+		editFrame.addEventListener('pageshow', function addObserver(aEvent) {
+			editFrame.removeEventListener('pageshow', addObserver, false);
+			var target = editFrame.contentDocument.body;
 			var config = { attributes: false, childList: true, characterData: false };
 			var observer = new MutationObserver(function(mutations) {
 				mutations.forEach(function(mutation) {
@@ -30,7 +32,7 @@ var ShrunkedCompose = {
 				});
 			});
 			observer.observe(target, config);
-		}, 500);
+		}, false);
 	},
 
 	inlineImages: [],
