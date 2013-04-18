@@ -31,6 +31,6 @@
 		</rows>
 	</grid>
 
-	<script src="chrome://shrunked/content/progress.js" type="application/x-javascript;version=1.7"></script>
+	<script src="chrome://shrunked/content/progress.js" type="application/javascript"></script>
 
 </dialog>

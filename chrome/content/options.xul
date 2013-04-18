@@ -75,6 +75,6 @@
 			label="&shrunked-options.savedefault.label;" />
 	</vbox>
 
-	<script src="chrome://shrunked/content/options.js" type="application/javascript;version=1.7"></script>
+	<script src="chrome://shrunked/content/options.js" type="application/javascript"></script>
 
 </dialog>

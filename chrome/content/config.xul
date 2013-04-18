@@ -157,5 +157,5 @@
 		</tabbox>
 	</prefpane>
 
-	<script src="chrome://shrunked/content/config.js" type="application/javascript;version=1.7"></script>
+	<script src="chrome://shrunked/content/config.js" type="application/javascript"></script>
 </prefwindow>
