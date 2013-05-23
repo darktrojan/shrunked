@@ -41,40 +41,44 @@ var ShrunkedCompose = {
 		const Ci = Components.interfaces;
 		const Cu = Components.utils;
 
+		var minimum = Shrunked.prefs.getIntPref('fileSizeMinimum') * 1024;
+		var minimumData = 4 * minimum / 3;
+
 		if (target.nodeName == 'IMG') {
+			var parent = target.parentNode;
+			while (parent && 'classList' in parent) {
+				if (parent.classList.contains('moz-signature') ||
+					(parent.getAttribute('type') == 'cite') ||
+					parent.classList.contains('moz-forward-container')) {
+					return;
+				}
+				parent = parent.parentNode;
+			}
+
+			var { src, width, height } = target;
+			var keep = false;
+			if (/^file:.*\.jpe?g/i.test(src)) {
+				var file = Services.io.newURI(src, null, null).QueryInterface(Ci.nsIFileURL).file;
+				if (file.fileSize >= minimum && width >= 100 && height >= 100 && !target.hasAttribute('shrunked:resized')) {
+					keep = true;
+				}
+			} else if (/^data:application\/x-moz-file;base64,\/9j\//.test(src) && src.length - 35 >= minimumData) {
+				keep = true;
+			} else if (/^data:image\/jpeg;base64,/.test(src) && src.length - 23 >= minimumData) {
+				keep = true;
+			} else if (width > 100 || height > 100) {
+				keep = true;
+			}
+			if (!keep) {
+				return;
+			}
+
 			ShrunkedCompose.inlineImages.push(target);
 			if (ShrunkedCompose.timeout) {
 				clearTimeout(ShrunkedCompose.timeout);
 			}
 
 			ShrunkedCompose.timeout = setTimeout(function() {
-				var minimum = Shrunked.prefs.getIntPref('fileSizeMinimum') * 1024;
-				var minimumData = 4 * minimum / 3;
-
-				for (var i = 0; i < ShrunkedCompose.inlineImages.length; i++) {
-					var img = ShrunkedCompose.inlineImages[i];
-					var keep = false;
-					if (/^file:.*\.jpe?g/i.test(img.src)) {
-						var file = Services.io.newURI(img.src, null, null).QueryInterface(Ci.nsIFileURL).file;
-						if (file.fileSize >= minimum && img.width >= 100 && img.height >= 100 && !img.hasAttribute('shrunked:resized')) {
-							keep = true;
-						}
-					} else if (/^data:application\/x-moz-file;base64,\/9j\//.test(img.src) && img.src.length - 35 >= minimumData) {
-						keep = true;
-					} else if (/^data:image\/jpeg;base64,/.test(img.src) && img.src.length - 23 >= minimumData) {
-						keep = true;
-					// } else if (/type=image\/jpeg/.test(img.src) || /\.jpe?g$/i.test(img.src)) {
-					} else if (img.width > 100 || img.height > 100) {
-						keep = true;
-					}
-					if (!keep) {
-						ShrunkedCompose.inlineImages.splice(i, 1);
-						i--;
-					}
-				}
-				if (ShrunkedCompose.inlineImages.length == 0) {
-					return;
-				}
 				var returnValues = { cancelDialog: true };
 				window.openDialog('chrome://shrunked/content/options.xul',
 						'options', 'chrome,centerscreen,modal', returnValues);
