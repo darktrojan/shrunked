@@ -1,4 +1,4 @@
-<!ENTITY shrunked-config.title "Impostazioni di Shrunked">
+<!ENTITY shrunked-config.title "Impostazioni di Shrunked Image Resizer">
 <!ENTITY shrunked-sites.label "Opzioni dei siti">
 <!ENTITY shrunked-sites.sitelist.site "Sito">
 <!ENTITY shrunked-sites.sitelist.settings "Dimensioni immagine">
@@ -7,7 +7,7 @@
 <!ENTITY shrunked-defaults.quality.label "Qualità JPEG:">
 <!ENTITY shrunked-defaults.quality.smaller "Minima">
 <!ENTITY shrunked-defaults.quality.better "Massima">
-<!ENTITY shrunked-options.title "Ridimensionamento delle immagini di Shrunked">
+<!ENTITY shrunked-options.title "Ridimensionamento delle immagini di Shrunked Image Resizer">
 <!ENTITY shrunked-options.remembersite.label "Ricorda le dimensioni scelte per le immagini di questo sito web">
 <!ENTITY shrunked-options.savedefault.label "Salva come impostazioni predefinite">
 <!ENTITY shrunked-noresize.label "Originarie">
@@ -25,8 +25,8 @@
 <!ENTITY shrunked-minsize.kilobytes "kB">
 <!ENTITY shrunked-maxsize.label "Selezionare le dimensioni massime per le immagini:">
 <!ENTITY shrunked-custom.pixels "pixel">
-<!ENTITY shrunked-advanced.label "Advanced">
-<!ENTITY shrunked-advanced.resample.label "Resample images using javascript">
-<!ENTITY shrunked-advanced.exif.label "Transfer EXIF data">
-<!ENTITY shrunked-advanced.orient.label "Automatically rotate images">
-<!ENTITY shrunked-advanced.gps.label "Transfer GPS data">
+<!ENTITY shrunked-advanced.label "Avanzate">
+<!ENTITY shrunked-advanced.resample.label "Ricampiona le immagini tramite javascript">
+<!ENTITY shrunked-advanced.exif.label "Trasferisci i dati EXIF">
+<!ENTITY shrunked-advanced.orient.label "Ruota le immagini automaticamente">
+<!ENTITY shrunked-advanced.gps.label "Trasferisci i dati GPS">
