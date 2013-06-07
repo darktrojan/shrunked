@@ -1,0 +1,32 @@
+<!ENTITY shrunked-config.title "shrunked image resizer configuration">
+<!ENTITY shrunked-sites.label "site settings">
+<!ENTITY shrunked-sites.sitelist.site "site">
+<!ENTITY shrunked-sites.sitelist.settings "SETTINGS">
+<!ENTITY shrunked-sites.forget.label "forget selected">
+<!ENTITY shrunked-defaults.label "defaults">
+<!ENTITY shrunked-defaults.quality.label "jpeg encoder quality:">
+<!ENTITY shrunked-defaults.quality.smaller "smaller files">
+<!ENTITY shrunked-defaults.quality.better "better quality">
+<!ENTITY shrunked-options.title "shrunked image resizer options">
+<!ENTITY shrunked-options.remembersite.label "remember my answer for this website">
+<!ENTITY shrunked-options.savedefault.label "save as default settings">
+<!ENTITY shrunked-noresize.label "original">
+<!ENTITY shrunked-small.label "500px">
+<!ENTITY shrunked-medium.label "800px">
+<!ENTITY shrunked-large.label "1200px">
+<!ENTITY shrunked-custom.label "custom">
+<!ENTITY shrunked-width.label "width:">
+<!ENTITY shrunked-height.label "height:">
+<!ENTITY shrunked-waiting.label "loading images…">
+<!ENTITY shrunked-resizing.label "resizing images…">
+<!ENTITY shrunked-status.label "status:">
+<!ENTITY shrunked-progress.label "progress:">
+<!ENTITY shrunked-minsize.label "minimum file size to resize:">
+<!ENTITY shrunked-minsize.kilobytes "kb">
+<!ENTITY shrunked-maxsize.label "maximum size for your photos:">
+<!ENTITY shrunked-custom.pixels "px">
+<!ENTITY shrunked-advanced.label "advanced">
+<!ENTITY shrunked-advanced.resample.label "resample images using javascript">
+<!ENTITY shrunked-advanced.exif.label "transfer exif data">
+<!ENTITY shrunked-advanced.orient.label "automatically rotate images">
+<!ENTITY shrunked-advanced.gps.label "transfer gps data">
