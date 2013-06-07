@@ -1,7 +1,7 @@
 <!ENTITY shrunked-config.title "shrunked image resizer configuration">
 <!ENTITY shrunked-sites.label "site settings">
 <!ENTITY shrunked-sites.sitelist.site "site">
-<!ENTITY shrunked-sites.sitelist.settings "settings">
+<!ENTITY shrunked-sites.sitelist.settings "SETTINGS">
 <!ENTITY shrunked-sites.forget.label "forget selected">
 <!ENTITY shrunked-defaults.label "defaults">
 <!ENTITY shrunked-defaults.quality.label "jpeg encoder quality:">
