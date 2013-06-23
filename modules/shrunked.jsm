@@ -604,7 +604,7 @@ var Exif = {
 			this.writeSection(this.gps);
 		}
 
-		var length = this.wDataAddress - 4;
+		var length = this.wBytes.length - 4;
 		this.wBytes[4] = (length & 0xff00) >> 8;
 		this.wBytes[5] = length & 0x00ff;
 	},
@@ -720,11 +720,9 @@ var Exif = {
 				this.wBytes[this.wIndex++] = (field.data.charCodeAt(i) || 0);
 			}
 		} else {
-			var start = this.wDataAddress;
-			this.write4Bytes(start - 12);
-			this.wDataAddress += field.size;
+			this.write4Bytes(this.wDataAddress - this.rBaseAddress);
 			for (var i = 0; i < field.data.length; i++) {
-				this.wBytes[start++] = (field.data.charCodeAt(i));
+				this.wBytes[this.wDataAddress++] = (field.data.charCodeAt(i));
 			}
 		}
 	},
