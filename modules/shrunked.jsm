@@ -116,7 +116,7 @@ var Shrunked = {
 		try {
 			this.createCanvas(image, maxWidth, maxHeight, (function(canvas) {
 				if (canvas == image) {
-					return null;
+					return callback(null);
 				}
 
 				destFile = this.saveCanvas(canvas, filename, quality);
