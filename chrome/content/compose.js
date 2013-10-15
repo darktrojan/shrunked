@@ -55,7 +55,15 @@ var ShrunkedCompose = {
 				parent = parent.parentNode;
 			}
 
-			var { src, width, height } = target;
+			var { src, width, height, complete } = target;
+			if (!complete) {
+				target.addEventListener('load', function targetOnLoad() {
+					target.removeEventListener('load', targetOnLoad, false);
+					ShrunkedCompose.resizeInline(target);
+				}, false);
+				return;
+			}
+
 			var keep = false;
 			if (/^file:.*\.jpe?g/i.test(src)) {
 				var file = Services.io.newURI(src, null, null).QueryInterface(Ci.nsIFileURL).file;
@@ -63,6 +71,8 @@ var ShrunkedCompose = {
 					keep = true;
 				}
 			} else if (/^data:application\/x-moz-file;base64,\/9j\//.test(src) && src.length - 35 >= minimumData) {
+				keep = true;
+			} else if (/^data:<;base64,\/9j\//.test(src) && src.length - 13 >= minimumData) {
 				keep = true;
 			} else if (/^data:image\/jpeg;base64,/.test(src) && src.length - 23 >= minimumData) {
 				keep = true;
