@@ -39,7 +39,6 @@ var ShrunkedBrowser = {
 			}
 			inputTag.originalValue = null;
 		}
-		inputTag.removeAttribute('shrunkedClick');
 	},
 
 	onActivate: function(event) {
@@ -49,28 +48,21 @@ var ShrunkedBrowser = {
 		if (event.target.nodeName.toLowerCase() == 'input', event.target.type == 'file') {
 
 			var inputTag = event.target;
-			if (!inputTag.value || !(/\.jpe?g/i.test(inputTag.value)) || inputTag.getAttribute('shrunkedclick')) {
+			if (!inputTag.value) {
 				return;
 			}
 
 			var shouldAsk = false;
-			var minimum = Shrunked.prefs.getIntPref('fileSizeMinimum') * 1024;
-			var paths = inputTag.mozGetFileNameArray();
-			for (var i = 0; i < paths.length; i++) {
-				if (/\.jpe?g$/i.test(paths[i])) {
-					var localFile = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
-					localFile.initWithPath(paths[i]);
-					if (localFile.fileSize >= minimum) {
-						shouldAsk = true;
-						break;
-					}
+			for (var path of inputTag.mozGetFileNameArray()) {
+				if (/\.jpe?g$/i.test(path) && Shrunked.fileLargerThanThreshold(path)) {
+					shouldAsk = true;
+					break;
 				}
 			}
 			if (!shouldAsk) {
 				return;
 			}
 
-			inputTag.setAttribute('shrunkedclick', 'true');
 			inputTag.addEventListener('click', ShrunkedBrowser.resetInputTag, true);
 
 			var context = PrivateBrowsingUtils.privacyContextFromWindow(window);
@@ -202,7 +194,7 @@ var ShrunkedBrowser = {
 
 		for (var i = 0; i < paths.length; i++) {
 			if (/\.jpe?g$/i.test(paths[i])) {
-				var sourceFile = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
+				var sourceFile = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
 				sourceFile.initWithPath(paths[i]);
 				Shrunked.enqueue(document, sourceFile, maxWidth, maxHeight, quality, function(destFile) {
 					if (destFile) {

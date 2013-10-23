@@ -37,12 +37,10 @@ var ShrunkedCompose = {
 
 	inlineImages: [],
 	timeout: null,
+	asking: false,
 	resizeInline: function(target) {
 		const Ci = Components.interfaces;
 		const Cu = Components.utils;
-
-		var minimum = Shrunked.prefs.getIntPref('fileSizeMinimum') * 1024;
-		var minimumData = 4 * minimum / 3;
 
 		if (target.nodeName == 'IMG') {
 			var parent = target.parentNode;
@@ -55,8 +53,7 @@ var ShrunkedCompose = {
 				parent = parent.parentNode;
 			}
 
-			var { src, width, height, complete } = target;
-			if (!complete) {
+			if (!target.complete) {
 				target.addEventListener('load', function targetOnLoad() {
 					target.removeEventListener('load', targetOnLoad, false);
 					ShrunkedCompose.resizeInline(target);
@@ -64,22 +61,8 @@ var ShrunkedCompose = {
 				return;
 			}
 
-			var keep = false;
-			if (/^file:.*\.jpe?g/i.test(src)) {
-				var file = Services.io.newURI(src, null, null).QueryInterface(Ci.nsIFileURL).file;
-				if (file.fileSize >= minimum && width >= 100 && height >= 100 && !target.hasAttribute('shrunked:resized')) {
-					keep = true;
-				}
-			} else if (/^data:application\/x-moz-file;base64,\/9j\//.test(src) && src.length - 35 >= minimumData) {
-				keep = true;
-			} else if (/^data:<;base64,\/9j\//.test(src) && src.length - 13 >= minimumData) {
-				keep = true;
-			} else if (/^data:image\/jpeg;base64,/.test(src) && src.length - 23 >= minimumData) {
-				keep = true;
-			} else if (width > 100 || height > 100) {
-				keep = true;
-			}
-			if (!keep) {
+			if (target.hasAttribute('shrunked:resized') ||
+					!Shrunked.imageIsJPEG(target) || !Shrunked.imageLargerThanThreshold(target.src)) {
 				return;
 			}
 
@@ -88,10 +71,16 @@ var ShrunkedCompose = {
 				clearTimeout(ShrunkedCompose.timeout);
 			}
 
+			if (ShrunkedCompose.asking) {
+				return;
+			}
+
 			ShrunkedCompose.timeout = setTimeout(function() {
+				ShrunkedCompose.asking = true;
 				var returnValues = { cancelDialog: true };
 				window.openDialog('chrome://shrunked/content/options.xul',
 						'options', 'chrome,centerscreen,modal', returnValues);
+				ShrunkedCompose.asking = false;
 				if (returnValues.cancelDialog) {
 					return;
 				}
