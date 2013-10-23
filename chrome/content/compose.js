@@ -66,21 +66,21 @@ var ShrunkedCompose = {
 				return;
 			}
 
-			ShrunkedCompose.inlineImages.push(target);
-			if (ShrunkedCompose.timeout) {
-				clearTimeout(ShrunkedCompose.timeout);
+			this.inlineImages.push(target);
+			if (this.timeout) {
+				clearTimeout(this.timeout);
 			}
 
-			if (ShrunkedCompose.asking) {
+			if (this.asking) {
 				return;
 			}
 
-			ShrunkedCompose.timeout = setTimeout(function() {
-				ShrunkedCompose.asking = true;
+			this.timeout = setTimeout(() => {
+				this.asking = true;
 				var returnValues = { cancelDialog: true };
 				window.openDialog('chrome://shrunked/content/options.xul',
 						'options', 'chrome,centerscreen,modal', returnValues);
-				ShrunkedCompose.asking = false;
+				this.asking = false;
 				if (returnValues.cancelDialog) {
 					return;
 				}
@@ -89,18 +89,18 @@ var ShrunkedCompose = {
 						Cu.import('resource://shrunked/shrunked.jsm', window);
 					}
 					var quality = Shrunked.prefs.getIntPref('default.quality');
-					for (var i = 0; i < ShrunkedCompose.inlineImages.length; i++) {
-						var img = ShrunkedCompose.inlineImages[i];
-						ShrunkedCompose.doResizeInline(img, returnValues.maxWidth, returnValues.maxHeight, quality);
+					for (var i = 0; i < this.inlineImages.length; i++) {
+						var img = this.inlineImages[i];
+						this.doResizeInline(img, returnValues.maxWidth, returnValues.maxHeight, quality);
 					}
 				} else {
-					for (var i = 0; i < ShrunkedCompose.inlineImages.length; i++) {
-						var img = ShrunkedCompose.inlineImages[i];
+					for (var i = 0; i < this.inlineImages.length; i++) {
+						var img = this.inlineImages[i];
 						img.setAttribute('shrunked:resized', 'false');
 					}
 				}
-				ShrunkedCompose.inlineImages = [];
-				ShrunkedCompose.timeout = null;
+				this.inlineImages = [];
+				this.timeout = null;
 			}, 500);
 		} else if (target.nodeType == Node.ELEMENT_NODE) {
 			for (var child of target.children) {
