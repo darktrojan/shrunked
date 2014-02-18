@@ -2,6 +2,13 @@
 
 <overlay id="shrunked-compose-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
+	<hbox insertbefore="status-bar">
+		<notificationbox id="shrunked-notification-box" flex="1" />
+	</hbox>
+
+	<stringbundleset id="stringbundleset">
+		<stringbundle id="shrunked-strings" src="chrome://shrunked/locale/shrunked.properties"/>
+	</stringbundleset>
 	<script src="chrome://shrunked/content/compose.js" type="application/javascript" />
 
 </overlay>

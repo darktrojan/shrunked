@@ -6,8 +6,6 @@ var ShrunkedCompose = {
 	},
 
 	init: function() {
-		const Cc = Components.classes;
-		const Ci = Components.interfaces;
 		const Cu = Components.utils;
 
 		Cu.import('resource://gre/modules/Services.jsm');
@@ -26,7 +24,7 @@ var ShrunkedCompose = {
 				mutations.forEach(function(mutation) {
 					if (mutation.addedNodes) {
 						for (var target of mutation.addedNodes) {
-							ShrunkedCompose.resizeInline(target);
+							ShrunkedCompose.maybeResizeInline(target);
 						}
 					}
 				});
@@ -38,10 +36,7 @@ var ShrunkedCompose = {
 	inlineImages: [],
 	timeout: null,
 	asking: false,
-	resizeInline: function(target) {
-		const Ci = Components.interfaces;
-		const Cu = Components.utils;
-
+	maybeResizeInline: function(target) {
 		if (target.nodeName == 'IMG') {
 			var parent = target.parentNode;
 			while (parent && 'classList' in parent) {
@@ -56,7 +51,7 @@ var ShrunkedCompose = {
 			if (!target.complete) {
 				target.addEventListener('load', function targetOnLoad() {
 					target.removeEventListener('load', targetOnLoad, false);
-					ShrunkedCompose.resizeInline(target);
+					ShrunkedCompose.maybeResizeInline(target);
 				}, false);
 				return;
 			}
@@ -77,37 +72,59 @@ var ShrunkedCompose = {
 
 			this.timeout = setTimeout(() => {
 				this.asking = true;
-				var returnValues = { cancelDialog: true };
-				window.openDialog('chrome://shrunked/content/options.xul',
-						'options', 'chrome,centerscreen,modal', returnValues);
-				this.asking = false;
-				if (returnValues.cancelDialog) {
-					return;
-				}
-				if (returnValues.maxWidth > 0) {
-					if (typeof window.Shrunked == 'undefined') {
-						Cu.import('resource://shrunked/shrunked.jsm', window);
-					}
-					var quality = Shrunked.prefs.getIntPref('default.quality');
-					for (var i = 0; i < this.inlineImages.length; i++) {
-						var img = this.inlineImages[i];
-						this.doResizeInline(img, returnValues.maxWidth, returnValues.maxHeight, quality);
-					}
-				} else {
-					for (var i = 0; i < this.inlineImages.length; i++) {
-						var img = this.inlineImages[i];
-						img.setAttribute('shrunked:resized', 'false');
-					}
-				}
-				this.inlineImages = [];
 				this.timeout = null;
+
+				let strings = document.getElementById('shrunked-strings');
+				let buttons = [{
+					accessKey: strings.getString('yes_accesskey'),
+					callback: ShrunkedCompose.showOptionsDialog.bind(this),
+					label: strings.getString('yes_label')
+				}, {
+					accessKey: strings.getString('no_accesskey'),
+					callback: () => { this.asking = false; },
+					label: strings.getString('no_label')
+				}];
+
+				let notifyBox = document.getElementById('shrunked-notification-box');
+				let notification = notifyBox.appendNotification(
+					strings.getString('question'), 'shrunked-notification', null, notifyBox.PRIORITY_INFO_HIGH, buttons
+				);
 			}, 500);
 		} else if (target.nodeType == Node.ELEMENT_NODE) {
 			for (var child of target.children) {
-				this.resizeInline(child);
+				this.maybeResizeInline(child);
 			}
 		}
 	},
+
+	showOptionsDialog: function() {
+		const Cu = Components.utils;
+
+		let returnValues = { cancelDialog: true };
+		window.openDialog('chrome://shrunked/content/options.xul', 'options', 'chrome,centerscreen,modal', returnValues);
+		this.asking = false;
+
+		if (returnValues.cancelDialog) {
+			return;
+		}
+		if (returnValues.maxWidth > 0) {
+			if (typeof window.Shrunked == 'undefined') {
+				Cu.import('resource://shrunked/shrunked.jsm', window);
+			}
+			let quality = Shrunked.prefs.getIntPref('default.quality');
+			for (let i = 0; i < this.inlineImages.length; i++) {
+				let img = this.inlineImages[i];
+				this.doResizeInline(img, returnValues.maxWidth, returnValues.maxHeight, quality);
+			}
+		} else {
+			for (let i = 0; i < this.inlineImages.length; i++) {
+				let img = this.inlineImages[i];
+				img.setAttribute('shrunked:resized', 'false');
+			}
+		}
+		this.inlineImages = [];
+	},
+
 	doResizeInline: function(img, maxWidth, maxHeight, quality) {
 		Shrunked.enqueue(document, img.src, maxWidth, maxHeight, quality, function(destFile) {
 			if (destFile) {
