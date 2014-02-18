@@ -10,7 +10,6 @@
 <!ENTITY shrunked-options.title "Shrunked Image Resizer - ustawienia">
 <!ENTITY shrunked-options.remembersite.label "Zapamiętaj moją odpowiedź dla tej witryny">
 <!ENTITY shrunked-options.savedefault.label "Zapisz jako ustawienia domyślne">
-<!ENTITY shrunked-noresize.label "Oryginalny">
 <!ENTITY shrunked-small.label "500px">
 <!ENTITY shrunked-medium.label "800px">
 <!ENTITY shrunked-large.label "1200px">

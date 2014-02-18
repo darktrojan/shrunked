@@ -10,7 +10,6 @@
 <!ENTITY shrunked-options.title "Shrunked - Optionen">
 <!ENTITY shrunked-options.remembersite.label "Angaben zu dieser Website merken">
 <!ENTITY shrunked-options.savedefault.label "Als Standardeinstellungen speichern">
-<!ENTITY shrunked-noresize.label "Original">
 <!ENTITY shrunked-small.label "500px">
 <!ENTITY shrunked-medium.label "800px">
 <!ENTITY shrunked-large.label "1200px">

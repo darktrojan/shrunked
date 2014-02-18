@@ -10,7 +10,6 @@
 <!ENTITY shrunked-options.title "Inställningar för Shrunked Image Resizer">
 <!ENTITY shrunked-options.remembersite.label "Kom ihåg mitt svar för denna webbplats">
 <!ENTITY shrunked-options.savedefault.label "Spara som standardinställningar">
-<!ENTITY shrunked-noresize.label "Original">
 <!ENTITY shrunked-small.label "500 px">
 <!ENTITY shrunked-medium.label "800 px">
 <!ENTITY shrunked-large.label "1200 px">
