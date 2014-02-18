@@ -6,15 +6,18 @@ Cu.import('resource://shrunked/shrunked.jsm');
 Cu.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
 
 let returnValues = window.arguments[0];
+let imageURLs = window.arguments[1];
 let windowIsPrivate = PrivateBrowsingUtils.isWindowPrivate(window.opener);
+let imageIndex = 0;
+let maxWidth, maxHeight;
 
 for (let element of document.querySelectorAll('[id]')) {
 	window[element.id] = element;
 }
 
 function load() {
-	let maxWidth = Shrunked.prefs.getIntPref('default.maxWidth');
-	let maxHeight = Shrunked.prefs.getIntPref('default.maxHeight');
+	maxWidth = Shrunked.prefs.getIntPref('default.maxWidth');
+	maxHeight = Shrunked.prefs.getIntPref('default.maxHeight');
 
 	if (maxWidth == 500 && maxHeight == 500) {
 		rg_size.selectedIndex = 0;
@@ -39,35 +42,68 @@ function load() {
 	}
 
 	setSize();
+
+	i_previewthumb.src = imageURLs[0];
+	if (imageURLs.length < 2) {
+		b_previewarrowprevious.setAttribute('hidden', 'true');
+		b_previewarrownext.setAttribute('hidden', 'true');
+	}
 	window.sizeToContent();
 }
 
 function setSize() {
+	switch (rg_size.selectedIndex) {
+	case 0:
+		maxWidth = 500;
+		maxHeight = 500;
+		break;
+	case 1:
+		maxWidth = 800;
+		maxHeight = 800;
+		break;
+	case 2:
+		maxWidth = 1200;
+		maxHeight = 1200;
+		break;
+	case 3:
+		maxWidth = tb_width.value;
+		maxHeight = tb_height.value;
+		break;
+	}
+
 	l_width.disabled = tb_width.disabled =
 		l_height.disabled = tb_height.disabled = !r_custom.selected;
+
+	imageLoad();
+}
+
+function advancePreview(aDirection) {
+	imageIndex = (imageIndex + aDirection + imageURLs.length) % imageURLs.length;
+	i_previewthumb.src = imageURLs[imageIndex];
+}
+
+function imageLoad() {
+	let img = new Image();
+	img.onload = function() {
+		let {width, height, src} = img;
+		let scale = Math.min(1, Math.min(maxWidth / width, maxHeight / height));
+
+		l_previewfilename.setAttribute('value', src.substring(src.lastIndexOf('/') + 1));
+		l_previeworiginalsize.setAttribute('value', strings.getFormattedString('preview_originalsize', [width, height]));
+		if (scale == 1) {
+			l_previewresized.setAttribute('value', strings.getString('preview_notresized'));
+		} else {
+			l_previewresized.setAttribute('value', strings.getFormattedString('preview_resized', [Math.floor(width * scale), Math.floor(height * scale)]));
+		}
+	};
+	img.src = i_previewthumb.src;
 }
 
 function accept() {
 	returnValues.cancelDialog = false;
 
-	switch (rg_size.selectedIndex) {
-	case 0:
-		returnValues.maxWidth = 500;
-		returnValues.maxHeight = 500;
-		break;
-	case 1:
-		returnValues.maxWidth = 800;
-		returnValues.maxHeight = 800;
-		break;
-	case 2:
-		returnValues.maxWidth = 1200;
-		returnValues.maxHeight = 1200;
-		break;
-	case 3:
-		returnValues.maxWidth = tb_width.value;
-		returnValues.maxHeight = tb_height.value;
-		break;
-	}
+	returnValues.maxWidth = maxWidth;
+	returnValues.maxHeight = maxHeight;
 	returnValues.rememberSite = !cb_remembersite.disabled && cb_remembersite.checked;
 
 	if (cb_savedefault.checked) {

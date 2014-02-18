@@ -1,0 +1,25 @@
+#tb_width, #tb_height {
+	-moz-binding: url("chrome://shrunked/content/bindings.xml#numberbox");
+}
+
+#l_previewheader {
+	margin-top: 1em;
+}
+
+#b_previewbox {
+	height: 130px;
+	margin: 0 5px 1em;
+	padding: 10px 5px;
+	background-color: rgba(0, 0, 0, 0.1);
+	box-shadow: 0 0 5px rgba(0, 0, 0, 0.5) inset;
+}
+
+#b_previewarrowprevious > toolbarbutton,
+#b_previewarrownext > toolbarbutton {
+	list-style-image: url("chrome://shrunked/content/arrow.svg");
+}
+
+#b_previewarrowprevious > toolbarbutton:-moz-locale-dir(rtl),
+#b_previewarrownext > toolbarbutton {
+	transform: scaleX(-1);
+}

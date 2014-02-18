@@ -16,6 +16,9 @@
 <!ENTITY shrunked-custom.label "Custom">
 <!ENTITY shrunked-width.label "Width:">
 <!ENTITY shrunked-height.label "Height:">
+<!ENTITY shrunked-preview.label "Preview:">
+<!ENTITY shrunked-preview.previous.tooltip "Previous image">
+<!ENTITY shrunked-preview.next.tooltip "Next image">
 <!ENTITY shrunked-waiting.label "Loading images…">
 <!ENTITY shrunked-resizing.label "Resizing images…">
 <!ENTITY shrunked-status.label "Status:">
