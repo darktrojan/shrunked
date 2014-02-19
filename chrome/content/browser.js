@@ -4,6 +4,7 @@ let ShrunkedBrowser = {
 
 	init: function() {
 		Components.utils.import('resource://gre/modules/FileUtils.jsm');
+		Components.utils.import('resource://gre/modules/Task.jsm');
 		Components.utils.import('resource://shrunked/shrunked.jsm');
 
 		this.strings = document.getElementById('shrunked-strings');
@@ -25,93 +26,94 @@ let ShrunkedBrowser = {
 			return;
 		}
 
-		let inputTag = aEvent.target;
-		let form = inputTag.form;
-		let context = PrivateBrowsingUtils.privacyContextFromWindow(window);
-		let uri = inputTag.ownerDocument.documentURIObject;
+		Task.spawn((function onActivateInternal() {
+			let inputTag = aEvent.target;
+			let form = inputTag.form;
+			let context = PrivateBrowsingUtils.privacyContextFromWindow(window);
+			let uri = inputTag.ownerDocument.documentURIObject;
 
-		if (uri.schemeIs('http') || uri.schemeIs('https')) {
-			if (Services.contentPrefs.hasPref(uri, 'extensions.shrunked.disabled', context)) {
+			if (uri.schemeIs('http') || uri.schemeIs('https')) {
+				if (yield Shrunked.getContentPref(uri, 'extensions.shrunked.disabled', context)) {
+					return;
+				}
+				let maxWidth = yield Shrunked.getContentPref(uri, 'extensions.shrunked.maxWidth', context);
+				let maxHeight = yield Shrunked.getContentPref(uri, 'extensions.shrunked.maxHeight', context);
+				if (maxWidth && maxHeight) {
+					this.resize(inputTag, maxWidth, maxHeight,
+						Shrunked.prefs.getIntPref('default.quality'));
+					return;
+				}
+			}
+
+			if (form) {
+				let maxWidth = form.getAttribute('shrunkedmaxwidth');
+				let maxHeight = form.getAttribute('shrunkedmaxheight');
+				if (maxWidth && maxHeight) {
+					this.resize(inputTag, parseInt(maxWidth), parseInt(maxHeight),
+						Shrunked.prefs.getIntPref('default.quality'));
+					return;
+				}
+			}
+
+			if (form) {
+				this.imageURLs = [];
+				for (let input of form.querySelectorAll('input[type="file"]')) {
+					this.imageURLs = this.imageURLs.concat(this.getURLsFromInputTag(input));
+				}
+			} else {
+				this.imageURLs = this.getURLsFromInputTag(inputTag);
+			}
+
+			if (!this.imageURLs.length) {
 				return;
 			}
-			let maxWidth = Services.contentPrefs.getPref(uri, 'extensions.shrunked.maxWidth', context);
-			let maxHeight = Services.contentPrefs.getPref(uri, 'extensions.shrunked.maxHeight', context);
-			if (maxWidth && maxHeight) {
-				ShrunkedBrowser.resize(inputTag, maxWidth, maxHeight,
-					Shrunked.prefs.getIntPref('default.quality'));
+
+			let notifyBox = gBrowser.getNotificationBox();
+			if (notifyBox.getNotificationWithValue('shrunked-notification')) {
 				return;
 			}
-		}
 
-		let form = inputTag.form;
-		if (form) {
-			let maxWidth = form.getAttribute('shrunkedmaxwidth');
-			let maxHeight = form.getAttribute('shrunkedmaxheight');
-			if (maxWidth && maxHeight) {
-				ShrunkedBrowser.resize(inputTag, parseInt(maxWidth), parseInt(maxHeight),
-					Shrunked.prefs.getIntPref('default.quality'));
-				return;
-			}
-		}
+			let buttons = [];
 
-		if (form) {
-			this.imageURLs = [];
-			for (let input of form.querySelectorAll('input[type="file"]')) {
-				this.imageURLs = this.imageURLs.concat(ShrunkedBrowser.getURLsFromInputTag(input));
-			}
-		} else {
-			this.imageURLs = ShrunkedBrowser.getURLsFromInputTag(inputTag);
-		}
-
-		if (!this.imageURLs.length) {
-			return;
-		}
-
-		let notifyBox = gBrowser.getNotificationBox();
-		if (notifyBox.getNotificationWithValue('shrunked-notification')) {
-			return;
-		}
-
-		let buttons = [];
-
-		buttons.push({
-			accessKey: this.strings.getString('yes_accesskey'),
-			callback: ShrunkedBrowser.showOptionsDialog,
-			label: this.strings.getString('yes_label'),
-			inputTag: inputTag,
-			form: form,
-			context: context,
-			uri: uri
-		});
-
-		if (!PrivateBrowsingUtils.isWindowPrivate(window) &&
-				(uri.schemeIs('http') || uri.schemeIs('https'))) {
 			buttons.push({
-				accessKey: this.strings.getString('never_accesskey'),
-				callback: ShrunkedBrowser.disableForSite,
-				label: this.strings.getString('never_label'),
+				accessKey: this.strings.getString('yes_accesskey'),
+				callback: this.showOptionsDialog,
+				label: this.strings.getString('yes_label'),
+				inputTag: inputTag,
+				form: form,
 				context: context,
 				uri: uri
 			});
-		}
-		buttons.push({
-			accessKey: this.strings.getString('no_accesskey'),
-			callback: function() {},
-			label: this.strings.getString('no_label'),
-		});
 
-		notifyBox = gBrowser.getNotificationBox();
-		notifyBox.removeAllNotifications(true);
-		let notification = notifyBox.appendNotification(
-			this.strings.getString('question'),
-			'shrunked-notification',
-			null,
-			notifyBox.PRIORITY_INFO_HIGH, buttons
-		);
+			if (!PrivateBrowsingUtils.isWindowPrivate(window) &&
+					(uri.schemeIs('http') || uri.schemeIs('https'))) {
+				buttons.push({
+					accessKey: this.strings.getString('never_accesskey'),
+					callback: this.disableForSite,
+					label: this.strings.getString('never_label'),
+					context: context,
+					uri: uri
+				});
+			}
+			buttons.push({
+				accessKey: this.strings.getString('no_accesskey'),
+				callback: function() {},
+				label: this.strings.getString('no_label'),
+			});
 
-		inputTag.ownerDocument.addEventListener('unload', function() {
-			notifyBox.removeNotification(notification);
-		});
+			notifyBox = gBrowser.getNotificationBox();
+			notifyBox.removeAllNotifications(true);
+			let notification = notifyBox.appendNotification(
+				this.strings.getString('question'),
+				'shrunked-notification',
+				null,
+				notifyBox.PRIORITY_INFO_HIGH, buttons
+			);
+
+			inputTag.ownerDocument.addEventListener('unload', function() {
+				notifyBox.removeNotification(notification);
+			});
+		}).bind(this));
 	},
 
 	showOptionsDialog: function(aNotification, aButtonObject) {
@@ -137,14 +139,14 @@ let ShrunkedBrowser = {
 		}
 
 		if (returnValues.rememberSite && (uri.schemeIs('http') || uri.schemeIs('https'))) {
-			Services.contentPrefs.setPref(uri, 'extensions.shrunked.maxWidth', returnValues.maxWidth, context);
-			Services.contentPrefs.setPref(uri, 'extensions.shrunked.maxHeight', returnValues.maxHeight, context);
+			Shrunked.contentPrefs2.set(uri.host, 'extensions.shrunked.maxWidth', returnValues.maxWidth, context);
+			Shrunked.contentPrefs2.set(uri.host, 'extensions.shrunked.maxHeight', returnValues.maxHeight, context);
 		}
 	},
 
 	disableForSite: function(aNotification, aButtonObject) {
 		let {context, uri} = aButtonObject;
-		Services.contentPrefs.setPref(uri, 'extensions.shrunked.disabled', true, context);
+		Shrunked.contentPrefs2.set(uri.host, 'extensions.shrunked.disabled', true, context);
 	},
 
 	getURLsFromInputTag: function(aInputTag) {

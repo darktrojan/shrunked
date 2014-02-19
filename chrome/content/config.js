@@ -3,6 +3,7 @@ const Ci = Components.interfaces;
 const Cu = Components.utils;
 
 Cu.import('resource://gre/modules/Services.jsm');
+Cu.import('resource://shrunked/shrunked.jsm');
 
 const IS_FIREFOX = Services.appinfo.name == 'Firefox';
 const IS_THUNDERBIRD = Services.appinfo.name == 'Thunderbird';
@@ -115,9 +116,9 @@ function forgetSite() {
 		let site = item.firstChild.getAttribute('label');
 		let uri = Services.io.newURI('http://' + site + '/', null, null);
 
-		Services.contentPrefs.removePref(uri, 'extensions.shrunked.maxHeight', null);
-		Services.contentPrefs.removePref(uri, 'extensions.shrunked.maxWidth', null);
-		Services.contentPrefs.removePref(uri, 'extensions.shrunked.disabled', null);
+		Shrunked.contentPrefs2.removeByDomainAndName(uri.host, 'extensions.shrunked.maxHeight', null);
+		Shrunked.contentPrefs2.removeByDomainAndName(uri.host, 'extensions.shrunked.maxWidth', null);
+		Shrunked.contentPrefs2.removeByDomainAndName(uri.host, 'extensions.shrunked.disabled', null);
 
 		lb_sites.removeChild(item);
 	}

@@ -7,10 +7,11 @@ const Cr = Components.results;
 const ID = 'shrunked@darktrojan.net';
 const XHTMLNS = 'http://www.w3.org/1999/xhtml';
 
+Cu.import('resource://gre/modules/FileUtils.jsm');
+Cu.import('resource://gre/modules/NetUtil.jsm');
+Cu.import('resource://gre/modules/Promise.jsm');
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('resource://gre/modules/NetUtil.jsm');
-Cu.import('resource://gre/modules/FileUtils.jsm');
 
 XPCOMUtils.defineLazyGetter(this, 'tempDir', function() {
 	return Services.dirsvc.get('TmpD', Ci.nsIFile);
@@ -507,10 +508,31 @@ var Shrunked = {
 			Shrunked.prefs.setIntPref('donationreminder', Date.now() / 1000);
 			notifyBox.appendNotification(label, value, null, notifyBox.PRIORITY_INFO_LOW, buttons);
 		});
+	},
+	getContentPref: function(aURI, aName, aContext) {
+		let deferred = Promise.defer();
+
+		this.contentPrefs2.getByDomainAndName(aURI.host, aName, aContext, {
+			handleCompletion: function(aReason) {
+				// If we get here without calling handleError or handleResult, there is no pref.
+				deferred.resolve(null);
+			},
+			handleError: function(aError) {
+				deferred.reject(aError);
+			},
+			handleResult: function(aPref) {
+				deferred.resolve(aPref.value);
+			}
+		});
+
+		return deferred.promise;
 	}
 };
 XPCOMUtils.defineLazyGetter(Shrunked, 'prefs', function() {
 	return Services.prefs.getBranch('extensions.shrunked.');
+});
+XPCOMUtils.defineLazyGetter(Shrunked, 'contentPrefs2', function() {
+	return Services.contentPrefs.QueryInterface(Components.interfaces.nsIContentPrefService2);
 });
 
 var Exif = {
