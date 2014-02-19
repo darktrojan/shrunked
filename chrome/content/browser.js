@@ -95,6 +95,16 @@ var ShrunkedBrowser = {
 	},
 
 	showNotification: function(inputTag) {
+		let form = inputTag.form;
+		if (form) {
+			this.imageURLs = [];
+			for (let input of form.querySelectorAll('input[type="file"]')) {
+				this.imageURLs = this.imageURLs.concat(ShrunkedBrowser.getURLsFromInputTag(input));
+			}
+		} else {
+			this.imageURLs = ShrunkedBrowser.getURLsFromInputTag(inputTag);
+		}
+
 		var notifyBox = gBrowser.getNotificationBox();
 		if (notifyBox.getNotificationWithValue('shrunked-notification')) {
 			return;
@@ -151,8 +161,9 @@ var ShrunkedBrowser = {
 		var inputTag = buttonObject.inputTag;
 		var form = inputTag.form;
 		var returnValues = { cancelDialog: true, inputTag: inputTag };
+
 		window.openDialog('chrome://shrunked/content/options.xul', 'options',
-			'chrome,centerscreen,modal', returnValues);
+			'chrome,centerscreen,modal', returnValues, ShrunkedBrowser.imageURLs);
 
 		if (returnValues.cancelDialog) {
 			return;
@@ -181,6 +192,21 @@ var ShrunkedBrowser = {
 			Services.contentPrefs.setPref(uri, 'extensions.shrunked.maxWidth', returnValues.maxWidth, context);
 			Services.contentPrefs.setPref(uri, 'extensions.shrunked.maxHeight', returnValues.maxHeight, context);
 		}
+	},
+
+	getURLsFromInputTag: function(aInputTag) {
+		let paths = aInputTag.mozGetFileNameArray();
+		let URLs = [];
+
+		for (let path of paths) {
+			if (/\.jpe?g$/i.test(path)) {
+				let sourceFile = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
+				sourceFile.initWithPath(path);
+				let sourceURL = Services.io.newFileURI(sourceFile);
+				URLs.push(sourceURL.spec);
+			}
+		}
+		return URLs;
 	},
 
 	resize: function(inputTag, maxWidth, maxHeight, quality) {
