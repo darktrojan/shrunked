@@ -7,6 +7,7 @@ Cu.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
 
 let returnValues = window.arguments[0];
 let imageURLs = window.arguments[1];
+let imageNames = window.arguments[2];
 let windowIsPrivate = PrivateBrowsingUtils.isWindowPrivate(window.opener);
 let imageIndex = 0;
 let maxWidth, maxHeight;
@@ -88,7 +89,11 @@ function imageLoad() {
 		let {width, height, src} = img;
 		let scale = Math.min(1, Math.min(maxWidth / width, maxHeight / height));
 
-		l_previewfilename.setAttribute('value', src.substring(src.lastIndexOf('/') + 1));
+		if (imageNames && imageNames[imageIndex]) {
+			l_previewfilename.setAttribute('value', imageNames[imageIndex]);
+		} else {
+			l_previewfilename.setAttribute('value', src.substring(src.lastIndexOf('/') + 1));
+		}
 		l_previeworiginalsize.setAttribute('value', strings.getFormattedString('preview_originalsize', [width, height]));
 		if (scale == 1) {
 			l_previewresized.setAttribute('value', strings.getString('preview_notresized'));

@@ -18,21 +18,27 @@ var ShrunkedCompose = {
 		let editFrame = document.getElementById('content-frame');
 		editFrame.addEventListener('pageshow', function addObserver(aEvent) {
 			editFrame.removeEventListener('pageshow', addObserver, false);
-			var target = editFrame.contentDocument.body;
-			var config = { attributes: false, childList: true, characterData: false };
-			var observer = new MutationObserver(function(mutations) {
-				mutations.forEach(function(mutation) {
+			let target = editFrame.contentDocument.body;
+			let config = { attributes: false, childList: true, characterData: false };
+			let observer = new MutationObserver(function(mutations) {
+				for (let mutation of mutations) {
 					if (mutation.addedNodes) {
-						for (var target of mutation.addedNodes) {
+						for (let target of mutation.addedNodes) {
 							ShrunkedCompose.maybeResizeInline(target);
 						}
 					}
-				});
+				}
 			});
 			observer.observe(target, config);
 		}, false);
+		editFrame.addEventListener('drop', (aEvent) => {
+			for (let file of aEvent.dataTransfer.files) {
+				ShrunkedCompose.droppedCache.set(file.name, file.size);
+			}
+		});
 	},
 
+	droppedCache: new Map(),
 	inlineImages: [],
 	timeout: null,
 	asking: false,
@@ -61,6 +67,24 @@ var ShrunkedCompose = {
 				return;
 			}
 
+			let src = target.getAttribute('src');
+			if (/^data:/.test(src)) {
+				src = src.substring(src.indexOf(',') + 1);
+				let srcSize = src.length * 3 / 4;
+				if (src.substr(-1) == '=') {
+					srcSize--;
+					if (src.substr(-2, 1) == '=') {
+						srcSize--;
+					}
+				}
+				for (let [name, size] of this.droppedCache) {
+					if (srcSize == size) {
+						target.maybesrc = name;
+						break;
+					}
+				}
+			}
+
 			this.inlineImages.push(target);
 			if (this.timeout) {
 				clearTimeout(this.timeout);
@@ -73,6 +97,7 @@ var ShrunkedCompose = {
 			this.timeout = setTimeout(() => {
 				this.asking = true;
 				this.timeout = null;
+				this.droppedCache.clear();
 
 				let strings = document.getElementById('shrunked-strings');
 				let buttons = [{
@@ -101,27 +126,25 @@ var ShrunkedCompose = {
 		const Cu = Components.utils;
 
 		let returnValues = { cancelDialog: true };
-		window.openDialog('chrome://shrunked/content/options.xul', 'options', 'chrome,centerscreen,modal', returnValues);
+		let imageURLs = [];
+		let imageNames = [];
+		for (let img of this.inlineImages) {
+			imageURLs.push(img.src);
+			imageNames.push(img.maybesrc);
+		}
+
+		window.openDialog('chrome://shrunked/content/options.xul', 'options', 'chrome,centerscreen,modal', returnValues, imageURLs, imageNames);
 		this.asking = false;
 
 		if (returnValues.cancelDialog) {
 			return;
 		}
-		if (returnValues.maxWidth > 0) {
-			if (typeof window.Shrunked == 'undefined') {
-				Cu.import('resource://shrunked/shrunked.jsm', window);
-			}
-			let quality = Shrunked.prefs.getIntPref('default.quality');
-			for (let i = 0; i < this.inlineImages.length; i++) {
-				let img = this.inlineImages[i];
-				this.doResizeInline(img, returnValues.maxWidth, returnValues.maxHeight, quality);
-			}
-		} else {
-			for (let i = 0; i < this.inlineImages.length; i++) {
-				let img = this.inlineImages[i];
-				img.setAttribute('shrunked:resized', 'false');
-			}
+
+		let quality = Shrunked.prefs.getIntPref('default.quality');
+		for (let img of this.inlineImages) {
+			this.doResizeInline(img, returnValues.maxWidth, returnValues.maxHeight, quality);
 		}
+
 		this.inlineImages = [];
 	},
 
