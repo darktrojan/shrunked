@@ -1,15 +1,8 @@
-var ShrunkedCompose = {
-
-	onLoad: function() {
-		window.removeEventListener('load', ShrunkedCompose.onLoad, false);
-		ShrunkedCompose.init();
-	},
+let ShrunkedCompose = {
 
 	init: function() {
-		const Cu = Components.utils;
-
-		Cu.import('resource://gre/modules/Services.jsm');
-		Cu.import('resource://shrunked/shrunked.jsm');
+		Components.utils.import('resource://gre/modules/Services.jsm');
+		Components.utils.import('resource://shrunked/shrunked.jsm');
 
 		this.oldGenericSendMessage = window.GenericSendMessage;
 		window.GenericSendMessage = this.newGenericSendMessage;
@@ -30,7 +23,7 @@ var ShrunkedCompose = {
 				}
 			});
 			observer.observe(target, config);
-		}, false);
+		});
 		editFrame.addEventListener('drop', (aEvent) => {
 			for (let file of aEvent.dataTransfer.files) {
 				ShrunkedCompose.droppedCache.set(file.name, file.size);
@@ -44,7 +37,7 @@ var ShrunkedCompose = {
 	asking: false,
 	maybeResizeInline: function(target) {
 		if (target.nodeName == 'IMG') {
-			var parent = target.parentNode;
+			let parent = target.parentNode;
 			while (parent && 'classList' in parent) {
 				if (parent.classList.contains('moz-signature') ||
 					(parent.getAttribute('type') == 'cite') ||
@@ -58,7 +51,7 @@ var ShrunkedCompose = {
 				target.addEventListener('load', function targetOnLoad() {
 					target.removeEventListener('load', targetOnLoad, false);
 					ShrunkedCompose.maybeResizeInline(target);
-				}, false);
+				});
 				return;
 			}
 
@@ -116,15 +109,13 @@ var ShrunkedCompose = {
 				);
 			}, 500);
 		} else if (target.nodeType == Node.ELEMENT_NODE) {
-			for (var child of target.children) {
+			for (let child of target.children) {
 				this.maybeResizeInline(child);
 			}
 		}
 	},
 
 	showOptionsDialog: function() {
-		const Cu = Components.utils;
-
 		let returnValues = { cancelDialog: true };
 		let imageURLs = [];
 		let imageNames = [];
@@ -160,24 +151,22 @@ var ShrunkedCompose = {
 	},
 
 	newGenericSendMessage: function(msgType) {
-		const Cu = Components.utils;
-
-		var doResize = msgType == nsIMsgCompDeliverMode.Now || msgType == nsIMsgCompDeliverMode.Later;
-		var bucket = document.getElementById('attachmentBucket');
-		var images = [];
-		var minimum = Shrunked.prefs.getIntPref('fileSizeMinimum') * 1024;
+		let doResize = msgType == nsIMsgCompDeliverMode.Now || msgType == nsIMsgCompDeliverMode.Later;
+		let bucket = document.getElementById('attachmentBucket');
+		let images = [];
+		let minimum = Shrunked.prefs.getIntPref('fileSizeMinimum') * 1024;
 
 		if (doResize) {
 			try {
-				for (var index = 0; index < bucket.getRowCount(); index++) {
-					var item = bucket.getItemAtIndex(index);
+				for (let index = 0; index < bucket.getRowCount(); index++) {
+					let item = bucket.getItemAtIndex(index);
 					if (/\.jpe?g$/i.test(item.attachment.url) && (item.attachment.size == -1 || item.attachment.size >= minimum)) {
 						images.push({ url: item.attachment.url, item: item });
 					}
 				}
 
 				if (images.length > 0) {
-					var returnValues = { cancelDialog: true };
+					let returnValues = { cancelDialog: true };
 					window.openDialog('chrome://shrunked/content/options.xul',
 							'options', 'chrome,centerscreen,modal', returnValues);
 					if (returnValues.cancelDialog) {
@@ -190,8 +179,8 @@ var ShrunkedCompose = {
 						if (returnValues.cancelDialog) {
 							return;
 						}
-						for (var i = 0; i < images.length; i++) {
-							var item = images[i].item;
+						for (let i = 0; i < images.length; i++) {
+							let item = images[i].item;
 							item.attachment.contentLocation = item.attachment.url;
 							if (images[i].destFile) {
 								item.attachment.url = Services.io.newFileURI(images[i].destFile).spec;
@@ -200,7 +189,7 @@ var ShrunkedCompose = {
 					}
 				}
 			} catch (e) {
-				Cu.reportError(e);
+				Components.utils.reportError(e);
 			}
 		}
 
@@ -208,9 +197,9 @@ var ShrunkedCompose = {
 
 		// undo, in case send failed
 		if (doResize) {
-			for (var i = 0; i < images.length; i++) {
-				var item = images[i].item;
-				var contentLocation = item.attachment.contentLocation;
+			for (let i = 0; i < images.length; i++) {
+				let item = images[i].item;
+				let contentLocation = item.attachment.contentLocation;
 				if (contentLocation && /\.jpe?g$/i.test(contentLocation)) {
 					item.attachment.url = contentLocation;
 					item.attachment.contentLocation = null;
@@ -220,4 +209,4 @@ var ShrunkedCompose = {
 	}
 };
 
-window.addEventListener('load', ShrunkedCompose.onLoad, false);
+window.addEventListener('load', ShrunkedCompose.onLoad.bind(ShrunkedCompose));
