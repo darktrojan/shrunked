@@ -209,4 +209,4 @@ let ShrunkedCompose = {
 	}
 };
 
-window.addEventListener('load', ShrunkedCompose.onLoad.bind(ShrunkedCompose));
+window.addEventListener('load', ShrunkedCompose.init.bind(ShrunkedCompose));
