@@ -3,15 +3,17 @@ let ShrunkedBrowser = {
 	strings: null,
 
 	init: function() {
-		Components.utils.import('resource://gre/modules/FileUtils.jsm');
-		Components.utils.import('resource://gre/modules/Task.jsm');
-		Components.utils.import('resource://shrunked/shrunked.jsm');
-
-		this.strings = document.getElementById('shrunked-strings');
 		let appcontent = document.getElementById('appcontent');
 		if (appcontent) {
 			appcontent.addEventListener('change', this.onActivate.bind(this), true);
 		}
+
+		this.strings = document.getElementById('shrunked-strings');
+		XPCOMUtils.defineLazyGetter(this, 'getPlural', () => {
+			let pluralForm = this.strings.getString('question_pluralform');
+			let [getPlural,] = PluralForm.makeGetter(pluralForm);
+			return getPlural;
+		});
 
 		setTimeout(function() {
 			Shrunked.showDonateNotification(gBrowser.getNotificationBox(), function(aNotificationBar, aButton) {
@@ -101,13 +103,13 @@ let ShrunkedBrowser = {
 				label: this.strings.getString('no_label'),
 			});
 
+			let questions = this.strings.getString('questions');
+			let question = this.getPlural(this.imageURLs.length, questions);
+
 			notifyBox = gBrowser.getNotificationBox();
 			notifyBox.removeAllNotifications(true);
 			let notification = notifyBox.appendNotification(
-				this.strings.getString('question'),
-				'shrunked-notification',
-				null,
-				notifyBox.PRIORITY_INFO_HIGH, buttons
+				question, 'shrunked-notification', null, notifyBox.PRIORITY_INFO_HIGH, buttons
 			);
 
 			inputTag.ownerDocument.addEventListener('unload', function() {
@@ -195,5 +197,12 @@ let ShrunkedBrowser = {
 		inputTag.originalValue = null;
 	}
 };
+
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+XPCOMUtils.defineLazyModuleGetter(window, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
+XPCOMUtils.defineLazyModuleGetter(window, 'PluralForm', 'resource://gre/modules/PluralForm.jsm');
+XPCOMUtils.defineLazyModuleGetter(window, 'Services', 'resource://gre/modules/Services.jsm');
+XPCOMUtils.defineLazyModuleGetter(window, 'Shrunked', 'resource://shrunked/shrunked.jsm');
+XPCOMUtils.defineLazyModuleGetter(window, 'Task', 'resource://gre/modules/Task.jsm');
 
 window.addEventListener('load', ShrunkedBrowser.init.bind(ShrunkedBrowser));

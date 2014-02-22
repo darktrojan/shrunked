@@ -1,9 +1,6 @@
 let ShrunkedCompose = {
 
 	init: function() {
-		Components.utils.import('resource://gre/modules/Services.jsm');
-		Components.utils.import('resource://shrunked/shrunked.jsm');
-
 		this.oldGenericSendMessage = window.GenericSendMessage;
 		window.GenericSendMessage = this.newGenericSendMessage;
 
@@ -28,6 +25,13 @@ let ShrunkedCompose = {
 			for (let file of aEvent.dataTransfer.files) {
 				ShrunkedCompose.droppedCache.set(file.name, file.size);
 			}
+		});
+
+		this.strings = document.getElementById('shrunked-strings');
+		XPCOMUtils.defineLazyGetter(this, 'getPlural', () => {
+			let pluralForm = this.strings.getString('question_pluralform');
+			let [getPlural,] = PluralForm.makeGetter(pluralForm);
+			return getPlural;
 		});
 	},
 
@@ -92,23 +96,25 @@ let ShrunkedCompose = {
 				this.timeout = null;
 				this.droppedCache.clear();
 
-				let strings = document.getElementById('shrunked-strings');
 				let buttons = [{
-					accessKey: strings.getString('yes_accesskey'),
+					accessKey: this.strings.getString('yes_accesskey'),
 					callback: ShrunkedCompose.showOptionsDialog.bind(this),
-					label: strings.getString('yes_label')
+					label: this.strings.getString('yes_label')
 				}, {
-					accessKey: strings.getString('no_accesskey'),
+					accessKey: this.strings.getString('no_accesskey'),
 					callback: () => {
 						this.asking = false;
 						this.inlineImages = [];
 					},
-					label: strings.getString('no_label')
+					label: this.strings.getString('no_label')
 				}];
+
+				let questions = this.strings.getString('questions');
+				let question = this.getPlural(this.inlineImages.length, questions);
 
 				let notifyBox = document.getElementById('shrunked-notification-box');
 				let notification = notifyBox.appendNotification(
-					strings.getString('question'), 'shrunked-notification', null, notifyBox.PRIORITY_INFO_HIGH, buttons
+					question, 'shrunked-notification', null, notifyBox.PRIORITY_INFO_HIGH, buttons
 				);
 			}, 500);
 		} else if (target.nodeType == Node.ELEMENT_NODE) {
@@ -212,5 +218,10 @@ let ShrunkedCompose = {
 		}
 	}
 };
+
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+XPCOMUtils.defineLazyModuleGetter(window, 'PluralForm', 'resource://gre/modules/PluralForm.jsm');
+XPCOMUtils.defineLazyModuleGetter(window, 'Services', 'resource://gre/modules/Services.jsm');
+XPCOMUtils.defineLazyModuleGetter(window, 'Shrunked', 'resource://shrunked/shrunked.jsm');
 
 window.addEventListener('load', ShrunkedCompose.init.bind(ShrunkedCompose));
