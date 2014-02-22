@@ -99,7 +99,10 @@ let ShrunkedCompose = {
 					label: strings.getString('yes_label')
 				}, {
 					accessKey: strings.getString('no_accesskey'),
-					callback: () => { this.asking = false; },
+					callback: () => {
+						this.asking = false;
+						this.inlineImages = [];
+					},
 					label: strings.getString('no_label')
 				}];
 
@@ -128,6 +131,7 @@ let ShrunkedCompose = {
 		this.asking = false;
 
 		if (returnValues.cancelDialog) {
+			this.inlineImages = [];
 			return;
 		}
 
