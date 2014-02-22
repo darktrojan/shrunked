@@ -532,7 +532,7 @@ var Shrunked = {
 		let allPrefs = new Map();
 
 		if ('getByName' in this.contentPrefs2) {
-			this.contentPrefs2.getByDomainAndName(aURI.host, aName, aContext, {
+			this.contentPrefs2.getByName(aName, null, {
 				handleCompletion: function(aReason) {
 					deferred.resolve(allPrefs);
 				},
