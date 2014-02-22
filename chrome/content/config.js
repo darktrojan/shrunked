@@ -3,6 +3,7 @@ const Ci = Components.interfaces;
 const Cu = Components.utils;
 
 Cu.import('resource://gre/modules/Services.jsm');
+Cu.import('resource://gre/modules/Task.jsm');
 Cu.import('resource://shrunked/shrunked.jsm');
 
 const IS_FIREFOX = Services.appinfo.name == 'Firefox';
@@ -33,19 +34,19 @@ function load() {
 	if (IS_THUNDERBIRD) {
 		t_sites.hidden = true;
 	} else {
-		let data = {};
-		for (let name of ['disabled', 'maxWidth', 'maxHeight']) {
-			let prefs = Services.contentPrefs.getPrefsByName('extensions.shrunked.' + name, null);
-			let enumerator = prefs.enumerator;
-			while (enumerator.hasMoreElements()) {
-				let property = enumerator.getNext().QueryInterface(Ci.nsIProperty);
-				if (!(property.name in data)) {
-					data[property.name] = {};
+		Task.spawn(function() {
+			let data = new Map();
+			for (let name of ['disabled', 'maxWidth', 'maxHeight']) {
+				let prefs = yield Shrunked.getAllContentPrefs('extensions.shrunked.' + name);
+				for (let [domain, value] of prefs) {
+					let site = data.get(domain) || {};
+					site[name] = value;
+					data.set(domain, site);
 				}
-				data[property.name][name] = property.value;
 			}
-		}
-		handleData(data);
+
+			handleData(data);
+		});
 	}
 
 	enableExif();
@@ -76,15 +77,12 @@ function enableExif() {
 }
 
 function handleData(data) {
-	for (let site in data) {
-		let disabled = data[site]['disabled'];
-		let maxWidth = data[site]['maxWidth'];
-		let maxHeight = data[site]['maxHeight'];
-		if (disabled) {
+	for (let [domain, prefs] of data) {
+		if (prefs.disabled) {
 			let item = document.createElement('listitem');
 			item.setAttribute('style', 'color: #666; font-style: italic');
 			let siteCell = document.createElement('listcell');
-			siteCell.setAttribute('label', site);
+			siteCell.setAttribute('label', domain);
 			item.appendChild(siteCell);
 			let disabledCell = document.createElement('listcell');
 			disabledCell.setAttribute('label', strings.getString('disabled'));
@@ -92,13 +90,13 @@ function handleData(data) {
 			item.appendChild(disabledCell);
 			lb_sites.appendChild(item);
 		}
-		if (maxWidth && maxHeight) {
+		if (prefs.maxWidth && prefs.maxHeight) {
 			let item = document.createElement('listitem');
 			let siteCell = document.createElement('listcell');
-			siteCell.setAttribute('label', site);
+			siteCell.setAttribute('label', domain);
 			item.appendChild(siteCell);
 			let widthCell = document.createElement('listcell');
-			widthCell.setAttribute('label', strings.getFormattedString('dimensions', [maxWidth, maxHeight]));
+			widthCell.setAttribute('label', strings.getFormattedString('dimensions', [prefs.maxWidth, prefs.maxHeight]));
 			widthCell.setAttribute('style', 'text-align: center');
 			item.appendChild(widthCell);
 			lb_sites.appendChild(item);

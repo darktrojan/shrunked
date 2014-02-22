@@ -526,6 +526,38 @@ var Shrunked = {
 		});
 
 		return deferred.promise;
+	},
+	getAllContentPrefs: function(aName) {
+		let deferred = Promise.defer();
+		let allPrefs = new Map();
+
+		if ('getByName' in this.contentPrefs2) {
+			this.contentPrefs2.getByDomainAndName(aURI.host, aName, aContext, {
+				handleCompletion: function(aReason) {
+					deferred.resolve(allPrefs);
+				},
+				handleError: function(aError) {
+					deferred.reject(aError);
+				},
+				handleResult: function(aPref) {
+					allPrefs.set(aPref.domain, aPref.value);
+				}
+			});
+		} else {
+			try {
+				let prefs = Services.contentPrefs.getPrefsByName(aName, null);
+				let enumerator = prefs.enumerator;
+				while (enumerator.hasMoreElements()) {
+					let property = enumerator.getNext().QueryInterface(Ci.nsIProperty);
+					allPrefs.set(property.name, property.value);
+				}
+				deferred.resolve(allPrefs);
+			} catch (e) {
+				deferred.reject(e);
+			}
+		}
+
+		return deferred.promise;
 	}
 };
 XPCOMUtils.defineLazyGetter(Shrunked, 'prefs', function() {
