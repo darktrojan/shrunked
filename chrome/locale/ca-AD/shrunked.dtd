@@ -16,6 +16,9 @@
 <!ENTITY shrunked-custom.label "Personalitzat">
 <!ENTITY shrunked-width.label "Amplada:">
 <!ENTITY shrunked-height.label "Alçada:">
+<!ENTITY shrunked-preview.label "Preview:">
+<!ENTITY shrunked-preview.previous.tooltip "Previous image">
+<!ENTITY shrunked-preview.next.tooltip "Next image">
 <!ENTITY shrunked-waiting.label "Carregant imatges…">
 <!ENTITY shrunked-resizing.label "Canviant la mida de les imatges…">
 <!ENTITY shrunked-status.label "Estat:">

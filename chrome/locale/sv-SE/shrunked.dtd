@@ -16,6 +16,9 @@
 <!ENTITY shrunked-custom.label "Anpassad">
 <!ENTITY shrunked-width.label "Bredd:">
 <!ENTITY shrunked-height.label "Höjd:">
+<!ENTITY shrunked-preview.label "Preview:">
+<!ENTITY shrunked-preview.previous.tooltip "Previous image">
+<!ENTITY shrunked-preview.next.tooltip "Next image">
 <!ENTITY shrunked-waiting.label "Läser in bilder…">
 <!ENTITY shrunked-resizing.label "Byter storlek på bilder…">
 <!ENTITY shrunked-status.label "Status:">

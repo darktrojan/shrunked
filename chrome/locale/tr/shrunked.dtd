@@ -16,6 +16,9 @@
 <!ENTITY shrunked-custom.label "Diğer">
 <!ENTITY shrunked-width.label "Genişlik:">
 <!ENTITY shrunked-height.label "Yükseklik:">
+<!ENTITY shrunked-preview.label "Preview:">
+<!ENTITY shrunked-preview.previous.tooltip "Previous image">
+<!ENTITY shrunked-preview.next.tooltip "Next image">
 <!ENTITY shrunked-waiting.label "Resim yükleniyor…">
 <!ENTITY shrunked-resizing.label "Resim boyutlandırılıyor…">
 <!ENTITY shrunked-status.label "Durum:">

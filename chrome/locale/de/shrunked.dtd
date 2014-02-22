@@ -16,6 +16,9 @@
 <!ENTITY shrunked-custom.label "Benutzerdefiniert">
 <!ENTITY shrunked-width.label "Breite:">
 <!ENTITY shrunked-height.label "Höhe:">
+<!ENTITY shrunked-preview.label "Preview:">
+<!ENTITY shrunked-preview.previous.tooltip "Previous image">
+<!ENTITY shrunked-preview.next.tooltip "Next image">
 <!ENTITY shrunked-waiting.label "Bilder werden geladen…">
 <!ENTITY shrunked-resizing.label "Bilder werden in der Größe geändert…">
 <!ENTITY shrunked-status.label "Status:">

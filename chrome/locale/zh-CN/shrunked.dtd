@@ -16,6 +16,9 @@
 <!ENTITY shrunked-custom.label "自定义">
 <!ENTITY shrunked-width.label "宽度：">
 <!ENTITY shrunked-height.label "高度：">
+<!ENTITY shrunked-preview.label "Preview:">
+<!ENTITY shrunked-preview.previous.tooltip "Previous image">
+<!ENTITY shrunked-preview.next.tooltip "Next image">
 <!ENTITY shrunked-waiting.label "正在加载图像…">
 <!ENTITY shrunked-resizing.label "正在调整图像…">
 <!ENTITY shrunked-status.label "状态：">
