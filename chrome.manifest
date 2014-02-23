@@ -7,7 +7,7 @@ resource shrunked modules/
 
 locale shrunked en-US chrome/locale/en-US/
 
-locale shrunked ca-AD chrome/locale/ca-AD/
+locale shrunked ca chrome/locale/ca/
 locale shrunked de chrome/locale/de/
 locale shrunked fr chrome/locale/fr/
 locale shrunked it chrome/locale/it/
