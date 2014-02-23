@@ -21,9 +21,8 @@ var ShrunkedBrowser = {
 		}
 
 		setTimeout(function() {
-			Shrunked.showDonateNotification(gBrowser.getNotificationBox(), function(aNotificationBar, aButton) {
-				var url = 'https://addons.mozilla.org/addon/11005/about';
-				gBrowser.selectedTab = gBrowser.addTab(url);
+			Shrunked.showDonateNotification(gBrowser.getNotificationBox(), function() {
+				gBrowser.selectedTab = gBrowser.addTab('https://addons.mozilla.org/addon/shrunked-image-resizer');
 			});
 		}, 1000);
 	},

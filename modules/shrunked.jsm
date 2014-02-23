@@ -435,44 +435,23 @@ var Shrunked = {
 		return Services.io.newURI(uri, null, null);
 	},
 	showDonateNotification: function(notifyBox, callback) {
-		function parseVersion(aVersion) {
-			let match = /^\d+(\.\d+)?/.exec(aVersion);
-			return match ? match[0] : aVersion;
-		}
-
-		let currentVersion = 0;
-		let oldVersion = 0;
-
-		if (Shrunked.prefs.getPrefType('version') == Ci.nsIPrefBranch.PREF_STRING) {
-			oldVersion = Shrunked.prefs.getCharPref('version');
-		}
-		Cu.import('resource://gre/modules/AddonManager.jsm');
-		AddonManager.getAddonByID(ID, function(addon) {
-			currentVersion = addon.version;
-			Shrunked.prefs.setCharPref('version', currentVersion);
-
-			var comparator = Cc['@mozilla.org/xpcom/version-comparator;1'].createInstance(Ci.nsIVersionComparator);
-			if (oldVersion == 0 || comparator.compare(parseVersion(oldVersion), parseVersion(currentVersion)) >= 0) {
+		if (Shrunked.prefs.prefHasUserValue('betareminder')) {
+			let betaReminder = Shrunked.prefs.getIntPref('betareminder');
+			if (Date.now() / 1000 - betaReminder < 168 * 3600) {
 				return;
 			}
+		}
 
-			if (Cc['@mozilla.org/chrome/chrome-registry;1']
-					.getService(Ci.nsIXULChromeRegistry).getSelectedLocale('shrunked') != 'en-US') {
-				return;
-			}
-
-			let label = 'Shrunked Image Resizer has been updated to version ' + currentVersion + '. ' +
-					'Please consider making a donation.';
-			let value = 'shrunked-donate';
-			let buttons = [{
-				label: 'Donate',
-				accessKey: 'D',
-				popup: null,
-				callback: callback
-			}];
-			Shrunked.prefs.setIntPref('donationreminder', Date.now() / 1000);
-			notifyBox.appendNotification(label, value, null, notifyBox.PRIORITY_INFO_LOW, buttons);
-		});
+		let label = "Shrunked Image Resizer's beta version is no longer maintained. " +
+			'Please upgrade to a release version from the add-ons website.';
+		let value = 'shrunked-beta';
+		let buttons = [{
+			label: 'Go to website',
+			accessKey: 'G',
+			callback: callback
+		}];
+		Shrunked.prefs.setIntPref('betareminder', Date.now() / 1000);
+		notifyBox.appendNotification(label, value, null, notifyBox.PRIORITY_INFO_LOW, buttons);
 	}
 };
 XPCOMUtils.defineLazyGetter(Shrunked, 'prefs', function() {

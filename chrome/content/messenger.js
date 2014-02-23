@@ -4,7 +4,7 @@ window.addEventListener('load', function() {
 		setTimeout(function() {
 			Components.utils.import('resource://shrunked/shrunked.jsm');
 			Shrunked.showDonateNotification(notifyBox, function() {
-				openLinkExternally('https://addons.mozilla.org/addon/11005/about');
+				openLinkExternally('https://addons.mozilla.org/thunderbird/addon/shrunked-image-resizer');
 			});
 		}, 1000);
 	}
