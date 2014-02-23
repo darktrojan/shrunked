@@ -168,17 +168,19 @@ let ShrunkedCompose = {
 
 		if (doResize) {
 			try {
+				let imageURLs = [];
 				for (let index = 0; index < bucket.getRowCount(); index++) {
 					let item = bucket.getItemAtIndex(index);
 					if (/\.jpe?g$/i.test(item.attachment.url) && (item.attachment.size == -1 || item.attachment.size >= minimum)) {
 						images.push({ url: item.attachment.url, item: item });
+						imageURLs.push(item.attachment.url);
 					}
 				}
 
 				if (images.length > 0) {
 					let returnValues = { cancelDialog: true };
 					window.openDialog('chrome://shrunked/content/options.xul',
-							'options', 'chrome,centerscreen,modal', returnValues);
+							'options', 'chrome,centerscreen,modal', returnValues, imageURLs);
 					if (returnValues.cancelDialog) {
 						return;
 					}
