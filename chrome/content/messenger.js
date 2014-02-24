@@ -3,8 +3,8 @@ window.addEventListener('load', function() {
 	if (notifyBox) {
 		setTimeout(function() {
 			Components.utils.import('resource://shrunked/shrunked.jsm');
-			Shrunked.showDonateNotification(notifyBox, function() {
-				openLinkExternally('https://addons.mozilla.org/addon/11005/about');
+			Shrunked.showStartupNotification(notifyBox, function(aURL) {
+				openLinkExternally(aURL);
 			});
 		}, 1000);
 	}

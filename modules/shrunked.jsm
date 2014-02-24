@@ -469,7 +469,7 @@ var Shrunked = {
 	newURI: function(uri) {
 		return Services.io.newURI(uri, null, null);
 	},
-	showDonateNotification: function(notifyBox, callback) {
+	showStartupNotification: function(aNotificationBox, aCallback) {
 		function parseVersion(aVersion) {
 			let match = /^\d+(\.\d+)?/.exec(aVersion);
 			return match ? match[0] : aVersion;
@@ -486,27 +486,24 @@ var Shrunked = {
 			currentVersion = addon.version;
 			Shrunked.prefs.setCharPref('version', currentVersion);
 
-			var comparator = Cc['@mozilla.org/xpcom/version-comparator;1'].createInstance(Ci.nsIVersionComparator);
+			let comparator = Cc['@mozilla.org/xpcom/version-comparator;1'].createInstance(Ci.nsIVersionComparator);
 			if (oldVersion == 0 || comparator.compare(parseVersion(oldVersion), parseVersion(currentVersion)) >= 0) {
 				return;
 			}
 
-			if (Cc['@mozilla.org/chrome/chrome-registry;1']
-					.getService(Ci.nsIXULChromeRegistry).getSelectedLocale('shrunked') != 'en-US') {
-				return;
-			}
-
-			let label = 'Shrunked Image Resizer has been updated to version ' + currentVersion + '. ' +
-					'Please consider making a donation.';
+			let strings = Services.strings.createBundle('chrome://shrunked/locale/shrunked.properties');
+			let label = strings.formatStringFromName('donate_notification', [currentVersion], 1);
 			let value = 'shrunked-donate';
 			let buttons = [{
-				label: 'Donate',
-				accessKey: 'D',
+				label: strings.GetStringFromName('donate_button_label'),
+				accessKey: strings.GetStringFromName('donate_button_accesskey'),
 				popup: null,
-				callback: callback
+				callback: function() {
+					aCallback('https://addons.mozilla.org/addon/shrunked-image-resizer/contribute/installed/');
+				}
 			}];
 			Shrunked.prefs.setIntPref('donationreminder', Date.now() / 1000);
-			notifyBox.appendNotification(label, value, null, notifyBox.PRIORITY_INFO_LOW, buttons);
+			aNotificationBox.appendNotification(label, value, null, aNotificationBox.PRIORITY_INFO_LOW, buttons);
 		});
 	},
 	getContentPref: function(aURI, aName, aContext) {

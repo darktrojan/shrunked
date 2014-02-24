@@ -16,9 +16,8 @@ let ShrunkedBrowser = {
 		});
 
 		setTimeout(function() {
-			Shrunked.showDonateNotification(gBrowser.getNotificationBox(), function(aNotificationBar, aButton) {
-				let url = 'https://addons.mozilla.org/addon/11005/about';
-				gBrowser.selectedTab = gBrowser.addTab(url);
+			Shrunked.showStartupNotification(gBrowser.getNotificationBox(), function(aURL) {
+				gBrowser.selectedTab = gBrowser.addTab(aURL);
 			});
 		}, 1000);
 	},
