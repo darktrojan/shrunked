@@ -47,7 +47,7 @@
 			</hbox>
 		</radiogroup>
 		<label id="l_previewheader" class="header" value="&shrunked-preview.label;" />
-		<hbox id="b_previewbox" flex="1">
+		<hbox id="b_previewbox" flex="1" minwidth="400">
 			<vbox id="b_previewarrowprevious" pack="center">
 				<toolbarbutton oncommand="advancePreview(-1);" tabindex="0" tooltiptext="&shrunked-preview.previous.tooltip;" />
 			</vbox>
