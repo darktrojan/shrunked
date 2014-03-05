@@ -92,7 +92,18 @@ function imageLoad() {
 		if (imageNames && imageNames[imageIndex]) {
 			l_previewfilename.setAttribute('value', imageNames[imageIndex]);
 		} else {
-			l_previewfilename.setAttribute('value', src.substring(src.lastIndexOf('/') + 1));
+			let i = src.indexOf('filename=');
+			if (i > -1) {
+				i += 9;
+				let j = src.indexOf('&', i);
+				if (j > i) {
+					l_previewfilename.setAttribute('value', src.substring(i, j));
+				} else {
+					l_previewfilename.setAttribute('value', src.substring(i));
+				}
+			} else {
+				l_previewfilename.setAttribute('value', src.substring(src.lastIndexOf('/') + 1));
+			}
 		}
 		l_previeworiginalsize.setAttribute('value', strings.getFormattedString('preview_originalsize', [width, height]));
 		if (scale == 1) {
