@@ -12,7 +12,8 @@ let ShrunkedCompose = {
 			let config = { attributes: false, childList: true, characterData: false };
 			let observer = new MutationObserver(function(mutations) {
 				for (let mutation of mutations) {
-					if (mutation.addedNodes) {
+					if (mutation.addedNodes && mutation.addedNodes.length) {
+						Shrunked.log('mutation.addedNodes: ' + mutation.addedNodes.length);
 						for (let target of mutation.addedNodes) {
 							ShrunkedCompose.maybeResizeInline(target);
 						}
@@ -23,6 +24,7 @@ let ShrunkedCompose = {
 		});
 		editFrame.addEventListener('drop', (aEvent) => {
 			for (let file of aEvent.dataTransfer.files) {
+				Shrunked.log('dropped ' + file.name);
 				ShrunkedCompose.droppedCache.set(file.name, file.size);
 			}
 		});
@@ -41,83 +43,108 @@ let ShrunkedCompose = {
 	asking: false,
 	maybeResizeInline: function(target) {
 		if (target.nodeName == 'IMG') {
-			let parent = target.parentNode;
-			while (parent && 'classList' in parent) {
-				if (parent.classList.contains('moz-signature') ||
-					(parent.getAttribute('type') == 'cite') ||
-					parent.classList.contains('moz-forward-container')) {
+			try {
+				Shrunked.log('target is a IMG, src is ' + target.src);
+				let parent = target.parentNode;
+				while (parent && 'classList' in parent) {
+					if (parent.classList.contains('moz-signature')) {
+					Shrunked.log('image is part of signature');
+						return;
+					}
+					if (parent.getAttribute('type') == 'cite') {
+						Shrunked.log('image is part of message being replied to');
+						return;
+					}
+					if (parent.classList.contains('moz-forward-container')) {
+						Shrunked.log('image is part of forwarded message');
+						return;
+					}
+					parent = parent.parentNode;
+				}
+
+				if (!target.complete) {
+					target.addEventListener('load', function targetOnLoad() {
+						target.removeEventListener('load', targetOnLoad, false);
+						Shrunked.log('image now loaded, calling maybeResizeInline');
+						ShrunkedCompose.maybeResizeInline(target);
+					});
+					Shrunked.log('image is not yet loaded');
 					return;
 				}
-				parent = parent.parentNode;
-			}
 
-			if (!target.complete) {
-				target.addEventListener('load', function targetOnLoad() {
-					target.removeEventListener('load', targetOnLoad, false);
-					ShrunkedCompose.maybeResizeInline(target);
-				});
-				return;
-			}
+				if (target.hasAttribute('shrunked:resized')) {
+					Shrunked.log('image has shrunked attribute');
+					return;
+				}
+				if (!Shrunked.imageIsJPEG(target)) {
+					Shrunked.log('image is not jpeg');
+					return;
+				}
+				if (target.width < 500 && target.height < 500) {
+					Shrunked.log('image is too small');
+					return;
+				}
 
-			if (target.hasAttribute('shrunked:resized') ||
-					!Shrunked.imageIsJPEG(target) || !Shrunked.imageLargerThanThreshold(target.src)) {
-				return;
-			}
-
-			let src = target.getAttribute('src');
-			if (/^data:/.test(src)) {
-				src = src.substring(src.indexOf(',') + 1);
-				let srcSize = src.length * 3 / 4;
-				if (src.substr(-1) == '=') {
-					srcSize--;
-					if (src.substr(-2, 1) == '=') {
+				let src = target.getAttribute('src');
+				if (/^data:/.test(src)) {
+					src = src.substring(src.indexOf(',') + 1);
+					let srcSize = src.length * 3 / 4;
+					if (src.substr(-1) == '=') {
 						srcSize--;
+						if (src.substr(-2, 1) == '=') {
+							srcSize--;
+						}
+					}
+					for (let [name, size] of this.droppedCache) {
+						if (srcSize == size) {
+							target.maybesrc = name;
+							break;
+						}
 					}
 				}
-				for (let [name, size] of this.droppedCache) {
-					if (srcSize == size) {
-						target.maybesrc = name;
-						break;
-					}
+
+				this.inlineImages.push(target);
+				if (this.timeout) {
+					clearTimeout(this.timeout);
 				}
+
+				if (this.asking) {
+					Shrunked.log('already asking');
+					return;
+				}
+
+				this.timeout = setTimeout(() => {
+					Shrunked.log('timeout fired');
+					this.asking = true;
+					this.timeout = null;
+					this.droppedCache.clear();
+
+					let buttons = [{
+						accessKey: this.strings.getString('yes_accesskey'),
+						callback: ShrunkedCompose.showOptionsDialog.bind(this),
+						label: this.strings.getString('yes_label')
+					}, {
+						accessKey: this.strings.getString('no_accesskey'),
+						callback: () => {
+							this.asking = false;
+							this.inlineImages = [];
+						},
+						label: this.strings.getString('no_label')
+					}];
+
+					let questions = this.strings.getString('questions');
+					let question = this.getPlural(this.inlineImages.length, questions);
+
+					let notifyBox = document.getElementById('shrunked-notification-box');
+					let notification = notifyBox.appendNotification(
+						question, 'shrunked-notification', null, notifyBox.PRIORITY_INFO_HIGH, buttons
+					);
+				}, 500);
+			} catch (e) {
+				Components.utils.reportError(e);
 			}
-
-			this.inlineImages.push(target);
-			if (this.timeout) {
-				clearTimeout(this.timeout);
-			}
-
-			if (this.asking) {
-				return;
-			}
-
-			this.timeout = setTimeout(() => {
-				this.asking = true;
-				this.timeout = null;
-				this.droppedCache.clear();
-
-				let buttons = [{
-					accessKey: this.strings.getString('yes_accesskey'),
-					callback: ShrunkedCompose.showOptionsDialog.bind(this),
-					label: this.strings.getString('yes_label')
-				}, {
-					accessKey: this.strings.getString('no_accesskey'),
-					callback: () => {
-						this.asking = false;
-						this.inlineImages = [];
-					},
-					label: this.strings.getString('no_label')
-				}];
-
-				let questions = this.strings.getString('questions');
-				let question = this.getPlural(this.inlineImages.length, questions);
-
-				let notifyBox = document.getElementById('shrunked-notification-box');
-				let notification = notifyBox.appendNotification(
-					question, 'shrunked-notification', null, notifyBox.PRIORITY_INFO_HIGH, buttons
-				);
-			}, 500);
 		} else if (target.nodeType == Node.ELEMENT_NODE) {
+			Shrunked.log('target is a ' + target.nodeName + ', checking children');
 			for (let child of target.children) {
 				this.maybeResizeInline(child);
 			}

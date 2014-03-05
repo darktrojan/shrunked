@@ -555,6 +555,11 @@ var Shrunked = {
 		}
 
 		return deferred.promise;
+	},
+	log: function(aMessage) {
+		if (this.logEnabled) {
+			Services.console.logStringMessage('Shrunked: ' + aMessage);
+		}
 	}
 };
 XPCOMUtils.defineLazyGetter(Shrunked, 'prefs', function() {
@@ -562,6 +567,14 @@ XPCOMUtils.defineLazyGetter(Shrunked, 'prefs', function() {
 });
 XPCOMUtils.defineLazyGetter(Shrunked, 'contentPrefs2', function() {
 	return Services.contentPrefs.QueryInterface(Components.interfaces.nsIContentPrefService2);
+});
+XPCOMUtils.defineLazyGetter(Shrunked, 'logEnabled', function() {
+	this.prefs.addObserver('log.enabled', {
+		observe: function(aSubject, aTopic, aData) {
+			Shrunked.logEnabled = Shrunked.prefs.getBoolPref('log.enabled');
+		}
+	}, false);
+	return this.prefs.getBoolPref('log.enabled');
 });
 
 var Exif = {
