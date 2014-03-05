@@ -40,7 +40,6 @@ let ShrunkedCompose = {
 	droppedCache: new Map(),
 	inlineImages: [],
 	timeout: null,
-	asking: false,
 	maybeResizeInline: function(target) {
 		if (target.nodeName == 'IMG') {
 			try {
@@ -108,14 +107,14 @@ let ShrunkedCompose = {
 					clearTimeout(this.timeout);
 				}
 
-				if (this.asking) {
-					Shrunked.log('already asking');
+				let notifyBox = document.getElementById('shrunked-notification-box');
+				if (notifyBox.childElementCount > 0) {
+					Shrunked.log('notification already visible');
 					return;
 				}
 
 				this.timeout = setTimeout(() => {
 					Shrunked.log('timeout fired');
-					this.asking = true;
 					this.timeout = null;
 					this.droppedCache.clear();
 
@@ -126,7 +125,9 @@ let ShrunkedCompose = {
 					}, {
 						accessKey: this.strings.getString('no_accesskey'),
 						callback: () => {
-							this.asking = false;
+							for (let img of this.inlineImages) {
+								img.setAttribute('shrunked:resized', 'false');
+							}
 							this.inlineImages = [];
 						},
 						label: this.strings.getString('no_label')
@@ -135,7 +136,6 @@ let ShrunkedCompose = {
 					let questions = this.strings.getString('questions');
 					let question = this.getPlural(this.inlineImages.length, questions);
 
-					let notifyBox = document.getElementById('shrunked-notification-box');
 					let notification = notifyBox.appendNotification(
 						question, 'shrunked-notification', null, notifyBox.PRIORITY_INFO_HIGH, buttons
 					);
@@ -161,7 +161,6 @@ let ShrunkedCompose = {
 		}
 
 		window.openDialog('chrome://shrunked/content/options.xul', 'options', 'chrome,centerscreen,modal', returnValues, imageURLs, imageNames);
-		this.asking = false;
 
 		if (returnValues.cancelDialog) {
 			this.inlineImages = [];
