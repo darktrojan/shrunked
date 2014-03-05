@@ -103,7 +103,7 @@ var Shrunked = {
 			sourceURI = Services.io.newFileURI(sourceFile).spec;
 			filename = sourceFile.leafName;
 		} else {
-			Services.console.logStringMessage('Unexpected sourceFile passed to Shrunked.resizeAsync');
+			Shrunked.log('Unexpected sourceFile passed to Shrunked.resizeAsync');
 			return callback(null);
 		}
 
@@ -558,7 +558,8 @@ var Shrunked = {
 	},
 	log: function(aMessage) {
 		if (this.logEnabled) {
-			Services.console.logStringMessage('Shrunked: ' + aMessage);
+			let caller = Components.stack.caller;
+			Services.console.logStringMessage('Shrunked: ' + aMessage + '\n' + caller.filename + ', line ' + caller.lineNumber);
 		}
 	}
 };
@@ -607,7 +608,7 @@ var Exif = {
 	readOnReady: function(callback) {
 		try {
 			if (this.read2Bytes() != 0xffd8) {
-				Services.console.logStringMessage('File is not a JPEG');
+				Shrunked.log('File is not a JPEG');
 				return;
 			}
 			var current = this.read2Bytes();
@@ -617,7 +618,7 @@ var Exif = {
 				current = this.read2Bytes();
 			}
 			if (current != 0xffe1) {
-				Services.console.logStringMessage('No valid EXIF data');
+				Shrunked.log('No valid EXIF data');
 				return;
 			}
 			this.rIndex += 8;

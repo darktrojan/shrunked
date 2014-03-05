@@ -13,7 +13,7 @@ let ShrunkedCompose = {
 			let observer = new MutationObserver(function(mutations) {
 				for (let mutation of mutations) {
 					if (mutation.addedNodes && mutation.addedNodes.length) {
-						Shrunked.log('mutation.addedNodes: ' + mutation.addedNodes.length);
+						Shrunked.log('Nodes added to message: ' + mutation.addedNodes.length);
 						for (let target of mutation.addedNodes) {
 							ShrunkedCompose.maybeResizeInline(target);
 						}
@@ -24,7 +24,7 @@ let ShrunkedCompose = {
 		});
 		editFrame.addEventListener('drop', (aEvent) => {
 			for (let file of aEvent.dataTransfer.files) {
-				Shrunked.log('dropped ' + file.name);
+				Shrunked.log('File dropped: ' + file.name);
 				ShrunkedCompose.droppedCache.set(file.name, file.size);
 			}
 		});
@@ -43,19 +43,19 @@ let ShrunkedCompose = {
 	maybeResizeInline: function(target) {
 		if (target.nodeName == 'IMG') {
 			try {
-				Shrunked.log('target is a IMG, src is ' + target.src);
+				Shrunked.log('<IMG> found, source is ' + target.src.substring(0, 200) + (target.src.length <= 200 ? '' : '\u2026'));
 				let parent = target.parentNode;
 				while (parent && 'classList' in parent) {
 					if (parent.classList.contains('moz-signature')) {
-					Shrunked.log('image is part of signature');
+					Shrunked.log('Not resizing - image is part of signature');
 						return;
 					}
 					if (parent.getAttribute('type') == 'cite') {
-						Shrunked.log('image is part of message being replied to');
+						Shrunked.log('Not resizing - image is part of message being replied to');
 						return;
 					}
 					if (parent.classList.contains('moz-forward-container')) {
-						Shrunked.log('image is part of forwarded message');
+						Shrunked.log('Not resizing - image is part of forwarded message');
 						return;
 					}
 					parent = parent.parentNode;
@@ -64,23 +64,23 @@ let ShrunkedCompose = {
 				if (!target.complete) {
 					target.addEventListener('load', function targetOnLoad() {
 						target.removeEventListener('load', targetOnLoad, false);
-						Shrunked.log('image now loaded, calling maybeResizeInline');
+						Shrunked.log('Image now loaded, calling maybeResizeInline');
 						ShrunkedCompose.maybeResizeInline(target);
 					});
-					Shrunked.log('image is not yet loaded');
+					Shrunked.log('Image not yet loaded');
 					return;
 				}
 
 				if (target.hasAttribute('shrunked:resized')) {
-					Shrunked.log('image has shrunked attribute');
+					Shrunked.log('Not resizing - image already has shrunked attribute');
 					return;
 				}
 				if (!Shrunked.imageIsJPEG(target)) {
-					Shrunked.log('image is not jpeg');
+					Shrunked.log('Not resizing - image is not JPEG');
 					return;
 				}
 				if (target.width < 500 && target.height < 500) {
-					Shrunked.log('image is too small');
+					Shrunked.log('Not resizing - image is too small');
 					return;
 				}
 
@@ -109,12 +109,12 @@ let ShrunkedCompose = {
 
 				let notifyBox = document.getElementById('shrunked-notification-box');
 				if (notifyBox.childElementCount > 0) {
-					Shrunked.log('notification already visible');
+					Shrunked.log('Notification already visible');
 					return;
 				}
 
 				this.timeout = setTimeout(() => {
-					Shrunked.log('timeout fired');
+					Shrunked.log('Showing resize notification');
 					this.timeout = null;
 					this.droppedCache.clear();
 
@@ -144,7 +144,7 @@ let ShrunkedCompose = {
 				Components.utils.reportError(e);
 			}
 		} else if (target.nodeType == Node.ELEMENT_NODE) {
-			Shrunked.log('target is a ' + target.nodeName + ', checking children');
+			Shrunked.log('<' + target.nodeName + '> found, checking children');
 			for (let child of target.children) {
 				this.maybeResizeInline(child);
 			}
