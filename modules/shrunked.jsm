@@ -30,29 +30,6 @@ var Shrunked = {
 		var request = aImage.getRequest(Ci.nsIImageLoadingContent.CURRENT_REQUEST);
 		return !!request && request.mimeType == 'image/jpeg';
 	},
-	imageLargerThanThreshold: function(aSrc) {
-		var minimum = Shrunked.prefs.getIntPref('fileSizeMinimum') * 1024;
-		var minimumData = Math.floor(4 * minimum / 3);
-
-		try {
-			var uri = Shrunked.newURI(aSrc);
-			if (uri.schemeIs('file')) {
-				var file = uri.QueryInterface(Ci.nsIFileURL).file;
-				return file.fileSize >= minimum;
-			}
-			if (uri.schemeIs('data')) {
-				var dataTypeLength = aSrc.indexOf(',') + 1;
-				if (aSrc.substr(dataTypeLength - 8, 8) == ';base64,') {
-					return aSrc.length - dataTypeLength >= minimumData;
-				} else {
-					return aSrc.length - dataTypeLength >= minimum;
-				}
-			}
-		} catch(e) {
-			Cu.reportError(e);
-		}
-		return false;
-	},
 
 	document: null,
 	queue: [],
