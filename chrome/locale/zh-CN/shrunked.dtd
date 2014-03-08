@@ -32,3 +32,4 @@
 <!ENTITY shrunked-advanced.exif.label "转移 EXIF 数据">
 <!ENTITY shrunked-advanced.orient.label "自动旋转图片">
 <!ENTITY shrunked-advanced.gps.label "转移 GPS 数据">
+<!ENTITY shrunked-compose.context.label "Resize this image&#x2026;">

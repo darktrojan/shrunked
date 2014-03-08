@@ -32,3 +32,4 @@
 <!ENTITY shrunked-advanced.exif.label "Trasferisci i dati EXIF">
 <!ENTITY shrunked-advanced.orient.label "Ruota le immagini automaticamente">
 <!ENTITY shrunked-advanced.gps.label "Trasferisci i dati GPS">
+<!ENTITY shrunked-compose.context.label "Resize this image&#x2026;">

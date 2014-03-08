@@ -29,6 +29,26 @@ let ShrunkedCompose = {
 			}
 		});
 
+		let context = document.getElementById('msgComposeContext');
+		context.addEventListener('popupshowing', function() {
+			let target = document.popupNode;
+			let shouldShow = false;
+			if (target.nodeName == 'IMG') {
+				Shrunked.log('Context menu on an <IMG>');
+				if (Shrunked.imageIsJPEG(target)) {
+					if (target.width >= 500 || target.height >= 500) {
+						shouldShow = true;
+					} else {
+						Shrunked.log('Not resizing - image is too small');
+					}
+				} else {
+					Shrunked.log('Not resizing - image is not JPEG');
+				}
+			}
+			document.getElementById('shrunked-context-item').style.display = shouldShow ? null : 'none';
+			document.getElementById('shrunked-context-separator').style.display = shouldShow ? null : 'none';
+		});
+
 		this.strings = document.getElementById('shrunked-strings');
 		XPCOMUtils.defineLazyGetter(this, 'getPlural', () => {
 			let pluralForm = this.strings.getString('question_pluralform');
@@ -184,6 +204,22 @@ let ShrunkedCompose = {
 				img.setAttribute('shrunked:resized', 'true');
 			}
 		});
+	},
+
+	doResizeContext: function() {
+		let target = document.popupNode;
+		let returnValues = { cancelDialog: true };
+		let imageURLs = [target.src];
+		let imageNames = target.maybesrc ? [target.maybesrc] : null;
+
+		window.openDialog('chrome://shrunked/content/options.xul', 'options', 'chrome,centerscreen,modal', returnValues, imageURLs, imageNames);
+
+		if (returnValues.cancelDialog) {
+			return;
+		}
+
+		let quality = Shrunked.prefs.getIntPref('default.quality');
+		this.doResizeInline(target, returnValues.maxWidth, returnValues.maxHeight, quality);
 	},
 
 	newGenericSendMessage: function(msgType) {

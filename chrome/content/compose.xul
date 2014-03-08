@@ -1,6 +1,15 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE overlay SYSTEM "chrome://shrunked/locale/shrunked.dtd">
 <overlay id="shrunked-compose-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+	<menupopup id="msgComposeContext">
+		<menuseparator id="shrunked-context-item" insertbefore="spellCheckSeparator" />
+		<menuitem id="shrunked-context-separator"
+			label="&shrunked-compose.context.label;"
+			insertbefore="spellCheckSeparator"
+			oncommand="ShrunkedCompose.doResizeContext();" />
+	</menupopup>
 
 	<hbox insertbefore="status-bar">
 		<notificationbox id="shrunked-notification-box" flex="1" />
