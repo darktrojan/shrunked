@@ -1,8 +1,16 @@
 let ShrunkedCompose = {
 
+	OPTIONS_DIALOG: 'chrome://shrunked/content/options.xul',
+	PROGRESS_DIALOG: 'chrome://shrunked/content/progress.xul',
+	POPUP_ARGS: 'chrome,centerscreen,modal',
+
+	droppedCache: new Map(),
+	inlineImages: [],
+	timeout: null,
+
 	init: function() {
 		this.oldGenericSendMessage = window.GenericSendMessage;
-		window.GenericSendMessage = this.newGenericSendMessage;
+		window.GenericSendMessage = this.newGenericSendMessage.bind(this);
 
 		// the editor's document isn't available immediately
 		let editFrame = document.getElementById('content-frame');
@@ -56,10 +64,6 @@ let ShrunkedCompose = {
 			return getPlural;
 		});
 	},
-
-	droppedCache: new Map(),
-	inlineImages: [],
-	timeout: null,
 	maybeResizeInline: function(target) {
 		if (target.nodeName == 'IMG') {
 			try {
@@ -140,7 +144,10 @@ let ShrunkedCompose = {
 
 					let buttons = [{
 						accessKey: this.strings.getString('yes_accesskey'),
-						callback: ShrunkedCompose.showOptionsDialog.bind(this),
+						callback: () => {
+							this.showOptionsDialog(this.inlineImages);
+							this.inlineImages = [];
+						},
 						label: this.strings.getString('yes_label')
 					}, {
 						accessKey: this.strings.getString('no_accesskey'),
@@ -170,86 +177,62 @@ let ShrunkedCompose = {
 			}
 		}
 	},
-
-	showOptionsDialog: function() {
+	showOptionsDialog: function(aImages) {
 		let returnValues = { cancelDialog: true };
 		let imageURLs = [];
 		let imageNames = [];
-		for (let img of this.inlineImages) {
-			imageURLs.push(img.src);
-			imageNames.push(img.maybesrc);
+		for (let image of aImages) {
+			imageURLs.push(image.src);
+			imageNames.push(image.maybesrc);
 		}
 
-		window.openDialog('chrome://shrunked/content/options.xul', 'options', 'chrome,centerscreen,modal', returnValues, imageURLs, imageNames);
-
-		if (returnValues.cancelDialog) {
-			this.inlineImages = [];
-			return;
-		}
-
-		let quality = Shrunked.prefs.getIntPref('default.quality');
-		for (let img of this.inlineImages) {
-			this.doResizeInline(img, returnValues.maxWidth, returnValues.maxHeight, quality);
-		}
-
-		this.inlineImages = [];
-	},
-
-	doResizeInline: function(img, maxWidth, maxHeight, quality) {
-		Shrunked.enqueue(document, img.src, maxWidth, maxHeight, quality, function(destFile) {
-			if (destFile) {
-				img.src = Services.io.newFileURI(destFile).spec;
-				img.removeAttribute('width');
-				img.removeAttribute('height');
-				img.setAttribute('shrunked:resized', 'true');
-			}
-		});
-	},
-
-	doResizeContext: function() {
-		let target = document.popupNode;
-		let returnValues = { cancelDialog: true };
-		let imageURLs = [target.src];
-		let imageNames = target.maybesrc ? [target.maybesrc] : null;
-
-		window.openDialog('chrome://shrunked/content/options.xul', 'options', 'chrome,centerscreen,modal', returnValues, imageURLs, imageNames);
+		window.openDialog(this.OPTIONS_DIALOG, 'options', this.POPUP_ARGS, returnValues, imageURLs, imageNames);
 
 		if (returnValues.cancelDialog) {
 			return;
 		}
 
 		let quality = Shrunked.prefs.getIntPref('default.quality');
-		this.doResizeInline(target, returnValues.maxWidth, returnValues.maxHeight, quality);
+		for (let image of aImages) {
+			Shrunked.enqueue(document, image.src, returnValues.maxWidth, returnValues.maxHeight, quality, function(destFile) {
+				if (destFile) {
+					image.src = Services.io.newFileURI(destFile).spec;
+					image.removeAttribute('width');
+					image.removeAttribute('height');
+					image.setAttribute('shrunked:resized', 'true');
+				}
+			});
+		}
 	},
-
 	newGenericSendMessage: function(msgType) {
 		let doResize = msgType == nsIMsgCompDeliverMode.Now || msgType == nsIMsgCompDeliverMode.Later;
-		let bucket = document.getElementById('attachmentBucket');
 		let images = [];
-		let minimum = Shrunked.prefs.getIntPref('fileSizeMinimum') * 1024;
 
 		if (doResize) {
 			try {
+				let bucket = document.getElementById('attachmentBucket');
+				let minimum = Shrunked.prefs.getIntPref('fileSizeMinimum') * 1024;
 				let imageURLs = [];
+
 				for (let index = 0; index < bucket.getRowCount(); index++) {
 					let item = bucket.getItemAtIndex(index);
-					if (/\.jpe?g$/i.test(item.attachment.url) && (item.attachment.size == -1 || item.attachment.size >= minimum)) {
+					if (/\.jpe?g$/i.test(item.attachment.url) && item.attachment.size >= minimum) {
+						Shrunked.log('JPEG attachment found, source is ' + item.attachment.size);
 						images.push({ url: item.attachment.url, item: item });
 						imageURLs.push(item.attachment.url);
 					}
 				}
 
 				if (images.length > 0) {
+					Shrunked.log('Offering to resize ' + images.length + ' attachments');
 					let returnValues = { cancelDialog: true };
-					window.openDialog('chrome://shrunked/content/options.xul',
-							'options', 'chrome,centerscreen,modal', returnValues, imageURLs);
+					window.openDialog(this.OPTIONS_DIALOG, 'options', this.POPUP_ARGS, returnValues, imageURLs);
 					if (returnValues.cancelDialog) {
 						return;
 					}
 					if (returnValues.maxWidth > 0) {
 						returnValues.cancelDialog = true;
-						window.openDialog('chrome://shrunked/content/progress.xul',
-								'progress', 'chrome,centerscreen,modal', images, returnValues);
+						window.openDialog(this.PROGRESS_DIALOG, 'progress', this.POPUP_ARGS, images, returnValues);
 						if (returnValues.cancelDialog) {
 							return;
 						}
@@ -271,8 +254,7 @@ let ShrunkedCompose = {
 
 		// undo, in case send failed
 		if (doResize) {
-			for (let i = 0; i < images.length; i++) {
-				let item = images[i].item;
+			for (let item of images) {
 				let contentLocation = item.attachment.contentLocation;
 				if (contentLocation && /\.jpe?g$/i.test(contentLocation)) {
 					item.attachment.url = contentLocation;

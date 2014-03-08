@@ -8,7 +8,7 @@
 		<menuitem id="shrunked-context-separator"
 			label="&shrunked-compose.context.label;"
 			insertbefore="spellCheckSeparator"
-			oncommand="ShrunkedCompose.doResizeContext();" />
+			oncommand="ShrunkedCompose.showOptionsDialog([document.popupNode]);" />
 	</menupopup>
 
 	<hbox insertbefore="status-bar">
