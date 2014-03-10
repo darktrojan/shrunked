@@ -11,6 +11,14 @@
 			oncommand="ShrunkedCompose.showOptionsDialog([document.popupNode]);" />
 	</menupopup>
 
+	<menupopup id="contentAreaContextMenu">
+		<menuseparator id="shrunked-context-item" insertbefore="spell-separator" />
+		<menuitem id="shrunked-context-separator"
+			label="&shrunked-compose.context.label;"
+			insertbefore="spell-separator"
+			oncommand="ShrunkedCompose.showOptionsDialog([document.popupNode]);" />
+	</menupopup>
+
 	<hbox insertbefore="status-bar">
 		<notificationbox id="shrunked-notification-box" flex="1" />
 	</hbox>

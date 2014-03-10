@@ -37,7 +37,7 @@ let ShrunkedCompose = {
 			}
 		});
 
-		let context = document.getElementById('msgComposeContext');
+		let context = document.getElementById('msgComposeContext') || document.getElementById('contentAreaContextMenu');
 		context.addEventListener('popupshowing', function() {
 			let target = document.popupNode;
 			let shouldShow = false;
