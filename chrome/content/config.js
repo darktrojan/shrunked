@@ -14,16 +14,21 @@ for (let element of document.querySelectorAll('[id]')) {
 }
 
 function load() {
+	if (IS_FIREFOX) {
+		r_noresize.collapsed = true;
+	}
 	let maxWidth = p_maxwidth.value;
 	let maxHeight = p_maxheight.value;
-	if (maxWidth == 500 && maxHeight == 500) {
+	if (maxWidth == -1 && maxHeight == -1) {
 		rg_size.selectedIndex = 0;
-	} else if (maxWidth == 800 && maxHeight == 800) {
+	} else if (maxWidth == 500 && maxHeight == 500) {
 		rg_size.selectedIndex = 1;
-	} else if (maxWidth == 1200 && maxHeight == 1200) {
+	} else if (maxWidth == 800 && maxHeight == 800) {
 		rg_size.selectedIndex = 2;
-	} else {
+	} else if (maxWidth == 1200 && maxHeight == 1200) {
 		rg_size.selectedIndex = 3;
+	} else {
+		rg_size.selectedIndex = 4;
 		tb_width.value = maxWidth;
 		tb_height.value = maxHeight;
 	}
@@ -57,7 +62,10 @@ function load() {
 function setSize() {
 	l_width.disabled = tb_width.disabled =
 		l_height.disabled = tb_height.disabled = !r_custom.selected;
-	if (r_small.selected) {
+	if (r_noresize.selected) {
+		p_maxwidth.value = -1;
+		p_maxheight.value = -1;
+	} else if (r_small.selected) {
 		p_maxwidth.value = 500;
 		p_maxheight.value = 500;
 	} else if (r_medium.selected) {

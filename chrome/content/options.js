@@ -20,14 +20,16 @@ function load() {
 	maxWidth = Shrunked.prefs.getIntPref('default.maxWidth');
 	maxHeight = Shrunked.prefs.getIntPref('default.maxHeight');
 
-	if (maxWidth == 500 && maxHeight == 500) {
+	if (maxWidth == -1 && maxHeight == -1) {
 		rg_size.selectedIndex = 0;
-	} else if (maxWidth == 800 && maxHeight == 800) {
+	} else if (maxWidth == 500 && maxHeight == 500) {
 		rg_size.selectedIndex = 1;
-	} else if (maxWidth == 1200 && maxHeight == 1200) {
+	} else if (maxWidth == 800 && maxHeight == 800) {
 		rg_size.selectedIndex = 2;
-	} else {
+	} else if (maxWidth == 1200 && maxHeight == 1200) {
 		rg_size.selectedIndex = 3;
+	} else {
+		rg_size.selectedIndex = 4;
 		tb_width.value = maxWidth;
 		tb_height.value = maxHeight;
 	}
@@ -36,6 +38,11 @@ function load() {
 	cb_savedefault.checked = Shrunked.prefs.getBoolPref('default.saveDefault');
 
 	if (returnValues.inputTag) {
+		r_noresize.collapsed = true;
+		if (r_noresize.selected) {
+			rg_size.selectedIndex = 1;
+		}
+
 		let uri = returnValues.inputTag.ownerDocument.documentURIObject;
 		cb_remembersite.disabled = windowIsPrivate || !(uri.schemeIs('http') || uri.schemeIs('https'));
 	} else {
@@ -55,18 +62,22 @@ function load() {
 function setSize() {
 	switch (rg_size.selectedIndex) {
 	case 0:
+		maxWidth = -1;
+		maxHeight = -1;
+		break;
+	case 1:
 		maxWidth = 500;
 		maxHeight = 500;
 		break;
-	case 1:
+	case 2:
 		maxWidth = 800;
 		maxHeight = 800;
 		break;
-	case 2:
+	case 3:
 		maxWidth = 1200;
 		maxHeight = 1200;
 		break;
-	case 3:
+	case 4:
 		maxWidth = tb_width.value;
 		maxHeight = tb_height.value;
 		break;

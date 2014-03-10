@@ -47,6 +47,10 @@
 					<label value="&shrunked-maxsize.label;" />
 					<radiogroup id="rg_size" class="indent" style="margin-bottom: 1em">
 						<radio
+							id="r_noresize"
+							label="&shrunked-noresize.label;"
+							oncommand="setSize();" />
+						<radio
 							id="r_small"
 							label="&shrunked-small.label;"
 							oncommand="setSize();" />

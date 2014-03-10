@@ -10,6 +10,7 @@
 <!ENTITY shrunked-options.title "Shrunked Image Resizer 选项">
 <!ENTITY shrunked-options.remembersite.label "对此网站记住我的选择">
 <!ENTITY shrunked-options.savedefault.label "保存为默认设置">
+<!ENTITY shrunked-noresize.label "原版">
 <!ENTITY shrunked-small.label "500px">
 <!ENTITY shrunked-medium.label "800px">
 <!ENTITY shrunked-large.label "1200px">

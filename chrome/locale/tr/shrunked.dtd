@@ -10,6 +10,7 @@
 <!ENTITY shrunked-options.title "Shrunked Image Resizer Seçenekleri">
 <!ENTITY shrunked-options.remembersite.label "Bu site için yanıtımı hatırla">
 <!ENTITY shrunked-options.savedefault.label "Varsayılan ayarlar olarak kaydet">
+<!ENTITY shrunked-noresize.label "Orjinal">
 <!ENTITY shrunked-small.label "500px">
 <!ENTITY shrunked-medium.label "800px">
 <!ENTITY shrunked-large.label "1200px">

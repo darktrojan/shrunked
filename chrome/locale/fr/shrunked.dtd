@@ -10,6 +10,7 @@
 <!ENTITY shrunked-options.title "Options de Shrunked Image Resizer">
 <!ENTITY shrunked-options.remembersite.label "Se souvenir de mes choix pour ce site Web">
 <!ENTITY shrunked-options.savedefault.label "Enregistrer comme paramètres par défaut">
+<!ENTITY shrunked-noresize.label "Original">
 <!ENTITY shrunked-small.label "500 px">
 <!ENTITY shrunked-medium.label "800 px">
 <!ENTITY shrunked-large.label "1200 px">
