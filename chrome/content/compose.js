@@ -225,7 +225,7 @@ let ShrunkedCompose = {
 
 				if (images.length > 0) {
 					Shrunked.log('Offering to resize ' + images.length + ' attachments');
-					let returnValues = { cancelDialog: true };
+					let returnValues = { cancelDialog: true, isAttachment: true };
 					window.openDialog(this.OPTIONS_DIALOG, 'options', this.POPUP_ARGS, returnValues, imageURLs);
 					if (returnValues.cancelDialog) {
 						return;
