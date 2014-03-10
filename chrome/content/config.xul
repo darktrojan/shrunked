@@ -23,6 +23,7 @@
 			<preference id="p_exif" name="extensions.shrunked.options.exif" type="bool" />
 			<preference id="p_orient" name="extensions.shrunked.options.orientation" type="bool" />
 			<preference id="p_gps" name="extensions.shrunked.options.gps" type="bool" />
+			<preference id="p_logenabled" name="extensions.shrunked.log.enabled" type="bool" />
 		</preferences>
 		<tabbox>
 			<tabs>
@@ -152,6 +153,10 @@
 							label="&shrunked-advanced.gps.label;"
 							preference="p_gps" />
 					</vbox>
+					<checkbox
+						id="cb_logenabled"
+						label="&shrunked-advanced.logenabled.label;"
+						preference="p_logenabled" />
 				</tabpanel>
 			</tabpanels>
 		</tabbox>
