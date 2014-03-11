@@ -44,7 +44,7 @@ let ShrunkedCompose = {
 			if (target.nodeName == 'IMG') {
 				Shrunked.log('Context menu on an <IMG>');
 				if (Shrunked.imageIsJPEG(target)) {
-					if (target.width >= 500 || target.height >= 500) {
+					if (target.width > 500 || target.height > 500) {
 						shouldShow = true;
 					} else {
 						Shrunked.log('Not resizing - image is too small');
