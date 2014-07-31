@@ -6,7 +6,7 @@
 		<em:version>3.2.3</em:version>
 		<em:type>2</em:type>
 
-		<em:homepageURL>http://www.darktrojan.net/software/addons/shrunked</em:homepageURL>
+		<em:homepageURL>https://github.com/darktrojan/shrunked</em:homepageURL>
 		<em:optionsURL>chrome://shrunked/content/config.xul</em:optionsURL>
 
 		<em:name>Shrunked Image Resizer</em:name>
@@ -47,7 +47,6 @@
 				<em:locale>ca-AD</em:locale>
 				<em:name>Shrunked Image Resizer</em:name>
 				<em:description>Fes les teves fotos més petites, per a que les puguis enviar per correu-e o pujar a webs.</em:description>
-				<em:creator>Geoff Lankow</em:creator>
 				<em:translator>el_libre</em:translator>
 			</Description>
 		</em:localized>
@@ -56,7 +55,6 @@
 				<em:locale>de-DE</em:locale>
 				<em:name>Shrunked Image Resizer</em:name>
 				<em:description>Verkleinern Sie Ihre Fotos, damit es nicht mehr so lange dauert, sie per E-Mail zu versenden oder sie auf eine Internetseite hochzuladen.</em:description>
-				<em:creator>Geoff Lankow</em:creator>
 				<em:translator>rau360</em:translator>
 			</Description>
 		</em:localized>
@@ -65,7 +63,6 @@
 				<em:locale>pt-BR</em:locale>
 				<em:name>Shrunked Image Resizer (Redimensionador de Imagens)</em:name>
 				<em:description>Diminua o tamanho de suas fotos, para evitar que demore uma eternidade para enviá-las por email ou para sites.</em:description>
-				<em:creator>Geoff Lankow</em:creator>
 				<em:translator>Marcelo Ghelman</em:translator>
 			</Description>
 		</em:localized>
@@ -74,8 +71,6 @@
 				<em:locale>sv-SE</em:locale>
 				<em:name>Shrunked Image Resizer</em:name>
 				<em:description>Gör dina bilder mindre, så att de inte tar evigheter att skicka med e-post eller ladda upp till webbplatser.</em:description>
-				<em:creator>Geoff Lankow</em:creator>
-				<em:homepageURL>http://www.darktrojan.net/software/addons/shrunked/</em:homepageURL>
 				<em:translator>Mikael Hiort af Ornäs</em:translator>
 			</Description>
 		</em:localized>
