@@ -13,6 +13,8 @@ Cu.import('resource://gre/modules/Promise.jsm');
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
+Cu.import('resource://shrunked/ShrunkedImage.jsm');
+
 XPCOMUtils.defineLazyGetter(this, 'tempDir', function() {
 	return Services.dirsvc.get('TmpD', Ci.nsIFile);
 });
@@ -38,7 +40,8 @@ var Shrunked = {
 			this.queue.push([document, sourceFile, maxWidth, maxHeight, quality, callback]);
 		} else {
 			try {
-				this.resizeAsync(document, sourceFile, maxWidth, maxHeight, quality, callback);
+				// this.resizeAsync(document, sourceFile, maxWidth, maxHeight, quality, callback);
+				new ShrunkedImage(sourceFile, maxWidth, maxHeight, quality).doEverything().then(callback);
 			} catch (e) {
 				Cu.reportError(e);
 				callback(null);
@@ -52,7 +55,8 @@ var Shrunked = {
 
 		var [document, sourceFile, maxWidth, maxHeight, quality, callback] = this.queue.shift();
 		try {
-			this.resizeAsync(document, sourceFile, maxWidth, maxHeight, quality, callback);
+			// this.resizeAsync(document, sourceFile, maxWidth, maxHeight, quality, callback);
+			new ShrunkedImage(sourceFile, maxWidth, maxHeight, quality).doEverything().then(callback);
 		} catch (e) {
 			Cu.reportError(e);
 			callback(null);

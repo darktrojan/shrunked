@@ -41,32 +41,50 @@ function ShrunkedImage(source, maxWidth, maxHeight, quality) {
 }
 ShrunkedImage.prototype = {
 	doEverything: function ShrunkedImage_doEverything() {
-		Task.spawn((function() {
-			// if (exif enabled) {
-				try {
-					let readable;
-					if (this.sourceURI.schemeIs('file')) {
-						readable = yield OS.File.open(this.path, { read: true });
-					} else {
-						readable = yield Readable(this.sourceURI.spec);
-					}
+		let deferred = Promise.defer();
 
-					this.exifData = new ExifData();
-					yield this.exifData.read(readable);
-				} catch (ex) {
-					Components.utils.reportError(ex);
-					delete this.exifData;
-				}
-			// }
+		Task.spawn((function() {
 			try {
+				// if (exif enabled) {
+					yield this.readExifData();
+				// }
 				let image = yield this.loadImage();
 				let canvas = this.drawOnCanvas(image);
 				let bytes = yield this.getBytes(canvas);
-				this.save(bytes);
+				let newPath = yield this.save(bytes);
+
+				deferred.resolve(newPath);
 			} catch (ex) {
 				Components.utils.reportError(ex);
+				deferred.reject(ex);
 			}
 		}).bind(this));
+
+		return deferred.promise;
+	},
+
+	readExifData: function ShrunkedImage_readExifData() {
+		let deferred = Promise.defer();
+
+		Task.spawn((function() {
+			try {
+				let readable;
+				if (this.sourceURI.schemeIs('file')) {
+					readable = yield OS.File.open(this.path, { read: true });
+				} else {
+					readable = yield Readable(this.sourceURI.spec);
+				}
+
+				this.exifData = new ExifData();
+				yield this.exifData.read(readable);
+			} catch (ex) {
+				Components.utils.reportError(ex);
+				delete this.exifData;
+			}
+			deferred.resolve();
+		}).bind(this));
+
+		return deferred.promise;
 	},
 
 	loadImage: function ShrunkedImage_load() {

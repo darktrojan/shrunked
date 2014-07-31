@@ -177,7 +177,7 @@ let ShrunkedBrowser = {
 				Shrunked.enqueue(document, sourceFile, aMaxWidth, aMaxHeight, aQuality, function(destFile) {
 					if (destFile) {
 						// this is async, we need to wait for it
-						newPaths.push(destFile.path);
+						newPaths.push(destFile);
 						if (newPaths.length == paths.length) {
 							aInputTag.mozSetFileNameArray(newPaths, newPaths.length);
 						}

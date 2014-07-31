@@ -94,6 +94,23 @@ ExifData.prototype = {
 		return deferred.promise;
 	},
 
+	get orientation() {
+		if (this.exif1 && '112' in this.exif1) {
+			switch (this.exif1['112'].value) {
+			case 8:
+				return 90;
+				break;
+			case 3:
+				return 180;
+				break;
+			case 6:
+				return 270;
+				break;
+			}
+		}
+		return 0;
+	},
+
 	_countSection: function Exif__countSection(section) {
 		let count = 0;
 		let size = 6;

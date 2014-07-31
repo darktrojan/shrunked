@@ -196,7 +196,7 @@ let ShrunkedCompose = {
 		for (let image of aImages) {
 			Shrunked.enqueue(document, image.src, returnValues.maxWidth, returnValues.maxHeight, quality, function(destFile) {
 				if (destFile) {
-					image.src = Services.io.newFileURI(destFile).spec;
+					image.src = Services.io.newFileURI(new FileUtils.File(destFile)).spec;
 					image.removeAttribute('width');
 					image.removeAttribute('height');
 					image.setAttribute('shrunked:resized', 'true');
@@ -266,6 +266,7 @@ let ShrunkedCompose = {
 };
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+XPCOMUtils.defineLazyModuleGetter(window, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'PluralForm', 'resource://gre/modules/PluralForm.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Services', 'resource://gre/modules/Services.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Shrunked', 'resource://shrunked/shrunked.jsm');
