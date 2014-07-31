@@ -4,9 +4,11 @@ Components.utils.import('resource://gre/modules/NetUtil.jsm');
 Components.utils.import('resource://gre/modules/Promise.jsm');
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/Task.jsm');
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 Components.utils.import('resource://gre/modules/osfile.jsm');
 
-Components.utils.import('resource://shrunked/ExifData.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'ExifData', 'resource://shrunked/ExifData.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'resource://shrunked/shrunked.jsm');
 
 const XHTMLNS = 'http://www.w3.org/1999/xhtml';
 
@@ -48,14 +50,20 @@ ShrunkedImage.prototype = {
 		Task.spawn((function() {
 			try {
 				let orientation = 0;
-				// if (exif enabled) {
+				if (Shrunked.options.exif) {
 					yield this.readExifData();
-					if (this.exifData) {
+					if (Shrunked.options.orientation && this.exifData) {
 						orientation = this.exifData.orientation;
 					}
-				// }
+				}
 				let image = yield this.loadImage();
 				let canvas = yield this.drawOnCanvas(image, orientation);
+
+				if (this.exifData && this.exifData.exif2['a002']) {
+					this.exifData.exif2['a002'].value = canvas.width;
+					this.exifData.exif2['a003'].value = canvas.height;
+				}
+
 				let bytes = yield this.getBytes(canvas);
 				let newPath = yield this.save(bytes);
 
@@ -114,9 +122,12 @@ ShrunkedImage.prototype = {
 	drawOnCanvas: function ShrunkedImage_drawOnCanvas(image, orientation) {
 		let deferred = Promise.defer();
 		let ratio = Math.max(1, image.width / this.maxWidth, image.height / this.maxHeight);
-		let resampleRatio = Math.min(ratio, 3);
-		if (resampleRatio > 2 && resampleRatio < 3) {
-			resampleRatio = 2;
+		let resampleRatio = 1;
+		if (Shrunked.options.resample) {
+			resampleRatio = Math.min(ratio, 3);
+			if (resampleRatio > 2 && resampleRatio < 3) {
+				resampleRatio = 2;
+			}
 		}
 
 		let width = image.width / ratio;

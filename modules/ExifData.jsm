@@ -2,6 +2,9 @@ let EXPORTED_SYMBOLS = ['ExifData'];
 
 Components.utils.import('resource://gre/modules/Promise.jsm');
 Components.utils.import('resource://gre/modules/Task.jsm');
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'resource://shrunked/shrunked.jsm');
 
 function ExifData() {
 }
@@ -84,6 +87,12 @@ ExifData.prototype = {
 				yield this.readable.setPosition(12 + this.exif1['8825'].value);
 				this.gps = yield this._readSection();
 
+				let blacklist = JSON.parse(Shrunked.prefs.getCharPref('exif.blacklist'));
+				for (let key of blacklist) {
+					delete this.exif1[key];
+					delete this.exif2[key];
+				}
+
 				deferred.resolve();
 			} catch (ex) {
 				deferred.reject(ex);
@@ -99,19 +108,20 @@ ExifData.prototype = {
 			switch (this.exif1['112'].value) {
 			case 8:
 				return 90;
-				break;
 			case 3:
 				return 180;
-				break;
 			case 6:
 				return 270;
-				break;
 			}
 		}
 		return 0;
 	},
 
 	_countSection: function Exif__countSection(section) {
+		if (!section) {
+			return [0, 0];
+		}
+
 		let count = 0;
 		let size = 6;
 		for (let [, e] of Iterator(section)) {
@@ -177,7 +187,15 @@ ExifData.prototype = {
 			try {
 				let [e1count, e1size] = this._countSection(this.exif1);
 				let [e2count, e2size] = this._countSection(this.exif2);
+				this.exif1['8769'].value = 8 + e1size;
+
 				let [gpscount, gpssize] = this._countSection(this.gps);
+				if (Shrunked.options.gps && this.gps) {
+					this.exif1['8825'].value = 8 + e1size + e2size;
+				} else {
+					delete this.exif1['8825'];
+					gpssize = 0;
+				}
 
 				let buffer = new Uint8Array(20 + e1size + e2size + gpssize);
 				buffer.set([0xFF, 0xD8, 0xFF, 0xE1]);
@@ -192,13 +210,12 @@ ExifData.prototype = {
 				buffer.set(this._get2Bytes(0x2A), 14);
 				buffer.set(this._get4Bytes(0x08), 16);
 
-				this.exif1['8769'].value = 8 + e1size;
-				this.exif1['8825'].value = 8 + e1size + e2size;
-
 				let index = 20;
 				index = this._writeSection(this.exif1, buffer, index, e1count);
 				index = this._writeSection(this.exif2, buffer, index, e2count);
-				this._writeSection(this.gps, buffer, index, gpscount);
+				if (Shrunked.options.gps && this.gps) {
+					this._writeSection(this.gps, buffer, index, gpscount);
+				}
 
 				yield file.write(buffer);
 				deferred.resolve();

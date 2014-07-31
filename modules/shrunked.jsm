@@ -541,6 +541,20 @@ var Shrunked = {
 			let caller = Components.stack.caller;
 			Services.console.logStringMessage('Shrunked: ' + aMessage + '\n' + caller.filename + ', line ' + caller.lineNumber);
 		}
+	},
+	options: {
+		get exif() {
+			return Shrunked.prefs.getBoolPref('options.exif');
+		},
+		get orientation() {
+			return Shrunked.prefs.getBoolPref('options.orientation');
+		},
+		get gps() {
+			return Shrunked.prefs.getBoolPref('options.gps');
+		},
+		get resample() {
+			return Shrunked.prefs.getBoolPref('options.resample');
+		}
 	}
 };
 XPCOMUtils.defineLazyGetter(Shrunked, 'prefs', function() {
