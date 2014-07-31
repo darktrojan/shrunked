@@ -240,7 +240,7 @@ let ShrunkedCompose = {
 							let item = images[i].item;
 							item.attachment.contentLocation = item.attachment.url;
 							if (images[i].destFile) {
-								item.attachment.url = Services.io.newFileURI(images[i].destFile).spec;
+								item.attachment.url = Services.io.newFileURI(new FileUtils.File(images[i].destFile)).spec;
 							}
 						}
 					}
