@@ -1,7 +1,6 @@
 let ShrunkedCompose = {
 
 	OPTIONS_DIALOG: 'chrome://shrunked/content/options.xul',
-	PROGRESS_DIALOG: 'chrome://shrunked/content/progress.xul',
 	POPUP_ARGS: 'chrome,centerscreen,modal',
 
 	droppedCache: new Map(),
@@ -194,22 +193,20 @@ let ShrunkedCompose = {
 
 		let quality = Shrunked.prefs.getIntPref('default.quality');
 		for (let image of aImages) {
-			Shrunked.enqueue(document, image.src, returnValues.maxWidth, returnValues.maxHeight, quality, function(destFile) {
-				if (destFile) {
-					image.src = Services.io.newFileURI(new FileUtils.File(destFile)).spec;
-					image.removeAttribute('width');
-					image.removeAttribute('height');
-					image.setAttribute('shrunked:resized', 'true');
-				}
-			});
+			Shrunked.resize(image.src, returnValues.maxWidth, returnValues.maxHeight, quality).then(function(destFile) {
+				image.src = Services.io.newFileURI(new FileUtils.File(destFile)).spec;
+				image.removeAttribute('width');
+				image.removeAttribute('height');
+				image.setAttribute('shrunked:resized', 'true');
+			}, Components.utils.reportError);
 		}
 	},
 	newGenericSendMessage: function(msgType) {
 		let doResize = msgType == nsIMsgCompDeliverMode.Now || msgType == nsIMsgCompDeliverMode.Later;
 		let images = [];
 
-		if (doResize) {
-			try {
+		try {
+			if (doResize) {
 				let bucket = document.getElementById('attachmentBucket');
 				let minimum = Shrunked.prefs.getIntPref('fileSizeMinimum') * 1024;
 				let imageURLs = [];
@@ -231,34 +228,43 @@ let ShrunkedCompose = {
 						return;
 					}
 					if (returnValues.maxWidth > 0) {
-						returnValues.cancelDialog = true;
-						window.openDialog(this.PROGRESS_DIALOG, 'progress', this.POPUP_ARGS, images, returnValues);
-						if (returnValues.cancelDialog) {
-							return;
-						}
-						for (let i = 0; i < images.length; i++) {
-							let item = images[i].item;
-							item.attachment.contentLocation = item.attachment.url;
-							if (images[i].destFile) {
-								item.attachment.url = Services.io.newFileURI(new FileUtils.File(images[i].destFile)).spec;
+						let {maxWidth, maxHeight} = returnValues;
+						let quality = Shrunked.prefs.getIntPref('default.quality');
+						Task.spawn(function() {
+							for (let image of images) {
+								try {
+									let item = image.item;
+									let destFile = yield Shrunked.resize(image.url, maxWidth, maxHeight, quality);
+									item.attachment.contentLocation = item.attachment.url;
+									item.attachment.url = Services.io.newFileURI(new FileUtils.File(destFile)).spec;
+								} catch (ex) {
+									Components.utils.reportError(ex);
+								}
 							}
-						}
+							finish();
+						});
+						return;
 					}
 				}
-			} catch (e) {
-				Components.utils.reportError(e);
+
+				finish();
 			}
+		} catch (e) {
+			Components.utils.reportError(e);
 		}
 
-		ShrunkedCompose.oldGenericSendMessage(msgType);
+		function finish() {
+			ShrunkedCompose.oldGenericSendMessage(msgType);
 
-		// undo, in case send failed
-		if (doResize) {
-			for (let item of images) {
-				let contentLocation = item.attachment.contentLocation;
-				if (contentLocation && /\.jpe?g$/i.test(contentLocation)) {
-					item.attachment.url = contentLocation;
-					item.attachment.contentLocation = null;
+			// undo, in case send failed
+			if (doResize) {
+				for (let image of images) {
+					let item = image.item;
+					let contentLocation = item.attachment.contentLocation;
+					if (contentLocation && /\.jpe?g$/i.test(contentLocation)) {
+						item.attachment.url = contentLocation;
+						item.attachment.contentLocation = null;
+					}
 				}
 			}
 		}
@@ -268,7 +274,9 @@ let ShrunkedCompose = {
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'PluralForm', 'resource://gre/modules/PluralForm.jsm');
+XPCOMUtils.defineLazyModuleGetter(window, 'Promise', 'resource://gre/modules/Promise.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Services', 'resource://gre/modules/Services.jsm');
+XPCOMUtils.defineLazyModuleGetter(window, 'Task', 'resource://gre/modules/Task.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Shrunked', 'resource://shrunked/shrunked.jsm');
 
 window.addEventListener('load', ShrunkedCompose.init.bind(ShrunkedCompose));

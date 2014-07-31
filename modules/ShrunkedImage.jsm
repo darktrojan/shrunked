@@ -20,27 +20,27 @@ function ShrunkedImage(source, maxWidth, maxHeight, quality) {
 	this.quality = quality;
 
 	if (typeof source == 'string') {
-		try {
-			this.sourceURI = Services.io.newURI(source, null, null);
-			if (this.sourceURI.schemeIs('file')) {
-				let file = this.sourceURI.QueryInterface(Components.interfaces.nsIFileURL).file;
-				this.path = file.path;
-				this.basename = file.leafName;
-			} else {
-				let match;
-				if (match = /[?&]filename=([\w.-]+)/.exec(this.sourceURI.spec)) {
-					this.basename = match[1];
-				} else if (match = /\/([\w.-]+\.jpg)$/i.exec(this.sourceURI.spec)) {
-					this.basename = match[1];
-				}
+		this.sourceURI = Services.io.newURI(source, null, null);
+		if (this.sourceURI.schemeIs('file')) {
+			let file = this.sourceURI.QueryInterface(Components.interfaces.nsIFileURL).file;
+			this.path = file.path;
+			this.basename = file.leafName;
+		} else {
+			let match;
+			if (match = /[?&]filename=([\w.-]+)/.exec(this.sourceURI.spec)) {
+				this.basename = match[1];
+			} else if (match = /\/([\w.-]+\.jpg)$/i.exec(this.sourceURI.spec)) {
+				this.basename = match[1];
 			}
-		} catch (ex) {
-			Components.utils.reportError(ex);
 		}
 	} else if (source instanceof Components.interfaces.nsIFile) {
 		this.sourceURI = Services.io.newFileURI(source);
 		this.path = source.path;
 		this.basename = source.leafName;
+	}
+
+	if (!this.sourceURI) {
+		throw new Error('Unexpected source passed to ShrunkedImage');
 	}
 }
 ShrunkedImage.prototype = {

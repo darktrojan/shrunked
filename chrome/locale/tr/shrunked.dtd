@@ -20,10 +20,7 @@
 <!ENTITY shrunked-preview.label "Preview:">
 <!ENTITY shrunked-preview.previous.tooltip "Previous image">
 <!ENTITY shrunked-preview.next.tooltip "Next image">
-<!ENTITY shrunked-waiting.label "Resim yükleniyor…">
 <!ENTITY shrunked-resizing.label "Resim boyutlandırılıyor…">
-<!ENTITY shrunked-status.label "Durum:">
-<!ENTITY shrunked-progress.label "İlerleme:">
 <!ENTITY shrunked-minsize.label "Boyutlandırma için en düşük ölçü:">
 <!ENTITY shrunked-minsize.kilobytes "KB">
 <!ENTITY shrunked-maxsize.label "Resimler için en büyük ölçü:">

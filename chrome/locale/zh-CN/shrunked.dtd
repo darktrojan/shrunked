@@ -20,10 +20,7 @@
 <!ENTITY shrunked-preview.label "Preview:">
 <!ENTITY shrunked-preview.previous.tooltip "Previous image">
 <!ENTITY shrunked-preview.next.tooltip "Next image">
-<!ENTITY shrunked-waiting.label "正在加载图像…">
 <!ENTITY shrunked-resizing.label "正在调整图像…">
-<!ENTITY shrunked-status.label "状态：">
-<!ENTITY shrunked-progress.label "进度：">
 <!ENTITY shrunked-minsize.label "要调整的最小文件大小：">
 <!ENTITY shrunked-minsize.kilobytes "KB">
 <!ENTITY shrunked-maxsize.label "您的图片的最大尺寸：">

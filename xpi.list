@@ -13,8 +13,6 @@ chrome/content/messenger.xul
 chrome/content/options.css
 chrome/content/options.js
 chrome/content/options.xul
-chrome/content/progress.js
-chrome/content/progress.xul
 chrome/locale/*
 chrome.manifest
 defaults

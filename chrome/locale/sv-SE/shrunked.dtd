@@ -20,10 +20,7 @@
 <!ENTITY shrunked-preview.label "Preview:">
 <!ENTITY shrunked-preview.previous.tooltip "Previous image">
 <!ENTITY shrunked-preview.next.tooltip "Next image">
-<!ENTITY shrunked-waiting.label "Läser in bilder…">
 <!ENTITY shrunked-resizing.label "Byter storlek på bilder…">
-<!ENTITY shrunked-status.label "Status:">
-<!ENTITY shrunked-progress.label "Förlopp:">
 <!ENTITY shrunked-minsize.label "Minsta filstorlek att storleksändra:">
 <!ENTITY shrunked-minsize.kilobytes "kB">
 <!ENTITY shrunked-maxsize.label "Maximistorlek för dina bilder:">

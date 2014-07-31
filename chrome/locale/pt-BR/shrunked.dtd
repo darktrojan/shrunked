@@ -20,10 +20,7 @@
 <!ENTITY shrunked-preview.label "Preview:">
 <!ENTITY shrunked-preview.previous.tooltip "Previous image">
 <!ENTITY shrunked-preview.next.tooltip "Next image">
-<!ENTITY shrunked-waiting.label "Carregando imagens…">
 <!ENTITY shrunked-resizing.label "Redimensionando imagens…">
-<!ENTITY shrunked-status.label "Status:">
-<!ENTITY shrunked-progress.label "Progresso:">
 <!ENTITY shrunked-minsize.label "Tamanho mínimo de arquivos para redimensionar:">
 <!ENTITY shrunked-minsize.kilobytes "KB">
 <!ENTITY shrunked-maxsize.label "Tamanho máximo para fotos:">

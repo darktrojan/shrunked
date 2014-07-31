@@ -29,32 +29,8 @@ let Shrunked = {
 		return !!request && request.mimeType == 'image/jpeg';
 	},
 
-	document: null,
-	queue: [],
-	enqueue: function(document, sourceFile, maxWidth, maxHeight, quality, callback) {
-		if (this.busy) {
-			this.queue.push([document, sourceFile, maxWidth, maxHeight, quality, callback]);
-		} else {
-			try {
-				new ShrunkedImage(sourceFile, maxWidth, maxHeight, quality).doEverything().then(callback);
-			} catch (e) {
-				Cu.reportError(e);
-				callback(null);
-			}
-		}
-	},
-	dequeue: function() {
-		if (this.queue.length == 0) {
-			return;
-		}
-
-		let [document, sourceFile, maxWidth, maxHeight, quality, callback] = this.queue.shift();
-		try {
-			new ShrunkedImage(sourceFile, maxWidth, maxHeight, quality).doEverything().then(callback);
-		} catch (e) {
-			Cu.reportError(e);
-			callback(null);
-		}
+	resize: function(sourceFile, maxWidth, maxHeight, quality) {
+		return new ShrunkedImage(sourceFile, maxWidth, maxHeight, quality).doEverything();
 	},
 	showStartupNotification: function(aNotificationBox, aCallback) {
 		function parseVersion(aVersion) {

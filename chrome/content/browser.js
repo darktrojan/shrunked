@@ -173,16 +173,12 @@ let ShrunkedBrowser = {
 
 		for (let path of paths) {
 			if (/\.jpe?g$/i.test(path) && Shrunked.fileLargerThanThreshold(path)) {
-				let sourceFile = new FileUtils.File(path);
-				Shrunked.enqueue(document, sourceFile, aMaxWidth, aMaxHeight, aQuality, function(destFile) {
-					if (destFile) {
-						// this is async, we need to wait for it
-						newPaths.push(destFile);
-						if (newPaths.length == paths.length) {
-							aInputTag.mozSetFileNameArray(newPaths, newPaths.length);
-						}
+				Shrunked.resize(new FileUtils.File(path), aMaxWidth, aMaxHeight, aQuality).then(function(destFile) {
+					newPaths.push(destFile);
+					if (newPaths.length == paths.length) {
+						aInputTag.mozSetFileNameArray(newPaths, newPaths.length);
 					}
-				});
+				}, Components.utils.reportError);
 			} else {
 				newPaths.push(path);
 			}
