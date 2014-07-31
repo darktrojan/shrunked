@@ -19,7 +19,6 @@ XPCOMUtils.defineLazyGetter(this, 'tempDir', function() {
 	return Services.dirsvc.get('TmpD', Ci.nsIFile);
 });
 var temporaryFiles = [];
-var worker = new Worker('resource://shrunked/worker.js');
 
 var Shrunked = {
 	fileLargerThanThreshold: function(aPath) {

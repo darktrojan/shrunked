@@ -10,6 +10,8 @@ Components.utils.import('resource://shrunked/ExifData.jsm');
 
 const XHTMLNS = 'http://www.w3.org/1999/xhtml';
 
+let worker = new Worker('resource://shrunked/worker.js');
+
 function ShrunkedImage(source, maxWidth, maxHeight, quality) {
 	this.maxWidth = maxWidth;
 	this.maxHeight = maxHeight;
@@ -49,7 +51,7 @@ ShrunkedImage.prototype = {
 					yield this.readExifData();
 				// }
 				let image = yield this.loadImage();
-				let canvas = this.drawOnCanvas(image);
+				let canvas = yield this.drawOnCanvas(image);
 				let bytes = yield this.getBytes(canvas);
 				let newPath = yield this.save(bytes);
 
@@ -106,16 +108,44 @@ ShrunkedImage.prototype = {
 	},
 
 	drawOnCanvas: function ShrunkedImage_drawOnCanvas(image) {
-		let ratio = Math.min(1, this.maxWidth / image.width, this.maxHeight / image.height);
+		let deferred = Promise.defer();
+		let ratio = Math.max(1, image.width / this.maxWidth, image.height / this.maxHeight);
+		let resampleRatio = Math.min(ratio, 3);
+		if (resampleRatio > 2 && resampleRatio < 3) {
+			resampleRatio = 2;
+		}
+
+		let width = image.width / ratio;
+		let height = image.height / ratio;
 
 		let canvas = getWindow().document.createElementNS(XHTMLNS, 'canvas');
-		canvas.width = Math.floor(image.width * ratio);
-		canvas.height = Math.floor(image.height * ratio);
+		canvas.width = Math.floor(width * resampleRatio);
+		canvas.height = Math.floor(height * resampleRatio);
 
 		let context = canvas.getContext('2d');
-		context.drawImage(image, 0, 0, image.width * ratio, image.height * ratio);
+		context.drawImage(image, 0, 0, width * resampleRatio, height * resampleRatio);
 
-		return canvas;
+		if (resampleRatio > 1) {
+			let oldData = context.getImageData(0, 0, canvas.width, canvas.height);
+			canvas.width = Math.floor(width);
+			canvas.height = Math.floor(height);
+			let newData = context.createImageData(canvas.width, canvas.height);
+
+			worker.onmessage = function(event) {
+				context.putImageData(event.data, 0, 0);
+				deferred.resolve(canvas);
+			};
+			worker.postMessage({
+				oldData: oldData,
+				newData: newData,
+				func: (resampleRatio == 3 ? 'nineResample' : (resampleRatio == 2 ? 'fourResample' : 'floatResample')),
+				ratio: resampleRatio // only for floatResample
+			});
+		} else {
+			deferred.resolve(canvas);
+		}
+
+		return deferred.promise;
 	},
 
 	getBytes: function ShrunkedImage_getBytes(canvas) {
