@@ -47,11 +47,15 @@ ShrunkedImage.prototype = {
 
 		Task.spawn((function() {
 			try {
+				let orientation = 0;
 				// if (exif enabled) {
 					yield this.readExifData();
+					if (this.exifData) {
+						orientation = this.exifData.orientation;
+					}
 				// }
 				let image = yield this.loadImage();
-				let canvas = yield this.drawOnCanvas(image);
+				let canvas = yield this.drawOnCanvas(image, orientation);
 				let bytes = yield this.getBytes(canvas);
 				let newPath = yield this.save(bytes);
 
@@ -107,7 +111,7 @@ ShrunkedImage.prototype = {
 		return deferred.promise;
 	},
 
-	drawOnCanvas: function ShrunkedImage_drawOnCanvas(image) {
+	drawOnCanvas: function ShrunkedImage_drawOnCanvas(image, orientation) {
 		let deferred = Promise.defer();
 		let ratio = Math.max(1, image.width / this.maxWidth, image.height / this.maxHeight);
 		let resampleRatio = Math.min(ratio, 3);
@@ -118,12 +122,26 @@ ShrunkedImage.prototype = {
 		let width = image.width / ratio;
 		let height = image.height / ratio;
 
+		if (orientation == 90 || orientation == 270) {
+			[width, height] = [height, width];
+		}
+
 		let canvas = getWindow().document.createElementNS(XHTMLNS, 'canvas');
 		canvas.width = Math.floor(width * resampleRatio);
 		canvas.height = Math.floor(height * resampleRatio);
 
 		let context = canvas.getContext('2d');
-		context.drawImage(image, 0, 0, width * resampleRatio, height * resampleRatio);
+		if (orientation == 90) {
+			context.translate(0, canvas.height);
+			context.rotate(-0.5 * Math.PI);
+		} else if (orientation == 180) {
+			context.translate(canvas.width, canvas.height);
+			context.rotate(Math.PI);
+		} else if (orientation == 270) {
+			context.translate(canvas.width, 0);
+			context.rotate(0.5 * Math.PI);
+		}
+		context.drawImage(image, 0, 0, image.width / ratio * resampleRatio, image.height / ratio * resampleRatio);
 
 		if (resampleRatio > 1) {
 			let oldData = context.getImageData(0, 0, canvas.width, canvas.height);
