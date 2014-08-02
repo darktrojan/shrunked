@@ -77,9 +77,6 @@
 			label="&shrunked-options.savedefault.label;" />
 	</vbox>
 
-	<stringbundleset>
-		<stringbundle id="strings" src="chrome://shrunked/locale/shrunked.properties"/>
-	</stringbundleset>
 	<script src="chrome://shrunked/content/options.js" type="application/javascript"></script>
 
 </dialog>

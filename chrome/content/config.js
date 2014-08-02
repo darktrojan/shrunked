@@ -93,7 +93,7 @@ function handleData(data) {
 			siteCell.setAttribute('label', domain);
 			item.appendChild(siteCell);
 			let disabledCell = document.createElement('listcell');
-			disabledCell.setAttribute('label', strings.getString('disabled'));
+			disabledCell.setAttribute('label', Shrunked.strings.GetStringFromName('disabled'));
 			disabledCell.setAttribute('style', 'text-align: center');
 			item.appendChild(disabledCell);
 			lb_sites.appendChild(item);
@@ -104,7 +104,7 @@ function handleData(data) {
 			siteCell.setAttribute('label', domain);
 			item.appendChild(siteCell);
 			let widthCell = document.createElement('listcell');
-			widthCell.setAttribute('label', strings.getFormattedString('dimensions', [prefs.maxWidth, prefs.maxHeight]));
+			widthCell.setAttribute('label', Shrunked.strings.formatStringFromName('dimensions', [prefs.maxWidth, prefs.maxHeight], 2));
 			widthCell.setAttribute('style', 'text-align: center');
 			item.appendChild(widthCell);
 			lb_sites.appendChild(item);

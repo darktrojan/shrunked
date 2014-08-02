@@ -15,6 +15,8 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 Cu.import('resource://shrunked/ShrunkedImage.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'PluralForm', 'resource://gre/modules/PluralForm.jsm');
+
 let temporaryFiles = [];
 
 let Shrunked = {
@@ -54,12 +56,11 @@ let Shrunked = {
 				return;
 			}
 
-			let strings = Services.strings.createBundle('chrome://shrunked/locale/shrunked.properties');
-			let label = strings.formatStringFromName('donate_notification', [currentVersion], 1);
+			let label = Shrunked.strings.formatStringFromName('donate_notification', [currentVersion], 1);
 			let value = 'shrunked-donate';
 			let buttons = [{
-				label: strings.GetStringFromName('donate_button_label'),
-				accessKey: strings.GetStringFromName('donate_button_accesskey'),
+				label: Shrunked.strings.GetStringFromName('donate_button_label'),
+				accessKey: Shrunked.strings.GetStringFromName('donate_button_accesskey'),
 				popup: null,
 				callback: function() {
 					aCallback('https://addons.mozilla.org/addon/shrunked-image-resizer/contribute/installed/');
@@ -153,6 +154,14 @@ XPCOMUtils.defineLazyGetter(Shrunked, 'logEnabled', function() {
 		}
 	}, false);
 	return this.prefs.getBoolPref('log.enabled');
+});
+XPCOMUtils.defineLazyGetter(Shrunked, 'strings', function() {
+	return Services.strings.createBundle('chrome://shrunked/locale/shrunked.properties');
+});
+XPCOMUtils.defineLazyGetter(Shrunked, 'getPluralForm', function() {
+	let pluralForm = Shrunked.strings.GetStringFromName('question_pluralform');
+	let [getPlural,] = PluralForm.makeGetter(pluralForm);
+	return getPlural;
 });
 
 let observer = {

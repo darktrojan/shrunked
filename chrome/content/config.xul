@@ -9,10 +9,6 @@
 	onload="load();"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-	<stringbundleset>
-		<stringbundle id="strings" src="chrome://shrunked/locale/shrunked.properties"/>
-	</stringbundleset>
-
 	<prefpane>
 		<preferences>
 			<preference id="p_minsize" name="extensions.shrunked.fileSizeMinimum" type="int" />

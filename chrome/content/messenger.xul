@@ -2,6 +2,6 @@
 
 <overlay id="shrunked-messenger-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-<script src="chrome://shrunked/content/messenger.js" type="application/javascript"></script>
+	<script src="chrome://shrunked/content/messenger.js" type="application/javascript"></script>
 
 </overlay>

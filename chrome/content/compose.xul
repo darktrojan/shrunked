@@ -23,9 +23,6 @@
 		<notificationbox id="shrunked-notification-box" flex="1" />
 	</hbox>
 
-	<stringbundleset id="stringbundleset">
-		<stringbundle id="shrunked-strings" src="chrome://shrunked/locale/shrunked.properties"/>
-	</stringbundleset>
 	<script src="chrome://shrunked/content/compose.js" type="application/javascript" />
 
 </overlay>

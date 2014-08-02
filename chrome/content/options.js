@@ -122,11 +122,11 @@ function imageLoad() {
 				l_previewfilename.setAttribute('value', src.substring(src.lastIndexOf('/') + 1));
 			}
 		}
-		l_previeworiginalsize.setAttribute('value', strings.getFormattedString('preview_originalsize', [width, height]));
+		l_previeworiginalsize.setAttribute('value', Shrunked.strings.formatStringFromName('preview_originalsize', [width, height], 2));
 		if (scale == 1) {
-			l_previewresized.setAttribute('value', strings.getString('preview_notresized'));
+			l_previewresized.setAttribute('value', Shrunked.strings.getString('preview_notresized'));
 		} else {
-			l_previewresized.setAttribute('value', strings.getFormattedString('preview_resized', [Math.floor(width * scale), Math.floor(height * scale)]));
+			l_previewresized.setAttribute('value', Shrunked.strings.formatStringFromName('preview_resized', [Math.floor(width * scale), Math.floor(height * scale)], 2));
 		}
 	};
 	img.src = i_previewthumb.src;

@@ -1,19 +1,9 @@
 let ShrunkedBrowser = {
-
-	strings: null,
-
 	init: function() {
 		let appcontent = document.getElementById('appcontent');
 		if (appcontent) {
 			appcontent.addEventListener('change', this.onActivate.bind(this), true);
 		}
-
-		this.strings = document.getElementById('shrunked-strings');
-		XPCOMUtils.defineLazyGetter(this, 'getPlural', () => {
-			let pluralForm = this.strings.getString('question_pluralform');
-			let [getPlural,] = PluralForm.makeGetter(pluralForm);
-			return getPlural;
-		});
 
 		setTimeout(function() {
 			Shrunked.showStartupNotification(gBrowser.getNotificationBox(), function(aURL) {
@@ -77,9 +67,9 @@ let ShrunkedBrowser = {
 			let buttons = [];
 
 			buttons.push({
-				accessKey: this.strings.getString('yes_accesskey'),
+				accessKey: Shrunked.strings.GetStringFromName('yes_accesskey'),
 				callback: this.showOptionsDialog,
-				label: this.strings.getString('yes_label'),
+				label: Shrunked.strings.GetStringFromName('yes_label'),
 				inputTag: inputTag,
 				form: form,
 				context: context,
@@ -89,21 +79,21 @@ let ShrunkedBrowser = {
 			if (!PrivateBrowsingUtils.isWindowPrivate(window) &&
 					(uri.schemeIs('http') || uri.schemeIs('https'))) {
 				buttons.push({
-					accessKey: this.strings.getString('never_accesskey'),
+					accessKey: Shrunked.strings.GetStringFromName('never_accesskey'),
 					callback: this.disableForSite,
-					label: this.strings.getString('never_label'),
+					label: Shrunked.strings.GetStringFromName('never_label'),
 					context: context,
 					uri: uri
 				});
 			}
 			buttons.push({
-				accessKey: this.strings.getString('no_accesskey'),
+				accessKey: Shrunked.strings.GetStringFromName('no_accesskey'),
 				callback: function() {},
-				label: this.strings.getString('no_label'),
+				label: Shrunked.strings.GetStringFromName('no_label'),
 			});
 
-			let questions = this.strings.getString('questions');
-			let question = this.getPlural(this.imageURLs.length, questions);
+			let questions = Shrunked.strings.GetStringFromName('questions');
+			let question = Shrunked.getPluralForm(this.imageURLs.length, questions);
 
 			notifyBox = gBrowser.getNotificationBox();
 			notifyBox.removeAllNotifications(true);
@@ -195,7 +185,6 @@ let ShrunkedBrowser = {
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
-XPCOMUtils.defineLazyModuleGetter(window, 'PluralForm', 'resource://gre/modules/PluralForm.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Services', 'resource://gre/modules/Services.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Shrunked', 'resource://shrunked/shrunked.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Task', 'resource://gre/modules/Task.jsm');

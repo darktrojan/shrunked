@@ -55,13 +55,6 @@ let ShrunkedCompose = {
 			document.getElementById('shrunked-context-item').style.display = shouldShow ? null : 'none';
 			document.getElementById('shrunked-context-separator').style.display = shouldShow ? null : 'none';
 		});
-
-		this.strings = document.getElementById('shrunked-strings');
-		XPCOMUtils.defineLazyGetter(this, 'getPlural', () => {
-			let pluralForm = this.strings.getString('question_pluralform');
-			let [getPlural,] = PluralForm.makeGetter(pluralForm);
-			return getPlural;
-		});
 	},
 	maybeResizeInline: function(target) {
 		if (target.nodeName == 'IMG') {
@@ -142,25 +135,25 @@ let ShrunkedCompose = {
 					this.droppedCache.clear();
 
 					let buttons = [{
-						accessKey: this.strings.getString('yes_accesskey'),
+						accessKey: Shrunked.strings.GetStringFromName('yes_accesskey'),
 						callback: () => {
 							this.showOptionsDialog(this.inlineImages);
 							this.inlineImages = [];
 						},
-						label: this.strings.getString('yes_label')
+						label: Shrunked.strings.GetStringFromName('yes_label')
 					}, {
-						accessKey: this.strings.getString('no_accesskey'),
+						accessKey: Shrunked.strings.GetStringFromName('no_accesskey'),
 						callback: () => {
 							for (let img of this.inlineImages) {
 								img.setAttribute('shrunked:resized', 'false');
 							}
 							this.inlineImages = [];
 						},
-						label: this.strings.getString('no_label')
+						label: Shrunked.strings.GetStringFromName('no_label')
 					}];
 
-					let questions = this.strings.getString('questions');
-					let question = this.getPlural(this.inlineImages.length, questions);
+					let questions = Shrunked.strings.GetStringFromName('questions');
+					let question = Shrunked.getPluralForm(this.inlineImages.length, questions);
 
 					let notification = notifyBox.appendNotification(
 						question, 'shrunked-notification', null, notifyBox.PRIORITY_INFO_HIGH, buttons
@@ -232,7 +225,7 @@ let ShrunkedCompose = {
 						let quality = Shrunked.prefs.getIntPref('default.quality');
 						window.ToggleWindowLock(true);
 						let statusText = document.getElementById('statusText');
-						statusText.setAttribute('label', this.strings.getString('status_resizing'));
+						statusText.setAttribute('label', Shrunked.strings.GetStringFromName('status_resizing'));
 						let meter = document.getElementById('compose-progressmeter');
 						meter.setAttribute('mode', 'normal');
 						meter.setAttribute('value', 0);
@@ -288,7 +281,6 @@ let ShrunkedCompose = {
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
-XPCOMUtils.defineLazyModuleGetter(window, 'PluralForm', 'resource://gre/modules/PluralForm.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Promise', 'resource://gre/modules/Promise.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Services', 'resource://gre/modules/Services.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Task', 'resource://gre/modules/Task.jsm');
