@@ -184,15 +184,25 @@ let ShrunkedCompose = {
 			return;
 		}
 
-		let quality = Shrunked.prefs.getIntPref('default.quality');
-		for (let image of aImages) {
-			Shrunked.resize(image.src, returnValues.maxWidth, returnValues.maxHeight, quality).then(function(destFile) {
-				image.src = Services.io.newFileURI(new FileUtils.File(destFile)).spec;
-				image.removeAttribute('width');
-				image.removeAttribute('height');
-				image.setAttribute('shrunked:resized', 'true');
-			}, Components.utils.reportError);
-		}
+		Task.spawn((function() {
+			let {maxWidth, maxHeight} = returnValues;
+			let quality = Shrunked.prefs.getIntPref('default.quality');
+			let count = 0;
+			this.setStatus(aImages.length);
+			for (let image of aImages) {
+				try {
+					let destFile = yield Shrunked.resize(image.src, maxWidth, maxHeight, quality);
+					image.src = Services.io.newFileURI(new FileUtils.File(destFile)).spec;
+					image.removeAttribute('width');
+					image.removeAttribute('height');
+					image.setAttribute('shrunked:resized', 'true');
+					this.setStatusCount(++count);
+				} catch (ex) {
+					Components.utils.reportError(ex);
+				}
+			}
+			this.clearStatus();
+		}).bind(this));
 	},
 	newGenericSendMessage: function(msgType) {
 		let doResize = msgType == nsIMsgCompDeliverMode.Now || msgType == nsIMsgCompDeliverMode.Later;
@@ -221,36 +231,25 @@ let ShrunkedCompose = {
 						return;
 					}
 					if (returnValues.maxWidth > 0) {
-						let {maxWidth, maxHeight} = returnValues;
-						let quality = Shrunked.prefs.getIntPref('default.quality');
-						window.ToggleWindowLock(true);
-						let statusText = document.getElementById('statusText');
-						statusText.setAttribute('label', Shrunked.strings.GetStringFromName('status_resizing'));
-						let meter = document.getElementById('compose-progressmeter');
-						meter.setAttribute('mode', 'normal');
-						meter.setAttribute('value', 0);
-						meter.setAttribute('max', images.length);
-						meter.parentNode.collapsed = false;
-						let count = 0;
-						Task.spawn(function() {
+						Task.spawn((function() {
+							let {maxWidth, maxHeight} = returnValues;
+							let quality = Shrunked.prefs.getIntPref('default.quality');
+							let count = 0;
+							this.setStatus(images.length);
 							for (let image of images) {
 								try {
 									let item = image.item;
 									let destFile = yield Shrunked.resize(image.url, maxWidth, maxHeight, quality);
 									item.attachment.contentLocation = item.attachment.url;
 									item.attachment.url = Services.io.newFileURI(new FileUtils.File(destFile)).spec;
-									meter.setAttribute('value', ++count);
+									this.setStatusCount(++count);
 								} catch (ex) {
 									Components.utils.reportError(ex);
 								}
 							}
-							window.ToggleWindowLock(false);
-							statusText.setAttribute('label', '');
-							meter.setAttribute('value', 0);
-							meter.removeAttribute('max');
-							meter.parentNode.collapsed = true;
+							this.clearStatus();
 							finish();
-						});
+						}).bind(this));
 						return;
 					}
 				}
@@ -276,6 +275,32 @@ let ShrunkedCompose = {
 				}
 			}
 		}
+	},
+	setStatus: function(total) {
+		let statusText = document.getElementById('statusText');
+		let meter = document.getElementById('compose-progressmeter');
+
+		ToggleWindowLock(true);
+		statusText.setAttribute('label', Shrunked.strings.GetStringFromName('status_resizing'));
+		meter.setAttribute('mode', 'normal');
+		meter.setAttribute('value', 0);
+		meter.setAttribute('max', total);
+		meter.parentNode.collapsed = false;
+	},
+	setStatusCount: function(count) {
+		let meter = document.getElementById('compose-progressmeter');
+
+		meter.setAttribute('value', count);
+	},
+	clearStatus: function() {
+		let statusText = document.getElementById('statusText');
+		let meter = document.getElementById('compose-progressmeter');
+
+		ToggleWindowLock(false);
+		statusText.setAttribute('label', '');
+		meter.setAttribute('value', 0);
+		meter.removeAttribute('max');
+		meter.parentNode.collapsed = true;
 	}
 };
 
