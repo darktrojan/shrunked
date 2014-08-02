@@ -230,6 +230,15 @@ let ShrunkedCompose = {
 					if (returnValues.maxWidth > 0) {
 						let {maxWidth, maxHeight} = returnValues;
 						let quality = Shrunked.prefs.getIntPref('default.quality');
+						window.ToggleWindowLock(true);
+						let statusText = document.getElementById('statusText');
+						statusText.setAttribute('label', this.strings.getString('status_resizing'));
+						let meter = document.getElementById('compose-progressmeter');
+						meter.setAttribute('mode', 'normal');
+						meter.setAttribute('value', 0);
+						meter.setAttribute('max', images.length);
+						meter.parentNode.collapsed = false;
+						let count = 0;
 						Task.spawn(function() {
 							for (let image of images) {
 								try {
@@ -237,18 +246,24 @@ let ShrunkedCompose = {
 									let destFile = yield Shrunked.resize(image.url, maxWidth, maxHeight, quality);
 									item.attachment.contentLocation = item.attachment.url;
 									item.attachment.url = Services.io.newFileURI(new FileUtils.File(destFile)).spec;
+									meter.setAttribute('value', ++count);
 								} catch (ex) {
 									Components.utils.reportError(ex);
 								}
 							}
+							window.ToggleWindowLock(false);
+							statusText.setAttribute('label', '');
+							meter.setAttribute('value', 0);
+							meter.removeAttribute('max');
+							meter.parentNode.collapsed = true;
 							finish();
 						});
 						return;
 					}
 				}
-
-				finish();
 			}
+
+			finish();
 		} catch (e) {
 			Components.utils.reportError(e);
 		}

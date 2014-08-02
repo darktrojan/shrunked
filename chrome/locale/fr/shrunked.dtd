@@ -20,7 +20,6 @@
 <!ENTITY shrunked-preview.label "Preview:">
 <!ENTITY shrunked-preview.previous.tooltip "Previous image">
 <!ENTITY shrunked-preview.next.tooltip "Next image">
-<!ENTITY shrunked-resizing.label "Redimensionnement des images…">
 <!ENTITY shrunked-minsize.label "Taille minimum pour redimensionner:">
 <!ENTITY shrunked-minsize.kilobytes "Ko">
 <!ENTITY shrunked-maxsize.label "Taille maximum pour vos photos:">
