@@ -3,11 +3,13 @@ let EXPORTED_SYMBOLS = ['Shrunked'];
 const ID = 'shrunked@darktrojan.net';
 const XHTMLNS = 'http://www.w3.org/1999/xhtml';
 
+Components.utils.import('resource://gre/modules/AsyncShutdown.jsm');
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'NetUtil', 'resource://gre/modules/NetUtil.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'OS', 'resource://gre/modules/osfile.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'PluralForm', 'resource://gre/modules/PluralForm.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'Promise', 'resource://gre/modules/Promise.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'ShrunkedImage', 'resource://shrunked/ShrunkedImage.jsm');
@@ -27,7 +29,19 @@ let Shrunked = {
 	},
 
 	resize: function(sourceFile, maxWidth, maxHeight, quality) {
-		return new ShrunkedImage(sourceFile, maxWidth, maxHeight, quality).doEverything();
+		let deferred = Promise.defer();
+		new ShrunkedImage(sourceFile, maxWidth, maxHeight, quality).doEverything().then(function(destFile) {
+			temporaryFiles.push(destFile);
+			deferred.resolve(destFile);
+		});
+		return deferred.promise;
+	},
+	cleanup: function() {
+		let promises = [];
+		for (let path of temporaryFiles) {
+			promises.push(OS.File.remove(path));
+		}
+		return Promise.all(promises);
 	},
 	showStartupNotification: function(aNotificationBox, aCallback) {
 		function parseVersion(aVersion) {
@@ -159,6 +173,8 @@ XPCOMUtils.defineLazyGetter(Shrunked, 'getPluralForm', function() {
 	return getPlural;
 });
 
+AsyncShutdown.profileBeforeChange.addBlocker('Shrunked: clean up temporary files', Shrunked.cleanup);
+
 let observer = {
 	observe: function(aSubject, aTopic, aData) {
 		switch (aTopic) {
@@ -166,21 +182,11 @@ let observer = {
 				Services.obs.removeObserver(this, 'last-pb-context-exited');
 				Services.obs.removeObserver(this, 'quit-application-granted');
 				Services.obs.removeObserver(this, 'browser:purge-session-history');
-				// no break
+				return;
 			case 'last-pb-context-exited':
 			case 'browser:purge-session-history':
-				this.removeTempFiles();
+				Shrunked.cleanup();
 				return;
-		}
-	},
-
-	removeTempFiles: function() {
-		let file = temporaryFiles.pop();
-		while (file) {
-			if (file.exists()) {
-				file.remove(false);
-			}
-			file = temporaryFiles.pop();
 		}
 	}
 };
