@@ -279,10 +279,11 @@ let ShrunkedCompose = {
 	setStatus: function(total) {
 		let statusText = document.getElementById('statusText');
 		let meter = document.getElementById('compose-progressmeter');
+		let statuses = Shrunked.strings.GetStringFromName('status_resizing');
 
 		ToggleWindowLock(true);
-		statusText.setAttribute('label', Shrunked.strings.GetStringFromName('status_resizing'));
-		meter.setAttribute('mode', 'normal');
+		statusText.setAttribute('label', Shrunked.getPluralForm(total, statuses));
+		meter.setAttribute('mode', total == 1 ? 'undetermined' : 'normal');
 		meter.setAttribute('value', 0);
 		meter.setAttribute('max', total);
 		meter.parentNode.collapsed = false;
