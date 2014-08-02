@@ -1,18 +1,16 @@
 let EXPORTED_SYMBOLS = ['ShrunkedImage'];
 
-Components.utils.import('resource://gre/modules/NetUtil.jsm');
 Components.utils.import('resource://gre/modules/Promise.jsm');
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/Task.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-Components.utils.import('resource://gre/modules/osfile.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ExifData', 'resource://shrunked/ExifData.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'resource://shrunked/shrunked.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'NetUtil', 'resource://gre/modules/NetUtil.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'OS', 'resource://gre/modules/osfile.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
 
 const XHTMLNS = 'http://www.w3.org/1999/xhtml';
-
-let worker = new Worker('resource://shrunked/worker.js');
 
 function ShrunkedImage(source, maxWidth, maxHeight, quality) {
 	this.maxWidth = maxWidth;
@@ -160,6 +158,7 @@ ShrunkedImage.prototype = {
 			canvas.height = Math.floor(height);
 			let newData = context.createImageData(canvas.width, canvas.height);
 
+			let worker = new ChromeWorker('resource://shrunked/worker.js');
 			worker.onmessage = function(event) {
 				context.putImageData(event.data, 0, 0);
 				deferred.resolve(canvas);

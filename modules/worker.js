@@ -1,8 +1,5 @@
 self.onmessage = function(event) {
-	var oldData = event.data.oldData;
-	var newData = event.data.newData;
-	var ratio = event.data.ratio;
-	var func = event.data.func;
+	let {oldData, newData, ratio, func} = event.data;
 
 	self[func](oldData, newData, ratio);
 
@@ -10,19 +7,19 @@ self.onmessage = function(event) {
 };
 
 function nineResample(oldData, newData) {
-	var oldPix = oldData.data;
-	var oldWidth = oldData.width;
-	var newPix = newData.data;
-	var newLength = newPix.length;
+	let oldPix = oldData.data;
+	let oldWidth = oldData.width;
+	let newPix = newData.data;
+	let newLength = newPix.length;
 
-	var rowLength = oldWidth * 4;
-	var rowLengthTimes2 = rowLength * 2;
-	var row0 = 0;
-	var row1 = rowLength;
-	var row2 = rowLengthTimes2;
+	let rowLength = oldWidth * 4;
+	let rowLengthTimes2 = rowLength * 2;
+	let row0 = 0;
+	let row1 = rowLength;
+	let row2 = rowLengthTimes2;
 
-	var r, g, b, nextRow;
-	var offset = 0;
+	let r, g, b, nextRow;
+	let offset = 0;
 	while (offset < newLength) {
 		nextRow = row1;
 		while (row0 < nextRow) {
@@ -79,17 +76,17 @@ function nineResample(oldData, newData) {
 }
 
 function fourResample(oldData, newData) {
-	var oldPix = oldData.data;
-	var oldWidth = oldData.width;
-	var newPix = newData.data;
-	var newLength = newPix.length;
+	let oldPix = oldData.data;
+	let oldWidth = oldData.width;
+	let newPix = newData.data;
+	let newLength = newPix.length;
 
-	var rowLength = oldWidth * 4;
-	var row0 = 0;
-	var row1 = rowLength;
+	let rowLength = oldWidth * 4;
+	let row0 = 0;
+	let row1 = rowLength;
 
-	var r, g, b, nextRow;
-	var offset = 0;
+	let r, g, b, nextRow;
+	let offset = 0;
 	while (offset < newLength) {
 		nextRow = row1;
 		while (row0 < nextRow) {
@@ -124,17 +121,16 @@ function fourResample(oldData, newData) {
 }
 
 function floatResample(oldData, newData, ratio) {
-	var oldPix = oldData.data;
-	var oldWidth = oldData.width;
-	var oldHeight = oldData.height;
-	var newPix = newData.data;
-	var newWidth = newData.width;
-	var newHeight = newData.height;
+	let oldPix = oldData.data;
+	let oldWidth = oldData.width;
+	let newPix = newData.data;
+	let newWidth = newData.width;
+	let newHeight = newData.height;
 
-	var y, startY, endY, oldY;
-	var x, startX, endX, oldX;
-	var r, g, b, count, i, offset;
-	var newIndex = 0;
+	let y, startY, endY, oldY;
+	let x, startX, endX, oldX;
+	let r, g, b, count, i, offset;
+	let newIndex = 0;
 
 	endY = 0;
 	for (y = 1; y <= newHeight; ++y) {

@@ -310,6 +310,6 @@ XPCOMUtils.defineLazyModuleGetter(window, 'FileUtils', 'resource://gre/modules/F
 XPCOMUtils.defineLazyModuleGetter(window, 'Promise', 'resource://gre/modules/Promise.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Services', 'resource://gre/modules/Services.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Task', 'resource://gre/modules/Task.jsm');
-XPCOMUtils.defineLazyModuleGetter(window, 'Shrunked', 'resource://shrunked/shrunked.jsm');
+XPCOMUtils.defineLazyModuleGetter(window, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
 
 window.addEventListener('load', ShrunkedCompose.init.bind(ShrunkedCompose));

@@ -1,9 +1,5 @@
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cu = Components.utils;
-
-Cu.import('resource://shrunked/shrunked.jsm');
-Cu.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
+Components.utils.import('resource://shrunked/Shrunked.jsm');
+Components.utils.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
 
 let returnValues = window.arguments[0];
 let imageURLs = window.arguments[1];

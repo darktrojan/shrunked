@@ -1,21 +1,16 @@
 let EXPORTED_SYMBOLS = ['Shrunked'];
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cu = Components.utils;
-const Cr = Components.results;
 
 const ID = 'shrunked@darktrojan.net';
 const XHTMLNS = 'http://www.w3.org/1999/xhtml';
 
-Cu.import('resource://gre/modules/FileUtils.jsm');
-Cu.import('resource://gre/modules/NetUtil.jsm');
-Cu.import('resource://gre/modules/Promise.jsm');
-Cu.import('resource://gre/modules/Services.jsm');
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('resource://gre/modules/Services.jsm');
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
-Cu.import('resource://shrunked/ShrunkedImage.jsm');
-
+XPCOMUtils.defineLazyModuleGetter(this, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'NetUtil', 'resource://gre/modules/NetUtil.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'PluralForm', 'resource://gre/modules/PluralForm.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'Promise', 'resource://gre/modules/Promise.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'ShrunkedImage', 'resource://shrunked/ShrunkedImage.jsm');
 
 let temporaryFiles = [];
 
@@ -27,7 +22,7 @@ let Shrunked = {
 		return file.fileSize >= minimum;
 	},
 	imageIsJPEG: function(aImage) {
-		let request = aImage.getRequest(Ci.nsIImageLoadingContent.CURRENT_REQUEST);
+		let request = aImage.getRequest(Components.interfaces.nsIImageLoadingContent.CURRENT_REQUEST);
 		return !!request && request.mimeType == 'image/jpeg';
 	},
 
@@ -43,15 +38,15 @@ let Shrunked = {
 		let currentVersion = 0;
 		let oldVersion = 0;
 
-		if (Shrunked.prefs.getPrefType('version') == Ci.nsIPrefBranch.PREF_STRING) {
+		if (Shrunked.prefs.getPrefType('version') == Components.interfaces.nsIPrefBranch.PREF_STRING) {
 			oldVersion = Shrunked.prefs.getCharPref('version');
 		}
-		Cu.import('resource://gre/modules/AddonManager.jsm');
+		Components.utils.import('resource://gre/modules/AddonManager.jsm');
 		AddonManager.getAddonByID(ID, function(addon) {
 			currentVersion = addon.version;
 			Shrunked.prefs.setCharPref('version', currentVersion);
 
-			let comparator = Cc['@mozilla.org/xpcom/version-comparator;1'].createInstance(Ci.nsIVersionComparator);
+			let comparator = Components.classes['@mozilla.org/xpcom/version-comparator;1'].createInstance(Components.interfaces.nsIVersionComparator);
 			if (oldVersion == 0 || comparator.compare(parseVersion(oldVersion), parseVersion(currentVersion)) >= 0) {
 				return;
 			}
@@ -109,7 +104,7 @@ let Shrunked = {
 				let prefs = Services.contentPrefs.getPrefsByName(aName, null);
 				let enumerator = prefs.enumerator;
 				while (enumerator.hasMoreElements()) {
-					let property = enumerator.getNext().QueryInterface(Ci.nsIProperty);
+					let property = enumerator.getNext().QueryInterface(Components.interfaces.nsIProperty);
 					allPrefs.set(property.name, property.value);
 				}
 				deferred.resolve(allPrefs);

@@ -4,7 +4,7 @@ Components.utils.import('resource://gre/modules/Promise.jsm');
 Components.utils.import('resource://gre/modules/Task.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'resource://shrunked/shrunked.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
 
 function ExifData() {
 }

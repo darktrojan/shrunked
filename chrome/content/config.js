@@ -1,10 +1,6 @@
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cu = Components.utils;
-
-Cu.import('resource://gre/modules/Services.jsm');
-Cu.import('resource://gre/modules/Task.jsm');
-Cu.import('resource://shrunked/shrunked.jsm');
+Components.utils.import('resource://gre/modules/Services.jsm');
+Components.utils.import('resource://gre/modules/Task.jsm');
+Components.utils.import('resource://shrunked/Shrunked.jsm');
 
 const IS_FIREFOX = Services.appinfo.name == 'Firefox';
 const IS_THUNDERBIRD = Services.appinfo.name == 'Thunderbird';
