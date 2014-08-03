@@ -14,21 +14,19 @@ ExifData.prototype = {
 	gps: null,
 	littleEndian: false,
 
-	_getShort: function Exif__getShort(bytes, index=0) {
+	_getShort: function ExifData__getShort(bytes, index=0) {
 		if (this.littleEndian) {
 			return (bytes[index + 1] << 8) + bytes[index];
 		}
 		return (bytes[index] << 8) + bytes[index + 1];
 	},
-
-	_getInt: function Exif__getInt(bytes, index=0) {
+	_getInt: function ExifData__getInt(bytes, index=0) {
 		if (this.littleEndian) {
 			return (bytes[index + 3] << 24) + (bytes[index + 2] << 16) + (bytes[index + 1] << 8) + bytes[index];
 		}
 		return (bytes[index] << 24) + (bytes[index + 1] << 16) + (bytes[index + 2] << 8) + bytes[index + 3];
 	},
-
-	_readSection: function Exif__readSection() {
+	_readSection: function ExifData__readSection() {
 		let fieldLengths = [null, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8];
 		let deferred = Promise.defer();
 		Task.spawn((function() {
@@ -59,8 +57,7 @@ ExifData.prototype = {
 		}).bind(this));
 		return deferred.promise;
 	},
-
-	read: function Exif_read(readable) {
+	read: function ExifData_read(readable) {
 		let deferred = Promise.defer();
 		Task.spawn((function() {
 			try {
@@ -102,7 +99,6 @@ ExifData.prototype = {
 		}).bind(this));
 		return deferred.promise;
 	},
-
 	get orientation() {
 		if (this.exif1 && '112' in this.exif1) {
 			switch (this.exif1['112'].value) {
@@ -116,8 +112,7 @@ ExifData.prototype = {
 		}
 		return 0;
 	},
-
-	_countSection: function Exif__countSection(section) {
+	_countSection: function ExifData__countSection(section) {
 		if (!section) {
 			return [0, 0];
 		}
@@ -133,8 +128,7 @@ ExifData.prototype = {
 		}
 		return [count, size];
 	},
-
-	_get2Bytes: function Exif__get2Bytes(short) {
+	_get2Bytes: function ExifData__get2Bytes(short) {
 		let bytes = [
 			(short & 0xFF00) >> 8,
 			(short & 0x00FF)
@@ -144,8 +138,7 @@ ExifData.prototype = {
 		}
 		return bytes;
 	},
-
-	_get4Bytes: function Exif__get4Bytes(int) {
+	_get4Bytes: function ExifData__get4Bytes(int) {
 		let bytes = [
 			(int & 0xFF000000) >> 24,
 			(int & 0x00FF0000) >> 16,
@@ -157,8 +150,7 @@ ExifData.prototype = {
 		}
 		return bytes;
 	},
-
-	_writeSection: function Exif__writeSection(section, buffer, index, count) {
+	_writeSection: function ExifData__writeSection(section, buffer, index, count) {
 		buffer.set(this._get2Bytes(count), index);
 
 		index += 2;
@@ -180,8 +172,7 @@ ExifData.prototype = {
 		}
 		return dataindex;
 	},
-
-	write: function Exif_write(file) {
+	write: function ExifData_write(file) {
 		let deferred = Promise.defer();
 		Task.spawn((function() {
 			try {

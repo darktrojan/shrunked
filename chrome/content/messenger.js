@@ -3,8 +3,8 @@ window.addEventListener('load', function() {
 	if (notifyBox) {
 		setTimeout(function() {
 			Components.utils.import('resource://shrunked/Shrunked.jsm');
-			Shrunked.showStartupNotification(notifyBox, function(aURL) {
-				openLinkExternally(aURL);
+			Shrunked.showStartupNotification(notifyBox, function(url) {
+				openLinkExternally(url);
 			});
 		}, 1000);
 	}

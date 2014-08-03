@@ -1,5 +1,4 @@
 let ShrunkedCompose = {
-
 	OPTIONS_DIALOG: 'chrome://shrunked/content/options.xul',
 	POPUP_ARGS: 'chrome,centerscreen,modal',
 
@@ -7,13 +6,13 @@ let ShrunkedCompose = {
 	inlineImages: [],
 	timeout: null,
 
-	init: function() {
+	init: function ShrunkedCompose_init() {
 		this.oldGenericSendMessage = window.GenericSendMessage;
 		window.GenericSendMessage = this.newGenericSendMessage.bind(this);
 
 		// the editor's document isn't available immediately
 		let editFrame = document.getElementById('content-frame');
-		editFrame.addEventListener('pageshow', function addObserver(aEvent) {
+		editFrame.addEventListener('pageshow', function addObserver() {
 			editFrame.removeEventListener('pageshow', addObserver, false);
 			let target = editFrame.contentDocument.body;
 			let config = { attributes: false, childList: true, characterData: false };
@@ -29,8 +28,8 @@ let ShrunkedCompose = {
 			});
 			observer.observe(target, config);
 		});
-		editFrame.addEventListener('drop', (aEvent) => {
-			for (let file of aEvent.dataTransfer.files) {
+		editFrame.addEventListener('drop', (event) => {
+			for (let file of event.dataTransfer.files) {
 				Shrunked.log('File dropped: ' + file.name);
 				ShrunkedCompose.droppedCache.set(file.name, file.size);
 			}
@@ -56,7 +55,7 @@ let ShrunkedCompose = {
 			document.getElementById('shrunked-context-separator').style.display = shouldShow ? null : 'none';
 		});
 	},
-	maybeResizeInline: function(target) {
+	maybeResizeInline: function ShrunkedCompose_maybeResizeInline(target) {
 		if (target.nodeName == 'IMG') {
 			try {
 				Shrunked.log('<IMG> found, source is ' + target.src.substring(0, 200) + (target.src.length <= 200 ? '' : '\u2026'));
@@ -169,11 +168,11 @@ let ShrunkedCompose = {
 			}
 		}
 	},
-	showOptionsDialog: function(aImages) {
+	showOptionsDialog: function ShrunkedCompose_showOptionsDialog(images) {
 		let returnValues = { cancelDialog: true };
 		let imageURLs = [];
 		let imageNames = [];
-		for (let image of aImages) {
+		for (let image of images) {
 			imageURLs.push(image.src);
 			imageNames.push(image.maybesrc);
 		}
@@ -188,8 +187,8 @@ let ShrunkedCompose = {
 			let {maxWidth, maxHeight} = returnValues;
 			let quality = Shrunked.prefs.getIntPref('default.quality');
 			let count = 0;
-			this.setStatus(aImages.length);
-			for (let image of aImages) {
+			this.setStatus(images.length);
+			for (let image of images) {
 				try {
 					let destFile = yield Shrunked.resize(image.src, maxWidth, maxHeight, quality);
 					image.src = Services.io.newFileURI(new FileUtils.File(destFile)).spec;
@@ -204,7 +203,7 @@ let ShrunkedCompose = {
 			this.clearStatus();
 		}).bind(this));
 	},
-	newGenericSendMessage: function(msgType) {
+	newGenericSendMessage: function ShrunkedCompose_newGenericSendMessage(msgType) {
 		let doResize = msgType == nsIMsgCompDeliverMode.Now || msgType == nsIMsgCompDeliverMode.Later;
 		let images = [];
 
@@ -276,7 +275,7 @@ let ShrunkedCompose = {
 			}
 		}
 	},
-	setStatus: function(total) {
+	setStatus: function ShrunkedCompose_setStatus(total) {
 		let statusText = document.getElementById('statusText');
 		let meter = document.getElementById('compose-progressmeter');
 		let statuses = Shrunked.strings.GetStringFromName('status_resizing');
@@ -288,12 +287,12 @@ let ShrunkedCompose = {
 		meter.setAttribute('max', total);
 		meter.parentNode.collapsed = false;
 	},
-	setStatusCount: function(count) {
+	setStatusCount: function ShrunkedCompose_setStatusCount(count) {
 		let meter = document.getElementById('compose-progressmeter');
 
 		meter.setAttribute('value', count);
 	},
-	clearStatus: function() {
+	clearStatus: function ShrunkedCompose_clearStatus() {
 		let statusText = document.getElementById('statusText');
 		let meter = document.getElementById('compose-progressmeter');
 

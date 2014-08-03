@@ -87,8 +87,8 @@ function setSize() {
 	imageLoad();
 }
 
-function advancePreview(aDirection) {
-	imageIndex = (imageIndex + aDirection + imageURLs.length) % imageURLs.length;
+function advancePreview(delta) {
+	imageIndex = (imageIndex + delta + imageURLs.length) % imageURLs.length;
 	i_previewthumb.src = imageURLs[imageIndex];
 }
 

@@ -42,7 +42,7 @@ function ShrunkedImage(source, maxWidth, maxHeight, quality) {
 	}
 }
 ShrunkedImage.prototype = {
-	doEverything: function ShrunkedImage_doEverything() {
+	resize: function ShrunkedImage_resize() {
 		let deferred = Promise.defer();
 
 		Task.spawn((function() {
@@ -74,7 +74,6 @@ ShrunkedImage.prototype = {
 
 		return deferred.promise;
 	},
-
 	readExifData: function ShrunkedImage_readExifData() {
 		let deferred = Promise.defer();
 
@@ -98,7 +97,6 @@ ShrunkedImage.prototype = {
 
 		return deferred.promise;
 	},
-
 	loadImage: function ShrunkedImage_load() {
 		let deferred = Promise.defer();
 
@@ -116,7 +114,6 @@ ShrunkedImage.prototype = {
 
 		return deferred.promise;
 	},
-
 	drawOnCanvas: function ShrunkedImage_drawOnCanvas(image, orientation) {
 		let deferred = Promise.defer();
 		let ratio = Math.max(1, image.width / this.maxWidth, image.height / this.maxHeight);
@@ -175,7 +172,6 @@ ShrunkedImage.prototype = {
 
 		return deferred.promise;
 	},
-
 	getBytes: function ShrunkedImage_getBytes(canvas) {
 		let deferred = Promise.defer();
 		canvas.toBlob(function(blob) {
@@ -191,7 +187,6 @@ ShrunkedImage.prototype = {
 		}, 'image/jpeg', 'quality=' + this.quality);
 		return deferred.promise;
 	},
-
 	save: function ShrunkedImage_save(bytes) {
 		let destFile;
 		let tempDir = OS.Constants.Path.tmpDir;
@@ -233,10 +228,9 @@ function Readable(url) {
 			let bytes = binaryStream.readByteArray(stream.available());
 			binaryStream.close();
 			stream.close();
-			let data = new Uint8Array(bytes);
 
-			let readable = {
-				data: data,
+			deferred.resolve({
+				data: new Uint8Array(bytes),
 				pointer: 0,
 				read: function(count) {
 					let result;
@@ -255,8 +249,7 @@ function Readable(url) {
 				close: function() {
 					delete this.data;
 				}
-			};
-			deferred.resolve(readable);
+			});
 		} catch (ex) {
 			deferred.reject(ex);
 		}

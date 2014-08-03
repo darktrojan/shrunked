@@ -1,7 +1,6 @@
 let EXPORTED_SYMBOLS = ['Shrunked'];
 
 const ID = 'shrunked@darktrojan.net';
-const XHTMLNS = 'http://www.w3.org/1999/xhtml';
 
 Components.utils.import('resource://gre/modules/AsyncShutdown.jsm');
 Components.utils.import('resource://gre/modules/Services.jsm');
@@ -17,36 +16,35 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ShrunkedImage', 'resource://shrunked/Sh
 let temporaryFiles = [];
 
 let Shrunked = {
-	fileLargerThanThreshold: function(aPath) {
+	fileLargerThanThreshold: function Shrunked_fileLargerThanThreshold(path) {
 		let minimum = Shrunked.prefs.getIntPref('fileSizeMinimum') * 1024;
 
-		let file = new FileUtils.File(aPath);
+		let file = new FileUtils.File(path);
 		return file.fileSize >= minimum;
 	},
-	imageIsJPEG: function(aImage) {
-		let request = aImage.getRequest(Components.interfaces.nsIImageLoadingContent.CURRENT_REQUEST);
+	imageIsJPEG: function Shrunked_imageIsJPEG(image) {
+		let request = image.getRequest(Components.interfaces.nsIImageLoadingContent.CURRENT_REQUEST);
 		return !!request && request.mimeType == 'image/jpeg';
 	},
-
-	resize: function(sourceFile, maxWidth, maxHeight, quality) {
+	resize: function Shrunked_resize(sourceFile, maxWidth, maxHeight, quality) {
 		let deferred = Promise.defer();
-		new ShrunkedImage(sourceFile, maxWidth, maxHeight, quality).doEverything().then(function(destFile) {
+		new ShrunkedImage(sourceFile, maxWidth, maxHeight, quality).resize().then(function(destFile) {
 			temporaryFiles.push(destFile);
 			deferred.resolve(destFile);
 		});
 		return deferred.promise;
 	},
-	cleanup: function() {
+	cleanup: function Shrunked_cleanup() {
 		let promises = [];
 		for (let path of temporaryFiles) {
 			promises.push(OS.File.remove(path));
 		}
 		return Promise.all(promises);
 	},
-	showStartupNotification: function(aNotificationBox, aCallback) {
-		function parseVersion(aVersion) {
-			let match = /^\d+(\.\d+)?/.exec(aVersion);
-			return match ? match[0] : aVersion;
+	showStartupNotification: function Shrunked_showStartupNotification(notificationBox, callback) {
+		function parseVersion(version) {
+			let match = /^\d+(\.\d+)?/.exec(version);
+			return match ? match[0] : version;
 		}
 
 		let currentVersion = 0;
@@ -72,50 +70,50 @@ let Shrunked = {
 				accessKey: Shrunked.strings.GetStringFromName('donate_button_accesskey'),
 				popup: null,
 				callback: function() {
-					aCallback('https://addons.mozilla.org/addon/shrunked-image-resizer/contribute/installed/');
+					callback('https://addons.mozilla.org/addon/shrunked-image-resizer/contribute/installed/');
 				}
 			}];
 			Shrunked.prefs.setIntPref('donationreminder', Date.now() / 1000);
-			aNotificationBox.appendNotification(label, value, null, aNotificationBox.PRIORITY_INFO_LOW, buttons);
+			notificationBox.appendNotification(label, value, null, notificationBox.PRIORITY_INFO_LOW, buttons);
 		});
 	},
-	getContentPref: function(aURI, aName, aContext) {
+	getContentPref: function Shrunked_getContentPref(uri, name, context) {
 		let deferred = Promise.defer();
 
-		this.contentPrefs2.getByDomainAndName(aURI.host, aName, aContext, {
-			handleCompletion: function(aReason) {
+		this.contentPrefs2.getByDomainAndName(uri.host, name, context, {
+			handleCompletion: function() {
 				// If we get here without calling handleError or handleResult, there is no pref.
 				deferred.resolve(null);
 			},
-			handleError: function(aError) {
-				deferred.reject(aError);
+			handleError: function(error) {
+				deferred.reject(error);
 			},
-			handleResult: function(aPref) {
-				deferred.resolve(aPref.value);
+			handleResult: function(pref) {
+				deferred.resolve(pref.value);
 			}
 		});
 
 		return deferred.promise;
 	},
-	getAllContentPrefs: function(aName) {
+	getAllContentPrefs: function Shrunked_getAllContentPrefs(name) {
 		let deferred = Promise.defer();
 		let allPrefs = new Map();
 
 		if ('getByName' in this.contentPrefs2) {
-			this.contentPrefs2.getByName(aName, null, {
-				handleCompletion: function(aReason) {
+			this.contentPrefs2.getByName(name, null, {
+				handleCompletion: function() {
 					deferred.resolve(allPrefs);
 				},
-				handleError: function(aError) {
-					deferred.reject(aError);
+				handleError: function(error) {
+					deferred.reject(error);
 				},
-				handleResult: function(aPref) {
-					allPrefs.set(aPref.domain, aPref.value);
+				handleResult: function(pref) {
+					allPrefs.set(pref.domain, pref.value);
 				}
 			});
 		} else {
 			try {
-				let prefs = Services.contentPrefs.getPrefsByName(aName, null);
+				let prefs = Services.contentPrefs.getPrefsByName(name, null);
 				let enumerator = prefs.enumerator;
 				while (enumerator.hasMoreElements()) {
 					let property = enumerator.getNext().QueryInterface(Components.interfaces.nsIProperty);
@@ -129,10 +127,10 @@ let Shrunked = {
 
 		return deferred.promise;
 	},
-	log: function(aMessage) {
+	log: function Shrunked_log(message) {
 		if (this.logEnabled) {
 			let caller = Components.stack.caller;
-			Services.console.logStringMessage('Shrunked: ' + aMessage + '\n' + caller.filename + ', line ' + caller.lineNumber);
+			Services.console.logStringMessage('Shrunked: ' + message + '\n' + caller.filename + ', line ' + caller.lineNumber);
 		}
 	},
 	options: {
@@ -158,7 +156,7 @@ XPCOMUtils.defineLazyGetter(Shrunked, 'contentPrefs2', function() {
 });
 XPCOMUtils.defineLazyGetter(Shrunked, 'logEnabled', function() {
 	this.prefs.addObserver('log.enabled', {
-		observe: function(aSubject, aTopic, aData) {
+		observe: function() {
 			Shrunked.logEnabled = Shrunked.prefs.getBoolPref('log.enabled');
 		}
 	}, false);
@@ -176,8 +174,8 @@ XPCOMUtils.defineLazyGetter(Shrunked, 'getPluralForm', function() {
 AsyncShutdown.profileBeforeChange.addBlocker('Shrunked: clean up temporary files', Shrunked.cleanup);
 
 let observer = {
-	observe: function(aSubject, aTopic, aData) {
-		switch (aTopic) {
+	observe: function(subject, topic) {
+		switch (topic) {
 			case 'quit-application-granted':
 				Services.obs.removeObserver(this, 'last-pb-context-exited');
 				Services.obs.removeObserver(this, 'quit-application-granted');

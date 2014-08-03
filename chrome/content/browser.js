@@ -1,24 +1,23 @@
 let ShrunkedBrowser = {
-	init: function() {
+	init: function ShrunkedBrowser_init() {
 		let appcontent = document.getElementById('appcontent');
 		if (appcontent) {
 			appcontent.addEventListener('change', this.onActivate.bind(this), true);
 		}
 
 		setTimeout(function() {
-			Shrunked.showStartupNotification(gBrowser.getNotificationBox(), function(aURL) {
-				gBrowser.selectedTab = gBrowser.addTab(aURL);
+			Shrunked.showStartupNotification(gBrowser.getNotificationBox(), function(url) {
+				gBrowser.selectedTab = gBrowser.addTab(url);
 			});
 		}, 1000);
 	},
-
-	onActivate: function(aEvent) {
-		if (aEvent.target.localName != 'input' || aEvent.target.type != 'file') {
+	onActivate: function ShrunkedBrowser_onActivate(event) {
+		if (event.target.localName != 'input' || event.target.type != 'file') {
 			return;
 		}
 
 		Task.spawn((function onActivateInternal() {
-			let inputTag = aEvent.target;
+			let inputTag = event.target;
 			let form = inputTag.form;
 			let context = PrivateBrowsingUtils.privacyContextFromWindow(window);
 			let uri = inputTag.ownerDocument.documentURIObject;
@@ -106,9 +105,8 @@ let ShrunkedBrowser = {
 			});
 		}).bind(this));
 	},
-
-	showOptionsDialog: function(aNotification, aButtonObject) {
-		let {inputTag, form, context, uri} = aButtonObject;
+	showOptionsDialog: function ShrunkedBrowser_showOptionsDialog(notification, buttonObject) {
+		let {inputTag, form, context, uri} = buttonObject;
 		let returnValues = { cancelDialog: true, inputTag: inputTag };
 
 		window.openDialog('chrome://shrunked/content/options.xul', 'options',
@@ -134,14 +132,12 @@ let ShrunkedBrowser = {
 			Shrunked.contentPrefs2.set(uri.host, 'extensions.shrunked.maxHeight', returnValues.maxHeight, context);
 		}
 	},
-
-	disableForSite: function(aNotification, aButtonObject) {
-		let {context, uri} = aButtonObject;
+	disableForSite: function ShrunkedBrowser_disableForSite(notification, buttonObject) {
+		let {context, uri} = buttonObject;
 		Shrunked.contentPrefs2.set(uri.host, 'extensions.shrunked.disabled', true, context);
 	},
-
-	getURLsFromInputTag: function(aInputTag) {
-		let paths = aInputTag.mozGetFileNameArray();
+	getURLsFromInputTag: function ShrunkedBrowser_getURLsFromInputTag(inputTag) {
+		let paths = inputTag.mozGetFileNameArray();
 		let URLs = [];
 
 		for (let path of paths) {
@@ -153,20 +149,19 @@ let ShrunkedBrowser = {
 		}
 		return URLs;
 	},
-
-	resize: function(aInputTag, aMaxWidth, aMaxHeight, aQuality) {
-		let paths = aInputTag.mozGetFileNameArray();
+	resize: function ShrunkedBrowser_resize(inputTag, maxWidth, maxHeight, quality) {
+		let paths = inputTag.mozGetFileNameArray();
 		let newPaths = [];
 
-		aInputTag.originalValue = paths;
-		aInputTag.addEventListener('click', ShrunkedBrowser.resetInputTag, true);
+		inputTag.originalValue = paths;
+		inputTag.addEventListener('click', ShrunkedBrowser.resetInputTag, true);
 
 		for (let path of paths) {
 			if (/\.jpe?g$/i.test(path) && Shrunked.fileLargerThanThreshold(path)) {
-				Shrunked.resize(new FileUtils.File(path), aMaxWidth, aMaxHeight, aQuality).then(function(destFile) {
+				Shrunked.resize(new FileUtils.File(path), maxWidth, maxHeight, quality).then(function(destFile) {
 					newPaths.push(destFile);
 					if (newPaths.length == paths.length) {
-						aInputTag.mozSetFileNameArray(newPaths, newPaths.length);
+						inputTag.mozSetFileNameArray(newPaths, newPaths.length);
 					}
 				}, Components.utils.reportError);
 			} else {
@@ -174,9 +169,8 @@ let ShrunkedBrowser = {
 			}
 		}
 	},
-
-	resetInputTag: function(aEvent) {
-		let inputTag = aEvent.target;
+	resetInputTag: function ShrunkedBrowser_resetInputTag(event) {
+		let inputTag = event.target;
 		let paths = inputTag.originalValue;
 		inputTag.mozSetFileNameArray(paths, paths.length);
 		inputTag.originalValue = null;

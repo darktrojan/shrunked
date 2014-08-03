@@ -22,5 +22,7 @@ icon.png
 icon64.png
 install.rdf
 modules
+modules/ExifData.jsm
 modules/Shrunked.jsm
+modules/ShrunkedImage.jsm
 modules/worker.js
