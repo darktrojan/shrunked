@@ -26,9 +26,13 @@ let Shrunked = {
 		let request = image.getRequest(Components.interfaces.nsIImageLoadingContent.CURRENT_REQUEST);
 		return !!request && request.mimeType == 'image/jpeg';
 	},
-	resize: function Shrunked_resize(sourceFile, maxWidth, maxHeight, quality) {
+	resize: function Shrunked_resize(sourceFile, maxWidth, maxHeight, quality, name) {
 		let deferred = Promise.defer();
-		new ShrunkedImage(sourceFile, maxWidth, maxHeight, quality).resize().then(function(destFile) {
+		let image = new ShrunkedImage(sourceFile, maxWidth, maxHeight, quality);
+		if (!!name) {
+			image.basename = name;
+		}
+		image.resize().then(function(destFile) {
 			temporaryFiles.push(destFile);
 			deferred.resolve(destFile);
 		});

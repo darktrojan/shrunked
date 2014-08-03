@@ -190,7 +190,7 @@ let ShrunkedCompose = {
 			this.setStatus(images.length);
 			for (let image of images) {
 				try {
-					let destFile = yield Shrunked.resize(image.src, maxWidth, maxHeight, quality);
+					let destFile = yield Shrunked.resize(image.src, maxWidth, maxHeight, quality, image.maybesrc);
 					image.src = Services.io.newFileURI(new FileUtils.File(destFile)).spec;
 					image.removeAttribute('width');
 					image.removeAttribute('height');
