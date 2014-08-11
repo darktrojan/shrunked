@@ -1,4 +1,4 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
 
 	<Description about="urn:mozilla:install-manifest">
@@ -65,6 +65,13 @@
 				<em:name>Shrunked Image Resizer</em:name>
 				<em:description>Gör dina bilder mindre, så att de inte tar evigheter att skicka med e-post eller ladda upp till webbplatser.</em:description>
 				<em:translator>Mikael Hiort af Ornäs</em:translator>
+			</Description>
+		</em:localized>
+		<em:localized>
+			<Description>
+				<em:locale>hr</em:locale>
+				<em:name>Shrunked Image Resizer</em:name>
+				<em:description>Smanjite Vaše fotografije da ne zauzimaju previše mjesta i učitajte ih na web stranice</em:description>
 			</Description>
 		</em:localized>
 	</Description>

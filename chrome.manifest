@@ -10,6 +10,7 @@ locale shrunked en-US chrome/locale/en-US/
 locale shrunked ca chrome/locale/ca/
 locale shrunked de chrome/locale/de/
 locale shrunked fr chrome/locale/fr/
+locale shrunked hr chrome/locale/hr/
 locale shrunked it chrome/locale/it/
 locale shrunked pl chrome/locale/pl/
 locale shrunked pt-BR chrome/locale/pt-BR/
