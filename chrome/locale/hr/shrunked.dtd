@@ -20,7 +20,7 @@
 <!ENTITY shrunked-preview.label "Pregled:">
 <!ENTITY shrunked-preview.previous.tooltip "Prethodna slika">
 <!ENTITY shrunked-preview.next.tooltip "Sljedeća slika">
-<!ENTITY shrunked-minsize.label "Minimalna veličina datoteke za promjenu">
+<!ENTITY shrunked-minsize.label "Minimalna veličina datoteke za promjenu:">
 <!ENTITY shrunked-minsize.kilobytes "KB">
 <!ENTITY shrunked-maxsize.label "Maksimalna veličina za Vaše fotografije:">
 <!ENTITY shrunked-custom.pixels "px">
@@ -30,4 +30,4 @@
 <!ENTITY shrunked-advanced.orient.label "Automatski rotiraj slike">
 <!ENTITY shrunked-advanced.gps.label "Prijenos GPS podataka">
 <!ENTITY shrunked-advanced.logenabled.label "Zapis obavijesti u konzolu grešaka">
-<!ENTITY shrunked-compose.context.label "Promjena veličine ove slike...">
+<!ENTITY shrunked-compose.context.label "Promjena veličine ove slike&#x2026;">
