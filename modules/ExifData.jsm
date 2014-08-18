@@ -13,6 +13,7 @@ ExifData.prototype = {
 	exif2: null,
 	gps: null,
 	littleEndian: false,
+	orientation: 0,
 
 	_getShort: function ExifData__getShort(bytes, index=0) {
 		if (this.littleEndian) {
@@ -78,16 +79,36 @@ ExifData.prototype = {
 
 				this.exif1 = yield this._readSection();
 
-				yield this.readable.setPosition(12 + this.exif1['8769'].value);
-				this.exif2 = yield this._readSection();
+				if ('112' in this.exif1) {
+					switch (this.exif1['112'].value) {
+					case 8:
+						this.orientation = 90;
+						break;
+					case 3:
+						this.orientation = 180;
+						break;
+					case 6:
+						this.orientation = 270;
+						break;
+					}
+				}
 
-				yield this.readable.setPosition(12 + this.exif1['8825'].value);
-				this.gps = yield this._readSection();
+				if ('8769' in this.exif1) {
+					yield this.readable.setPosition(12 + this.exif1['8769'].value);
+					this.exif2 = yield this._readSection();
+				}
+
+				if ('8825' in this.exif1) {
+					yield this.readable.setPosition(12 + this.exif1['8825'].value);
+					this.gps = yield this._readSection();
+				}
 
 				let blacklist = JSON.parse(Shrunked.prefs.getCharPref('exif.blacklist'));
 				for (let key of blacklist) {
 					delete this.exif1[key];
-					delete this.exif2[key];
+					if (this.exif2) {
+						delete this.exif2[key];
+					}
 				}
 
 				deferred.resolve();
@@ -98,19 +119,6 @@ ExifData.prototype = {
 			}
 		}).bind(this));
 		return deferred.promise;
-	},
-	get orientation() {
-		if (this.exif1 && '112' in this.exif1) {
-			switch (this.exif1['112'].value) {
-			case 8:
-				return 90;
-			case 3:
-				return 180;
-			case 6:
-				return 270;
-			}
-		}
-		return 0;
 	},
 	_countSection: function ExifData__countSection(section) {
 		if (!section) {
