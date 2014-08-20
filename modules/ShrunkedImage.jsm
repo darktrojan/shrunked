@@ -125,8 +125,8 @@ ShrunkedImage.prototype = {
 			}
 		}
 
-		let width = image.width / ratio;
-		let height = image.height / ratio;
+		let width = Math.floor(image.width / ratio);
+		let height = Math.floor(image.height / ratio);
 
 		if (orientation == 90 || orientation == 270) {
 			[width, height] = [height, width];
@@ -151,8 +151,8 @@ ShrunkedImage.prototype = {
 
 		if (resampleRatio > 1) {
 			let oldData = context.getImageData(0, 0, canvas.width, canvas.height);
-			canvas.width = Math.floor(width);
-			canvas.height = Math.floor(height);
+			canvas.width = width;
+			canvas.height = height;
 			let newData = context.createImageData(canvas.width, canvas.height);
 
 			let worker = new ChromeWorker('resource://shrunked/worker.js');
