@@ -1,9 +1,11 @@
 let ShrunkedBrowser = {
 	init: function ShrunkedBrowser_init() {
-		let appcontent = document.getElementById('appcontent');
-		if (appcontent) {
-			appcontent.addEventListener('change', this.onActivate.bind(this), true);
-		}
+		messageManager.addMessageListener('Shrunked:PromptAndResize', {
+			receiveMessage: function(message) {
+				ShrunkedBrowser.doPromptAndResize(message);
+			}
+		});
+		messageManager.loadFrameScript('chrome://shrunked/content/browser-content.js', true);
 
 		setTimeout(function() {
 			Shrunked.showStartupNotification(gBrowser.getNotificationBox(), function(url) {
@@ -11,169 +13,83 @@ let ShrunkedBrowser = {
 			});
 		}, 1000);
 	},
-	onActivate: function ShrunkedBrowser_onActivate(event) {
-		if (event.target.localName != 'input' || event.target.type != 'file') {
-			return;
-		}
+	doPromptAndResize: function ShrunkedBrowser_doPromptAndResize(message) {
+		Task.spawn(function*() {
+			let uri = message.target.currentURI;
 
-		Task.spawn((function onActivateInternal() {
-			let inputTag = event.target;
-			let form = inputTag.form;
-			let context = PrivateBrowsingUtils.privacyContextFromWindow(window);
-			let uri = inputTag.ownerDocument.documentURIObject;
-
-			if (uri.schemeIs('http') || uri.schemeIs('https')) {
-				if (yield Shrunked.getContentPref(uri, 'extensions.shrunked.disabled', context)) {
-					return;
-				}
-				let maxWidth = yield Shrunked.getContentPref(uri, 'extensions.shrunked.maxWidth', context);
-				let maxHeight = yield Shrunked.getContentPref(uri, 'extensions.shrunked.maxHeight', context);
-				if (maxWidth && maxHeight) {
-					this.resize(inputTag, maxWidth, maxHeight,
-						Shrunked.prefs.getIntPref('default.quality'));
-					return;
-				}
-			}
-
-			if (form) {
-				let maxWidth = form.getAttribute('shrunkedmaxwidth');
-				let maxHeight = form.getAttribute('shrunkedmaxheight');
-				if (maxWidth && maxHeight) {
-					this.resize(inputTag, parseInt(maxWidth), parseInt(maxHeight),
-						Shrunked.prefs.getIntPref('default.quality'));
-					return;
-				}
-			}
-
-			if (form) {
-				this.imageURLs = [];
-				for (let input of form.querySelectorAll('input[type="file"]')) {
-					this.imageURLs = this.imageURLs.concat(this.getURLsFromInputTag(input));
-				}
-			} else {
-				this.imageURLs = this.getURLsFromInputTag(inputTag);
-			}
-
-			if (!this.imageURLs.length) {
-				return;
-			}
-
-			let notifyBox = gBrowser.getNotificationBox();
-			if (notifyBox.getNotificationWithValue('shrunked-notification')) {
-				return;
-			}
-
+			let callbackObject = {};
 			let buttons = [];
-
 			buttons.push({
 				accessKey: Shrunked.strings.GetStringFromName('yes_accesskey'),
-				callback: this.showOptionsDialog,
+				callback: function() { callbackObject.resolve('yes'); },
 				label: Shrunked.strings.GetStringFromName('yes_label'),
-				inputTag: inputTag,
-				form: form,
-				context: context,
-				uri: uri
 			});
-
 			if (!PrivateBrowsingUtils.isWindowPrivate(window) &&
 					(uri.schemeIs('http') || uri.schemeIs('https'))) {
 				buttons.push({
 					accessKey: Shrunked.strings.GetStringFromName('never_accesskey'),
-					callback: this.disableForSite,
+					callback: function() { callbackObject.resolve('never'); },
 					label: Shrunked.strings.GetStringFromName('never_label'),
-					context: context,
-					uri: uri
 				});
 			}
 			buttons.push({
 				accessKey: Shrunked.strings.GetStringFromName('no_accesskey'),
-				callback: function() {},
+				callback: function() { callbackObject.resolve('no'); },
 				label: Shrunked.strings.GetStringFromName('no_label'),
 			});
 
 			let questions = Shrunked.strings.GetStringFromName('questions');
-			let question = Shrunked.getPluralForm(this.imageURLs.length, questions);
+			let question = Shrunked.getPluralForm(message.data.length, questions);
 
-			notifyBox = gBrowser.getNotificationBox();
+			let action = yield ShrunkedBrowser.showNotificationBar(question, buttons, callbackObject);
+			if (action == 'no') {
+				return;
+			}
+			let context = PrivateBrowsingUtils.privacyContextFromWindow(window);
+			if (action == 'never') {
+				Shrunked.contentPrefs2.set(uri.host, 'extensions.shrunked.disabled', true, context);
+				return;
+			}
+
+			let returnValues = { cancelDialog: true };
+			let imageURLs = [];
+			for (let file of message.data) {
+				let sourceFile = new FileUtils.File(file);
+				let sourceURL = Services.io.newFileURI(sourceFile);
+				imageURLs.push(sourceURL.spec);
+			}
+
+			window.openDialog('chrome://shrunked/content/options.xul', 'options', 'chrome,centerscreen,modal', returnValues, imageURLs);
+			if (returnValues.cancelDialog) {
+				return;
+			}
+
+			let quality = Shrunked.prefs.getIntPref('default.quality');
+			let newPaths = new Map();
+			for (let file of message.data) {
+				if (/\.jpe?g$/i.test(file) && Shrunked.fileLargerThanThreshold(file)) {
+					let destFile = yield Shrunked.resize(new FileUtils.File(file), returnValues.maxWidth, returnValues.maxHeight, quality);
+					newPaths.set(file, destFile);
+				}
+			}
+			message.target.messageManager.sendAsyncMessage('Shrunked:Resized', newPaths);
+
+			if (returnValues.rememberSite && (uri.schemeIs('http') || uri.schemeIs('https'))) {
+				Shrunked.contentPrefs2.set(uri.host, 'extensions.shrunked.maxWidth', returnValues.maxWidth, context);
+				Shrunked.contentPrefs2.set(uri.host, 'extensions.shrunked.maxHeight', returnValues.maxHeight, context);
+			}
+		});
+	},
+	showNotificationBar: function ShrunkedBrowser_showNotificationBar(question, buttons, callbackObject) {
+		return new Promise(function(resolve, reject) {
+			callbackObject.resolve = resolve;
+
+			let notifyBox = gBrowser.getNotificationBox();
 			notifyBox.removeAllNotifications(true);
-			let notification = notifyBox.appendNotification(
+			notifyBox.appendNotification(
 				question, 'shrunked-notification', null, notifyBox.PRIORITY_INFO_HIGH, buttons
 			);
-
-			inputTag.ownerDocument.addEventListener('unload', function() {
-				notifyBox.removeNotification(notification);
-			});
-		}).bind(this));
-	},
-	showOptionsDialog: function ShrunkedBrowser_showOptionsDialog(notification, buttonObject) {
-		let {inputTag, form, context, uri} = buttonObject;
-		let returnValues = { cancelDialog: true, inputTag: inputTag };
-
-		window.openDialog('chrome://shrunked/content/options.xul', 'options',
-			'chrome,centerscreen,modal', returnValues, ShrunkedBrowser.imageURLs);
-
-		if (returnValues.cancelDialog) {
-			return;
-		}
-
-		if (form) {
-			form.setAttribute('shrunkedmaxwidth', returnValues.maxWidth);
-			form.setAttribute('shrunkedmaxheight', returnValues.maxHeight);
-
-			for (let input of form.querySelectorAll('input[type="file"]')) {
-				ShrunkedBrowser.resize(input, returnValues.maxWidth, returnValues.maxHeight, Shrunked.prefs.getIntPref('default.quality'));
-			}
-		} else {
-			ShrunkedBrowser.resize(inputTag, returnValues.maxWidth, returnValues.maxHeight, Shrunked.prefs.getIntPref('default.quality'));
-		}
-
-		if (returnValues.rememberSite && (uri.schemeIs('http') || uri.schemeIs('https'))) {
-			Shrunked.contentPrefs2.set(uri.host, 'extensions.shrunked.maxWidth', returnValues.maxWidth, context);
-			Shrunked.contentPrefs2.set(uri.host, 'extensions.shrunked.maxHeight', returnValues.maxHeight, context);
-		}
-	},
-	disableForSite: function ShrunkedBrowser_disableForSite(notification, buttonObject) {
-		let {context, uri} = buttonObject;
-		Shrunked.contentPrefs2.set(uri.host, 'extensions.shrunked.disabled', true, context);
-	},
-	getURLsFromInputTag: function ShrunkedBrowser_getURLsFromInputTag(inputTag) {
-		let paths = inputTag.mozGetFileNameArray();
-		let URLs = [];
-
-		for (let path of paths) {
-			if (/\.jpe?g$/i.test(path) && Shrunked.fileLargerThanThreshold(path)) {
-				let sourceFile = new FileUtils.File(path);
-				let sourceURL = Services.io.newFileURI(sourceFile);
-				URLs.push(sourceURL.spec);
-			}
-		}
-		return URLs;
-	},
-	resize: function ShrunkedBrowser_resize(inputTag, maxWidth, maxHeight, quality) {
-		let paths = inputTag.mozGetFileNameArray();
-		let newPaths = [];
-
-		inputTag.originalValue = paths;
-		inputTag.addEventListener('click', ShrunkedBrowser.resetInputTag, true);
-
-		for (let path of paths) {
-			if (/\.jpe?g$/i.test(path) && Shrunked.fileLargerThanThreshold(path)) {
-				Shrunked.resize(new FileUtils.File(path), maxWidth, maxHeight, quality).then(function(destFile) {
-					newPaths.push(destFile);
-					if (newPaths.length == paths.length) {
-						inputTag.mozSetFileNameArray(newPaths, newPaths.length);
-					}
-				}, Components.utils.reportError);
-			} else {
-				newPaths.push(path);
-			}
-		}
-	},
-	resetInputTag: function ShrunkedBrowser_resetInputTag(event) {
-		let inputTag = event.target;
-		let paths = inputTag.originalValue;
-		inputTag.mozSetFileNameArray(paths, paths.length);
-		inputTag.originalValue = null;
+		});
 	}
 };
 
@@ -183,4 +99,4 @@ XPCOMUtils.defineLazyModuleGetter(window, 'Services', 'resource://gre/modules/Se
 XPCOMUtils.defineLazyModuleGetter(window, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Task', 'resource://gre/modules/Task.jsm');
 
-window.addEventListener('load', ShrunkedBrowser.init.bind(ShrunkedBrowser));
+window.addEventListener('load', ShrunkedBrowser.init);
