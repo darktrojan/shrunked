@@ -40,10 +40,7 @@ function load() {
 		}
 	}
 
-	if (returnValues.inputTag) {
-		let uri = returnValues.inputTag.ownerDocument.documentURIObject;
-		cb_remembersite.disabled = windowIsPrivate || !(uri.schemeIs('http') || uri.schemeIs('https'));
-	} else {
+	if (!returnValues.canRemember) {
 		cb_remembersite.collapsed = true;
 	}
 

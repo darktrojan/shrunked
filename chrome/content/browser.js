@@ -2,6 +2,7 @@ let ShrunkedBrowser = {
 	init: function ShrunkedBrowser_init() {
 		messageManager.addMessageListener('Shrunked:PromptAndResize', {
 			receiveMessage: function(message) {
+				console.log(message);
 				ShrunkedBrowser.doPromptAndResize(message);
 			}
 		});
@@ -15,69 +16,91 @@ let ShrunkedBrowser = {
 	},
 	doPromptAndResize: function ShrunkedBrowser_doPromptAndResize(message) {
 		Task.spawn(function*() {
-			let uri = message.target.currentURI;
-
-			let callbackObject = {};
-			let buttons = [];
-			buttons.push({
-				accessKey: Shrunked.strings.GetStringFromName('yes_accesskey'),
-				callback: function() { callbackObject.resolve('yes'); },
-				label: Shrunked.strings.GetStringFromName('yes_label'),
-			});
-			if (!PrivateBrowsingUtils.isWindowPrivate(window) &&
-					(uri.schemeIs('http') || uri.schemeIs('https'))) {
-				buttons.push({
-					accessKey: Shrunked.strings.GetStringFromName('never_accesskey'),
-					callback: function() { callbackObject.resolve('never'); },
-					label: Shrunked.strings.GetStringFromName('never_label'),
-				});
-			}
-			buttons.push({
-				accessKey: Shrunked.strings.GetStringFromName('no_accesskey'),
-				callback: function() { callbackObject.resolve('no'); },
-				label: Shrunked.strings.GetStringFromName('no_label'),
-			});
-
-			let questions = Shrunked.strings.GetStringFromName('questions');
-			let question = Shrunked.getPluralForm(message.data.length, questions);
-
-			let action = yield ShrunkedBrowser.showNotificationBar(question, buttons, callbackObject);
-			if (action == 'no') {
-				return;
-			}
-			let context = PrivateBrowsingUtils.privacyContextFromWindow(window);
-			if (action == 'never') {
-				Shrunked.contentPrefs2.set(uri.host, 'extensions.shrunked.disabled', true, context);
-				return;
-			}
-
-			let returnValues = { cancelDialog: true };
-			let imageURLs = [];
-			for (let file of message.data) {
-				let sourceFile = new FileUtils.File(file);
-				let sourceURL = Services.io.newFileURI(sourceFile);
-				imageURLs.push(sourceURL.spec);
-			}
-
-			window.openDialog('chrome://shrunked/content/options.xul', 'options', 'chrome,centerscreen,modal', returnValues, imageURLs);
-			if (returnValues.cancelDialog) {
-				return;
-			}
-
+			let files = message.data.files;
+			let maxWidth, maxHeight;
 			let quality = Shrunked.prefs.getIntPref('default.quality');
+
+			let uri = message.target.currentURI;
+			let context = PrivateBrowsingUtils.privacyContextFromWindow(window);
+			let isHTTP = uri.schemeIs('http') || uri.schemeIs('https');
+			let isPrivate = PrivateBrowsingUtils.isWindowPrivate(window);
+			if (isHTTP) {
+				if (yield Shrunked.getContentPref(uri, 'extensions.shrunked.disabled', context)) {
+					return;
+				}
+				maxWidth = yield Shrunked.getContentPref(uri, 'extensions.shrunked.maxWidth', context);
+				maxHeight = yield Shrunked.getContentPref(uri, 'extensions.shrunked.maxHeight', context);
+			}
+
+			if (!maxWidth || !maxHeight) {
+				let callbackObject = {};
+				let buttons = [];
+				buttons.push({
+					accessKey: Shrunked.strings.GetStringFromName('yes_accesskey'),
+					callback: function() { callbackObject.resolve('yes'); },
+					label: Shrunked.strings.GetStringFromName('yes_label'),
+				});
+				if (isHTTP && !isPrivate) {
+					buttons.push({
+						accessKey: Shrunked.strings.GetStringFromName('never_accesskey'),
+						callback: function() { callbackObject.resolve('never'); },
+						label: Shrunked.strings.GetStringFromName('never_label'),
+					});
+				}
+				buttons.push({
+					accessKey: Shrunked.strings.GetStringFromName('no_accesskey'),
+					callback: function() { callbackObject.resolve('no'); },
+					label: Shrunked.strings.GetStringFromName('no_label'),
+				});
+
+				let questions = Shrunked.strings.GetStringFromName('questions');
+				let question = Shrunked.getPluralForm(files.length, questions);
+
+				let action = yield ShrunkedBrowser.showNotificationBar(question, buttons, callbackObject);
+				if (action == 'no') {
+					return;
+				}
+				if (action == 'never') {
+					Shrunked.contentPrefs2.set(uri.host, 'extensions.shrunked.disabled', true, context);
+					return;
+				}
+
+				let returnValues = {
+					cancelDialog: true,
+					canRemember: isHTTP && !isPrivate
+				};
+				let imageURLs = [];
+				for (let file of files) {
+					let sourceFile = new FileUtils.File(file);
+					let sourceURL = Services.io.newFileURI(sourceFile);
+					imageURLs.push(sourceURL.spec);
+				}
+
+				window.openDialog('chrome://shrunked/content/options.xul', 'options', 'chrome,centerscreen,modal', returnValues, imageURLs);
+				if (returnValues.cancelDialog) {
+					return;
+				}
+
+				maxWidth = returnValues.maxWidth;
+				maxHeight = returnValues.maxHeight;
+
+				if (returnValues.rememberSite) {
+					Shrunked.contentPrefs2.set(uri.host, 'extensions.shrunked.maxWidth', maxWidth, context);
+					Shrunked.contentPrefs2.set(uri.host, 'extensions.shrunked.maxHeight', maxHeight, context);
+				}
+			}
+
 			let newPaths = new Map();
-			for (let file of message.data) {
+			for (let file of files) {
 				if (/\.jpe?g$/i.test(file) && Shrunked.fileLargerThanThreshold(file)) {
-					let destFile = yield Shrunked.resize(new FileUtils.File(file), returnValues.maxWidth, returnValues.maxHeight, quality);
+					let destFile = yield Shrunked.resize(new FileUtils.File(file), maxWidth, maxHeight, quality);
 					newPaths.set(file, destFile);
 				}
 			}
-			message.target.messageManager.sendAsyncMessage('Shrunked:Resized', newPaths);
-
-			if (returnValues.rememberSite && (uri.schemeIs('http') || uri.schemeIs('https'))) {
-				Shrunked.contentPrefs2.set(uri.host, 'extensions.shrunked.maxWidth', returnValues.maxWidth, context);
-				Shrunked.contentPrefs2.set(uri.host, 'extensions.shrunked.maxHeight', returnValues.maxHeight, context);
-			}
+			message.target.messageManager.sendAsyncMessage('Shrunked:Resized', {
+				index: message.data.index,
+				replacements: newPaths
+			});
 		});
 	},
 	showNotificationBar: function ShrunkedBrowser_showNotificationBar(question, buttons, callbackObject) {
