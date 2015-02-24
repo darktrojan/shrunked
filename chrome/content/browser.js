@@ -1,11 +1,9 @@
+/* global Shrunked, messageManager, PrivateBrowsingUtils */
+
 let ShrunkedBrowser = {
 	init: function ShrunkedBrowser_init() {
-		messageManager.addMessageListener('Shrunked:PromptAndResize', {
-			receiveMessage: function(message) {
-				console.log(message);
-				ShrunkedBrowser.doPromptAndResize(message);
-			}
-		});
+		messageManager.addMessageListener('Shrunked:Resize', ShrunkedBrowser);
+		messageManager.addMessageListener('Shrunked:PromptAndResize', ShrunkedBrowser);
 		messageManager.loadFrameScript('chrome://shrunked/content/browser-content.js', true);
 
 		setTimeout(function() {
@@ -14,11 +12,26 @@ let ShrunkedBrowser = {
 			});
 		}, 1000);
 	},
-	doPromptAndResize: function ShrunkedBrowser_doPromptAndResize(message) {
+	receiveMessage: function ShrunkedBrowser_receiveMessage(message) {
+		console.log(message);
 		Task.spawn(function*() {
+			let { files, maxWidth, maxHeight } = message.data;
+			if (!maxWidth || !maxHeight) {
+				[ maxWidth, maxHeight ] = yield ShrunkedBrowser.promptForSize(message);
+			}
+			let newPaths = yield ShrunkedBrowser.resize(files, maxWidth, maxHeight);
+			message.target.messageManager.sendAsyncMessage('Shrunked:Resized', {
+				index: message.data.index,
+				replacements: newPaths,
+				maxWidth: maxWidth,
+				maxHeight: maxHeight
+			});
+		});
+	},
+	promptForSize: function ShrunkedBrowser_promptForSize(message) {
+		return Task.spawn(function*() {
 			let files = message.data.files;
 			let maxWidth, maxHeight;
-			let quality = Shrunked.prefs.getIntPref('default.quality');
 
 			let uri = message.target.currentURI;
 			let context = PrivateBrowsingUtils.privacyContextFromWindow(window);
@@ -90,6 +103,15 @@ let ShrunkedBrowser = {
 				}
 			}
 
+			return [ maxWidth, maxHeight ];
+		});
+	},
+	resize: function ShrunkedBrowser_resize(files, maxWidth, maxHeight, quality) {
+		if (!quality) {
+			quality = Shrunked.prefs.getIntPref('default.quality');
+		}
+
+		return Task.spawn(function*() {
 			let newPaths = new Map();
 			for (let file of files) {
 				if (/\.jpe?g$/i.test(file) && Shrunked.fileLargerThanThreshold(file)) {
@@ -97,14 +119,11 @@ let ShrunkedBrowser = {
 					newPaths.set(file, destFile);
 				}
 			}
-			message.target.messageManager.sendAsyncMessage('Shrunked:Resized', {
-				index: message.data.index,
-				replacements: newPaths
-			});
+			return newPaths;
 		});
 	},
 	showNotificationBar: function ShrunkedBrowser_showNotificationBar(question, buttons, callbackObject) {
-		return new Promise(function(resolve, reject) {
+		return new Promise(function(resolve) {
 			callbackObject.resolve = resolve;
 
 			let notifyBox = gBrowser.getNotificationBox();

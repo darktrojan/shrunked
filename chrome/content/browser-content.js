@@ -6,6 +6,23 @@ addEventListener('change', function(event) {
 		return;
 	}
 
+	let form = event.target.form;
+	if (form) {
+		let maxWidth = form.dataset.shrunkedmaxwidth;
+		let maxHeight = form.dataset.shrunkedmaxheight;
+		if (maxWidth && maxHeight) {
+			inputMap.set(index, event.target);
+			sendAsyncMessage('Shrunked:Resize', {
+				index: index,
+				files: event.target.mozGetFileNameArray(),
+				maxWidth: parseInt(maxWidth),
+				maxHeight: parseInt(maxHeight)
+			});
+			index++;
+			return;
+		}
+	}
+
 	inputMap.set(index, event.target);
 	sendAsyncMessage('Shrunked:PromptAndResize', {
 		index: index,
@@ -30,6 +47,12 @@ addMessageListener('Shrunked:Resized', function(message) {
 		inputTag.removeEventListener('click', resetInputTag, true);
 		inputTag.mozSetFileNameArray(files);
 	}, true);
+
+	let form = inputTag.form;
+	if (form) {
+		form.dataset.shrunkedmaxwidth = message.data.maxWidth;
+		form.dataset.shrunkedmaxheight = message.data.maxHeight;
+	}
 
 	let newFiles = files.slice();
 	for (let i = 0; i < files.length; i++) {
