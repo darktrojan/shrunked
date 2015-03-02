@@ -8,29 +8,25 @@ addEventListener('change', function(event) {
 		return;
 	}
 
+	let data = {
+		index: index,
+		files: event.target.mozGetFileNameArray(),
+
+	};
+
 	let form = event.target.form;
 	if (form) {
 		let maxWidth = form.dataset.shrunkedmaxwidth;
 		let maxHeight = form.dataset.shrunkedmaxheight;
 		if (maxWidth && maxHeight) {
-			inputMap.set(index, event.target);
-			sendAsyncMessage('Shrunked:Resize', {
-				index: index,
-				files: event.target.mozGetFileNameArray(),
-				maxWidth: parseInt(maxWidth),
-				maxHeight: parseInt(maxHeight)
-			});
-			index++;
-			return;
+			data.maxWidth = parseInt(maxWidth);
+			data.maxHeight = parseInt(maxHeight);
 		}
 	}
 
 	inputMap.set(index, event.target);
-	sendAsyncMessage('Shrunked:PromptAndResize', {
-		index: index,
-		files: event.target.mozGetFileNameArray()
-	});
 	index++;
+	sendAsyncMessage('Shrunked:PromptAndResize', data);
 }, true);
 
 addMessageListener('Shrunked:Cancelled', function(message) {
