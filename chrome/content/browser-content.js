@@ -1,3 +1,5 @@
+Components.utils.import("resource://shrunked/Shrunked.jsm");
+
 let index = 1;
 let inputMap = new Map();
 
@@ -31,12 +33,20 @@ addEventListener('change', function(event) {
 	index++;
 }, true);
 
+addMessageListener('Shrunked:Cancelled', function(message) {
+	Shrunked.log(message.name + ': ' + JSON.stringify(message.json));
+
+	inputMap.delete(message.data.index);
+});
+
 addMessageListener('Shrunked:Resized', function(message) {
-	console.log(message);
+	Shrunked.log(message.name + ': ' + JSON.stringify(message.json));
 
 	let replacements = message.data.replacements;
-	for (let [k, v] of replacements.entries()) {
-		console.log(k, v);
+	if (Shrunked.logEnabled) {
+		for (let [original, replacement] of replacements.entries()) {
+			Shrunked.log(original + ' resized to ' + replacement);
+		}
 	}
 
 	let inputTag = inputMap.get(message.data.index);

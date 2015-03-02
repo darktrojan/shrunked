@@ -13,11 +13,18 @@ let ShrunkedBrowser = {
 		}, 1000);
 	},
 	receiveMessage: function ShrunkedBrowser_receiveMessage(message) {
-		console.log(message);
+		Shrunked.log(message.name + ': ' + JSON.stringify(message.json));
 		Task.spawn(function*() {
 			let { files, maxWidth, maxHeight } = message.data;
 			if (!maxWidth || !maxHeight) {
-				[ maxWidth, maxHeight ] = yield ShrunkedBrowser.promptForSize(message);
+				let size = yield ShrunkedBrowser.promptForSize(message);
+				if (!size) {
+					message.target.messageManager.sendAsyncMessage('Shrunked:Cancelled', {
+						index: message.data.index
+					});
+					return;
+				}
+				[ maxWidth, maxHeight ] = size;
 			}
 			let newPaths = yield ShrunkedBrowser.resize(files, maxWidth, maxHeight);
 			message.target.messageManager.sendAsyncMessage('Shrunked:Resized', {
