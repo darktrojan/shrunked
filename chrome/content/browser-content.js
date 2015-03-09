@@ -27,6 +27,11 @@ addEventListener('change', function(event) {
 	inputMap.set(index, event.target);
 	index++;
 	sendAsyncMessage('Shrunked:PromptAndResize', data);
+
+	let targetWindow = event.target.ownerDocument.defaultView;
+	targetWindow.addEventListener('unload', function() {
+		inputMap.delete(data.index);
+	});
 }, true);
 
 addMessageListener('Shrunked:Cancelled', function(message) {
