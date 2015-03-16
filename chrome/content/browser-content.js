@@ -1,4 +1,5 @@
-Components.utils.import("resource://shrunked/Shrunked.jsm");
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
 
 let index = 1;
 let inputMap = new Map();
@@ -8,10 +9,22 @@ addEventListener('change', function(event) {
 		return;
 	}
 
+	let files = event.target.mozGetFileNameArray();
+	let filesToResize = [];
+	for (var i = 0; i < files.length; i++) {
+		let domFile = event.target.files[i];
+		if (domFile.type == 'image/jpeg' && domFile.size >= Shrunked.fileSizeMinimum) {
+			filesToResize.push(files[i]);
+		}
+	}
+
+	if (filesToResize.length == 0) {
+		return;
+	}
+
 	let data = {
 		index: index,
-		files: event.target.mozGetFileNameArray(),
-
+		files: filesToResize
 	};
 
 	let form = event.target.form;

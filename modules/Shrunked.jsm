@@ -16,11 +16,12 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ShrunkedImage', 'resource://shrunked/Sh
 let temporaryFiles = [];
 
 let Shrunked = {
+	get fileSizeMinimum() {
+		return Shrunked.prefs.getIntPref('fileSizeMinimum') * 1024;
+	},
 	fileLargerThanThreshold: function Shrunked_fileLargerThanThreshold(path) {
-		let minimum = Shrunked.prefs.getIntPref('fileSizeMinimum') * 1024;
-
 		let file = new FileUtils.File(path);
-		return file.fileSize >= minimum;
+		return file.fileSize >= this.fileSizeMinimum;
 	},
 	imageIsJPEG: function Shrunked_imageIsJPEG(image) {
 		let request = image.getRequest(Components.interfaces.nsIImageLoadingContent.CURRENT_REQUEST);
