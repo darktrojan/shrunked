@@ -34,6 +34,8 @@ let ShrunkedBrowser = {
 				maxWidth: maxWidth,
 				maxHeight: maxHeight
 			});
+		}).catch(function(error) {
+			Components.utils.reportError(error);
 		});
 	},
 	promptForSize: function ShrunkedBrowser_promptForSize(message) {

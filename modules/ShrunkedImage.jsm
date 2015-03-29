@@ -43,41 +43,30 @@ function ShrunkedImage(source, maxWidth, maxHeight, quality) {
 }
 ShrunkedImage.prototype = {
 	resize: function ShrunkedImage_resize() {
-		let deferred = Promise.defer();
-
-		Task.spawn((function() {
-			try {
-				let orientation = 0;
-				if (Shrunked.options.exif) {
-					yield this.readExifData();
-					if (Shrunked.options.orientation && this.exifData) {
-						orientation = this.exifData.orientation;
-					}
+		return Task.spawn((function*() {
+			let orientation = 0;
+			if (Shrunked.options.exif) {
+				yield this.readExifData();
+				if (Shrunked.options.orientation && this.exifData) {
+					orientation = this.exifData.orientation;
 				}
-				let image = yield this.loadImage();
-				let canvas = yield this.drawOnCanvas(image, orientation);
-
-				if (this.exifData && this.exifData.exif2['a002']) {
-					this.exifData.exif2['a002'].value = canvas.width;
-					this.exifData.exif2['a003'].value = canvas.height;
-				}
-
-				let bytes = yield this.getBytes(canvas);
-				let newPath = yield this.save(bytes);
-
-				deferred.resolve(newPath);
-			} catch (ex) {
-				Components.utils.reportError(ex);
-				deferred.reject(ex);
 			}
-		}).bind(this));
+			let image = yield this.loadImage();
+			let canvas = yield this.drawOnCanvas(image, orientation);
 
-		return deferred.promise;
+			if (this.exifData && this.exifData.exif2['a002']) {
+				this.exifData.exif2['a002'].value = canvas.width;
+				this.exifData.exif2['a003'].value = canvas.height;
+			}
+
+			let bytes = yield this.getBytes(canvas);
+			let newPath = yield this.save(bytes);
+
+			return newPath;
+		}).bind(this));
 	},
 	readExifData: function ShrunkedImage_readExifData() {
-		let deferred = Promise.defer();
-
-		Task.spawn((function() {
+		return Task.spawn((function*() {
 			try {
 				let readable;
 				if (this.sourceURI.schemeIs('file')) {
@@ -89,13 +78,10 @@ ShrunkedImage.prototype = {
 				this.exifData = new ExifData();
 				yield this.exifData.read(readable);
 			} catch (ex) {
-				Components.utils.reportError(ex);
+				Shrunked.warn(ex);
 				delete this.exifData;
 			}
-			deferred.resolve();
 		}).bind(this));
-
-		return deferred.promise;
 	},
 	loadImage: function ShrunkedImage_load() {
 		let deferred = Promise.defer();
@@ -197,7 +183,7 @@ ShrunkedImage.prototype = {
 		}
 
 		let deferred = Promise.defer();
-		Task.spawn((function() {
+		Task.spawn((function*() {
 			let output = yield OS.File.openUnique(destFile);
 			let { path: outputPath, file: outputFile } = output;
 			try {
@@ -214,7 +200,9 @@ ShrunkedImage.prototype = {
 			} finally {
 				outputFile.close();
 			}
-		}).bind(this));
+		}).bind(this)).catch(function(error) {
+			Components.utils.reportError(error);
+		});
 		return deferred.promise;
 	}
 };

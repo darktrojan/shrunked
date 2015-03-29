@@ -36,6 +36,8 @@ let Shrunked = {
 		image.resize().then(function(destFile) {
 			temporaryFiles.push(destFile);
 			deferred.resolve(destFile);
+		}, function(error) {
+			deferred.reject(error);
 		});
 		return deferred.promise;
 	},
@@ -136,6 +138,19 @@ let Shrunked = {
 		if (this.logEnabled) {
 			let caller = Components.stack.caller;
 			Services.console.logStringMessage('Shrunked: ' + message + '\n' + caller.filename + ', line ' + caller.lineNumber);
+		}
+	},
+	warn: function Shrunked_log(message) {
+		if (this.logEnabled) {
+			let caller = Components.stack.caller;
+			let filename = caller.filename ? caller.filename.split(' -> ').pop() : null;
+			let scriptError = Components.classes['@mozilla.org/scripterror;1']
+				.createInstance(Components.interfaces.nsIScriptError);
+			scriptError.init(
+				message, filename, null, caller.lineNumber, caller.columnNumber,
+				Components.interfaces.nsIScriptError.warningFlag, 'component javascript'
+			);
+			Services.console.logMessage(scriptError);
 		}
 	},
 	options: {

@@ -30,7 +30,7 @@ ExifData.prototype = {
 	_readSection: function ExifData__readSection() {
 		let fieldLengths = [null, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8];
 		let deferred = Promise.defer();
-		Task.spawn((function() {
+		Task.spawn((function*() {
 			try {
 				let section = {};
 				let array = yield this.readable.read(2);
@@ -60,7 +60,7 @@ ExifData.prototype = {
 	},
 	read: function ExifData_read(readable) {
 		let deferred = Promise.defer();
-		Task.spawn((function() {
+		Task.spawn((function*() {
 			try {
 				this.readable = readable;
 				let array = yield this.readable.read(4);
@@ -182,7 +182,7 @@ ExifData.prototype = {
 	},
 	write: function ExifData_write(file) {
 		let deferred = Promise.defer();
-		Task.spawn((function() {
+		Task.spawn((function*() {
 			try {
 				let [e1count, e1size] = this._countSection(this.exif1);
 				let [e2count, e2size] = this._countSection(this.exif2);

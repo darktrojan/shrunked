@@ -35,7 +35,7 @@ function load() {
 	if (IS_THUNDERBIRD) {
 		t_sites.hidden = true;
 	} else {
-		Task.spawn(function() {
+		Task.spawn(function*() {
 			let data = new Map();
 			for (let name of ['disabled', 'maxWidth', 'maxHeight']) {
 				let prefs = yield Shrunked.getAllContentPrefs('extensions.shrunked.' + name);
@@ -47,6 +47,8 @@ function load() {
 			}
 
 			handleData(data);
+		}).catch(function(error) {
+			Components.utils.reportError(error);
 		});
 	}
 

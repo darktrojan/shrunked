@@ -183,7 +183,7 @@ let ShrunkedCompose = {
 			return;
 		}
 
-		Task.spawn((function() {
+		Task.spawn((function*() {
 			let {maxWidth, maxHeight} = returnValues;
 			let quality = Shrunked.prefs.getIntPref('default.quality');
 			let count = 0;
@@ -201,7 +201,9 @@ let ShrunkedCompose = {
 				}
 			}
 			this.clearStatus();
-		}).bind(this));
+		}).bind(this)).catch(function(error) {
+			Components.utils.reportError(error);
+		});
 	},
 	newGenericSendMessage: function ShrunkedCompose_newGenericSendMessage(msgType) {
 		let doResize = msgType == nsIMsgCompDeliverMode.Now || msgType == nsIMsgCompDeliverMode.Later;
@@ -230,7 +232,7 @@ let ShrunkedCompose = {
 						return;
 					}
 					if (returnValues.maxWidth > 0) {
-						Task.spawn((function() {
+						Task.spawn((function*() {
 							let {maxWidth, maxHeight} = returnValues;
 							let quality = Shrunked.prefs.getIntPref('default.quality');
 							let count = 0;
@@ -248,7 +250,9 @@ let ShrunkedCompose = {
 							}
 							this.clearStatus();
 							finish();
-						}).bind(this));
+						}).bind(this)).catch(function(error) {
+							Components.utils.reportError(error);
+						});
 						return;
 					}
 				}
