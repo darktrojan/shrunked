@@ -26,10 +26,11 @@ let ShrunkedBrowser = {
 				}
 				[ maxWidth, maxHeight ] = size;
 			}
-			let newPaths = yield ShrunkedBrowser.resize(files, maxWidth, maxHeight);
+			let [ newPaths, newFiles ] = yield ShrunkedBrowser.resize(files, maxWidth, maxHeight);
 			message.target.messageManager.sendAsyncMessage('Shrunked:Resized', {
 				index: message.data.index,
-				replacements: newPaths,
+				replacementPaths: newPaths,
+				replacementFiles: newFiles,
 				maxWidth: maxWidth,
 				maxHeight: maxHeight
 			});
@@ -120,13 +121,15 @@ let ShrunkedBrowser = {
 
 		return Task.spawn(function*() {
 			let newPaths = new Map();
+			let newFiles = new Map();
 			for (let file of files) {
 				if (/\.jpe?g$/i.test(file) && Shrunked.fileLargerThanThreshold(file)) {
 					let destFile = yield Shrunked.resize(new FileUtils.File(file), maxWidth, maxHeight, quality);
-					newPaths.set(file, new File(destFile, { type: 'image/jpeg' }));
+					newPaths.set(file, destFile);
+					newFiles.set(file, new File(destFile, { type: 'image/jpeg' }));
 				}
 			}
-			return newPaths;
+			return [ newPaths, newFiles ];
 		});
 	},
 	showNotificationBar: function ShrunkedBrowser_showNotificationBar(question, buttons, callbackObject) {

@@ -56,9 +56,8 @@ addMessageListener('Shrunked:Cancelled', function(message) {
 addMessageListener('Shrunked:Resized', function(message) {
 	Shrunked.log(message.name + ': ' + JSON.stringify(message.json));
 
-	let replacements = message.data.replacements;
 	if (Shrunked.logEnabled) {
-		for (let [original, replacement] of replacements.entries()) {
+		for (let [original, replacement] of message.data.replacementPaths.entries()) {
 			Shrunked.log(original + ' resized to ' + replacement);
 		}
 	}
@@ -66,25 +65,45 @@ addMessageListener('Shrunked:Resized', function(message) {
 	let inputTag = inputMap.get(message.data.index);
 	inputMap.delete(message.data.index);
 
-	let files = inputTag.files;
-	inputTag.addEventListener('click', function resetInputTag() {
-		inputTag.removeEventListener('click', resetInputTag, true);
-		inputTag.mozSetFileArray(files);
-	}, true);
-
 	let form = inputTag.form;
 	if (form) {
 		form.dataset.shrunkedmaxwidth = message.data.maxWidth;
 		form.dataset.shrunkedmaxheight = message.data.maxHeight;
 	}
 
-	let newFiles = [];
-	for (let i = 0; i < files.length; i++) {
-		if (replacements.has(files[i].mozFullPath)) {
-			newFiles[i] = Components.utils.cloneInto(replacements.get(files[i].mozFullPath), content);
-		} else {
-			newFiles[i] = files[i];
+	if ('mozSetFileArray' in inputTag) {
+		let files = inputTag.files;
+		inputTag.addEventListener('click', function resetInputTag() {
+			inputTag.removeEventListener('click', resetInputTag, true);
+			inputTag.mozSetFileArray(files);
+		}, true);
+
+		let newFiles = [];
+		let replacements = message.data.replacementFiles;
+		for (let i = 0; i < files.length; i++) {
+			if (replacements.has(files[i].mozFullPath)) {
+				newFiles[i] = Components.utils.cloneInto(replacements.get(files[i].mozFullPath), content);
+			} else {
+				newFiles[i] = files[i];
+			}
 		}
+		inputTag.mozSetFileArray(newFiles);
+	} else {
+		let paths = inputTag.mozGetFileNameArray();
+		inputTag.addEventListener('click', function resetInputTag() {
+			inputTag.removeEventListener('click', resetInputTag, true);
+			inputTag.mozSetFileNameArray(paths);
+		}, true);
+
+		let newPaths = paths.slice();
+		let replacements = message.data.replacementPaths;
+		for (let i = 0; i < paths.length; i++) {
+			if (replacements.has(paths[i])) {
+				newPaths[i] = replacements.get(paths[i]);
+			} else {
+				newPaths[i] = paths[i];
+			}
+		}
+		inputTag.mozSetFileNameArray(newPaths);
 	}
-	inputTag.mozSetFileArray(newFiles);
 });

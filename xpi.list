@@ -3,6 +3,7 @@ chrome/content
 chrome/content/arrow.svg
 chrome/content/bindings.xml
 chrome/content/browser.js
+chrome/content/browser-content.js
 chrome/content/browser.xul
 chrome/content/compose.js
 chrome/content/compose.xul
