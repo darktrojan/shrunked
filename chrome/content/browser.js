@@ -123,7 +123,7 @@ let ShrunkedBrowser = {
 			for (let file of files) {
 				if (/\.jpe?g$/i.test(file) && Shrunked.fileLargerThanThreshold(file)) {
 					let destFile = yield Shrunked.resize(new FileUtils.File(file), maxWidth, maxHeight, quality);
-					newPaths.set(file, destFile);
+					newPaths.set(file, new File(destFile, { type: 'image/jpeg' }));
 				}
 			}
 			return newPaths;

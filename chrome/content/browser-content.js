@@ -66,10 +66,10 @@ addMessageListener('Shrunked:Resized', function(message) {
 	let inputTag = inputMap.get(message.data.index);
 	inputMap.delete(message.data.index);
 
-	let files = inputTag.mozGetFileNameArray();
+	let files = inputTag.files;
 	inputTag.addEventListener('click', function resetInputTag() {
 		inputTag.removeEventListener('click', resetInputTag, true);
-		inputTag.mozSetFileNameArray(files);
+		inputTag.mozSetFileArray(files);
 	}, true);
 
 	let form = inputTag.form;
@@ -78,11 +78,13 @@ addMessageListener('Shrunked:Resized', function(message) {
 		form.dataset.shrunkedmaxheight = message.data.maxHeight;
 	}
 
-	let newFiles = files.slice();
+	let newFiles = [];
 	for (let i = 0; i < files.length; i++) {
-		if (replacements.has(files[i])) {
-			newFiles[i] = replacements.get(files[i]);
+		if (replacements.has(files[i].mozFullPath)) {
+			newFiles[i] = Components.utils.cloneInto(replacements.get(files[i].mozFullPath), content);
+		} else {
+			newFiles[i] = files[i];
 		}
 	}
-	inputTag.mozSetFileNameArray(newFiles);
+	inputTag.mozSetFileArray(newFiles);
 });
