@@ -1,6 +1,7 @@
 let EXPORTED_SYMBOLS = ['Shrunked'];
 
 const ID = 'shrunked@darktrojan.net';
+const DONATE_URL = 'https://addons.mozilla.org/addon/shrunked-image-resizer/contribute/installed/';
 
 Components.utils.import('resource://gre/modules/AsyncShutdown.jsm');
 Components.utils.import('resource://gre/modules/Services.jsm');
@@ -12,6 +13,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'OS', 'resource://gre/modules/osfile.jsm
 XPCOMUtils.defineLazyModuleGetter(this, 'PluralForm', 'resource://gre/modules/PluralForm.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'Promise', 'resource://gre/modules/Promise.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'ShrunkedImage', 'resource://shrunked/ShrunkedImage.jsm');
+
+XPCOMUtils.defineLazyServiceGetter(this, 'idleService', '@mozilla.org/widget/idleservice;1', 'nsIIdleService');
 
 let temporaryFiles = [];
 
@@ -48,7 +51,7 @@ let Shrunked = {
 		}
 		return Promise.all(promises);
 	},
-	showStartupNotification: function Shrunked_showStartupNotification(notificationBox, callback) {
+	donateNotification: function donateNotification(notificationBox, callback) {
 		function parseVersion(version) {
 			let match = /^\d+(\.\d+)?/.exec(version);
 			return match ? match[0] : version;
@@ -70,18 +73,42 @@ let Shrunked = {
 				return;
 			}
 
-			let label = Shrunked.strings.formatStringFromName('donate_notification', [currentVersion], 1);
-			let value = 'shrunked-donate';
-			let buttons = [{
-				label: Shrunked.strings.GetStringFromName('donate_button_label'),
-				accessKey: Shrunked.strings.GetStringFromName('donate_button_accesskey'),
-				popup: null,
-				callback: function() {
-					callback('https://addons.mozilla.org/addon/shrunked-image-resizer/contribute/installed/');
+			idleService.addIdleObserver({
+				observe: function() {
+					idleService.removeIdleObserver(this, 10);
+
+					let callbackObject = {};
+					let label = Shrunked.strings.formatStringFromName('donate_notification', [currentVersion], 1);
+					let buttons = [{
+						label: Shrunked.strings.GetStringFromName('donate_button_label'),
+						accessKey: Shrunked.strings.GetStringFromName('donate_button_accesskey'),
+						popup: null,
+						callback: function() {
+							callbackObject.resolve();
+						}
+					}];
+
+					let recentWindow = Services.wm.getMostRecentWindow('navigator:browser');
+					let shrunkedWindow;
+
+					if (recentWindow) {
+						shrunkedWindow = recentWindow.ShrunkedBrowser;
+					} else {
+						recentWindow = Services.wm.getMostRecentWindow('mail:3pane');
+						if (recentWindow) {
+							shrunkedWindow = recentWindow.ShrunkedMessenger;
+						} else {
+							return;
+						}
+					}
+
+					shrunkedWindow.showNotificationBar(label, buttons, callbackObject).then(function() {
+						shrunkedWindow.donateCallback(DONATE_URL);
+					});
+
+					Shrunked.prefs.setIntPref('donationreminder', Date.now() / 1000);
 				}
-			}];
-			Shrunked.prefs.setIntPref('donationreminder', Date.now() / 1000);
-			notificationBox.appendNotification(label, value, null, notificationBox.PRIORITY_INFO_LOW, buttons);
+			}, 10);
 		});
 	},
 	getContentPref: function Shrunked_getContentPref(uri, name, context) {
@@ -208,6 +235,8 @@ let observer = {
 		}
 	}
 };
+
+Shrunked.donateNotification();
 
 Services.obs.addObserver(observer, 'last-pb-context-exited', false);
 Services.obs.addObserver(observer, 'quit-application-granted', false);

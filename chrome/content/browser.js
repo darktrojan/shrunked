@@ -5,12 +5,6 @@ let ShrunkedBrowser = {
 		messageManager.addMessageListener('Shrunked:Resize', ShrunkedBrowser);
 		messageManager.addMessageListener('Shrunked:PromptAndResize', ShrunkedBrowser);
 		messageManager.loadFrameScript('chrome://shrunked/content/browser-content.js', true);
-
-		setTimeout(function() {
-			Shrunked.showStartupNotification(gBrowser.getNotificationBox(), function(url) {
-				gBrowser.selectedTab = gBrowser.addTab(url);
-			});
-		}, 1000);
 	},
 	receiveMessage: function ShrunkedBrowser_receiveMessage(message) {
 		Shrunked.log(message.name + ': ' + JSON.stringify(message.json));
@@ -134,23 +128,26 @@ let ShrunkedBrowser = {
 			return [ newPaths, newFiles ];
 		});
 	},
-	showNotificationBar: function ShrunkedBrowser_showNotificationBar(question, buttons, callbackObject) {
+	showNotificationBar: function ShrunkedBrowser_showNotificationBar(text, buttons, callbackObject) {
 		return new Promise(function(resolve) {
 			callbackObject.resolve = resolve;
 
 			let notifyBox = gBrowser.getNotificationBox();
 			notifyBox.removeAllNotifications(true);
 			notifyBox.appendNotification(
-				question, 'shrunked-notification', null, notifyBox.PRIORITY_INFO_HIGH, buttons
+				text, 'shrunked-notification', null, notifyBox.PRIORITY_INFO_HIGH, buttons
 			);
 		});
+	},
+	donateCallback: function(url) {
+		gBrowser.selectedTab = gBrowser.addTab(url);
 	}
 };
 
+Components.utils.import('resource://shrunked/Shrunked.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Services', 'resource://gre/modules/Services.jsm');
-XPCOMUtils.defineLazyModuleGetter(window, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Task', 'resource://gre/modules/Task.jsm');
 
 window.addEventListener('load', ShrunkedBrowser.init);
