@@ -163,8 +163,19 @@ let Shrunked = {
 	},
 	log: function Shrunked_log(message) {
 		if (this.logEnabled) {
-			let caller = Components.stack.caller;
-			Services.console.logStringMessage('Shrunked: ' + message + '\n' + caller.filename + ', line ' + caller.lineNumber);
+			if ('infoFlag' in Components.interfaces.nsIScriptError) {
+				let frame = Components.stack.caller;
+				let filename = frame.filename ? frame.filename.split(' -> ').pop() : null;
+				let scriptError = Components.classes['@mozilla.org/scripterror;1'].createInstance(Components.interfaces.nsIScriptError);
+				scriptError.init(
+					message, filename, null, frame.lineNumber, frame.columnNumber,
+					Components.interfaces.nsIScriptError.infoFlag, 'component javascript'
+				);
+				Services.console.logMessage(scriptError);
+			} else {
+				Services.console.logStringMessage(message);
+			}
+			dump(message + '\n');
 		}
 	},
 	warn: function Shrunked_log(message) {
@@ -236,7 +247,10 @@ let observer = {
 	}
 };
 
-Shrunked.donateNotification();
+if (Components.classes['@mozilla.org/xre/app-info;1'].getService(Components.interfaces.nsIXULRuntime).processType ==
+		Components.interfaces.nsIXULRuntime.PROCESS_TYPE_DEFAULT) {
+	Shrunked.donateNotification();
+}
 
 Services.obs.addObserver(observer, 'last-pb-context-exited', false);
 Services.obs.addObserver(observer, 'quit-application-granted', false);
