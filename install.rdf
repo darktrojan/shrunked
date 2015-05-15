@@ -1,4 +1,4 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
 
 	<Description about="urn:mozilla:install-manifest">
@@ -75,6 +75,13 @@
 			</Description>
 		</em:localized>
 
+		<em:localized>
+			<Description>
+				<em:locale>nl</em:locale>
+				<em:name>Shrunked Afbeeldingsverkleiner</em:name>
+				<em:description>Verkleint uw afbeeldingen zodat de tijd om ze te e-mailen of naar websites te uploaden afneemt.</em:description>
+			</Description>
+		</em:localized>
 	</Description>
 
 </RDF>

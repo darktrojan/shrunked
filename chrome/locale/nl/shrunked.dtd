@@ -1,0 +1,33 @@
+<!ENTITY shrunked-config.title "Shrunked Afbeeldingsverkleiner-instellingen">
+<!ENTITY shrunked-sites.label "Website-instellingen">
+<!ENTITY shrunked-sites.sitelist.site "Website">
+<!ENTITY shrunked-sites.sitelist.settings "Instellingen">
+<!ENTITY shrunked-sites.forget.label "Geselecteerde vergeten">
+<!ENTITY shrunked-defaults.label "Standaarden">
+<!ENTITY shrunked-defaults.quality.label "JPEG-codeerderkwaliteit:">
+<!ENTITY shrunked-defaults.quality.smaller "Kleinere bestanden">
+<!ENTITY shrunked-defaults.quality.better "Betere kwaliteit">
+<!ENTITY shrunked-options.title "Shrunked Afbeeldingsverkleiner-voorkeuren">
+<!ENTITY shrunked-options.remembersite.label "Mijn antwoord voor deze website onthouden">
+<!ENTITY shrunked-options.savedefault.label "Opslaan als standaard instellingen">
+<!ENTITY shrunked-noresize.label "Origineel">
+<!ENTITY shrunked-small.label "500px">
+<!ENTITY shrunked-medium.label "800px">
+<!ENTITY shrunked-large.label "1200px">
+<!ENTITY shrunked-custom.label "Aangepast">
+<!ENTITY shrunked-width.label "Breedte:">
+<!ENTITY shrunked-height.label "Hoogte:">
+<!ENTITY shrunked-preview.label "Voorbeeld:">
+<!ENTITY shrunked-preview.previous.tooltip "Vorige afbeelding">
+<!ENTITY shrunked-preview.next.tooltip "Volgende afbeelding">
+<!ENTITY shrunked-minsize.label "Minimale bestandsgrootte om te verkleinen:">
+<!ENTITY shrunked-minsize.kilobytes "KB">
+<!ENTITY shrunked-maxsize.label "Maximale grootte van uw afbeeldingen:">
+<!ENTITY shrunked-custom.pixels "px">
+<!ENTITY shrunked-advanced.label "Geavanceerd">
+<!ENTITY shrunked-advanced.resample.label "Afbeeldingen hersamplen d.m.v. JavaScript">
+<!ENTITY shrunked-advanced.exif.label "EXIF-data overdragen">
+<!ENTITY shrunked-advanced.orient.label "Afbeeldingen automatisch draaien">
+<!ENTITY shrunked-advanced.gps.label "GPS-data overdragen">
+<!ENTITY shrunked-advanced.logenabled.label "Berichten schrijven naar foutconsole">
+<!ENTITY shrunked-compose.context.label "Deze afbeeldingen verkleinen...">

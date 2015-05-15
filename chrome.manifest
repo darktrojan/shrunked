@@ -11,6 +11,7 @@ locale shrunked ca chrome/locale/ca/
 locale shrunked de chrome/locale/de/
 locale shrunked fr chrome/locale/fr/
 locale shrunked it chrome/locale/it/
+locale shrunked nl chrome/locale/nl/
 locale shrunked pl chrome/locale/pl/
 locale shrunked pt-BR chrome/locale/pt-BR/
 locale shrunked sv-SE chrome/locale/sv-SE/
