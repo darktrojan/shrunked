@@ -74,6 +74,13 @@
 				<em:description>Smanjite Vaše fotografije da ne zauzimaju previše mjesta i učitajte ih na web stranice</em:description>
 			</Description>
 		</em:localized>
+		<em:localized>
+			<Description>
+				<em:locale>nl</em:locale>
+				<em:name>Shrunked Afbeeldingsverkleiner</em:name>
+				<em:description>Verkleint uw afbeeldingen zodat de tijd om ze te e-mailen of naar websites te uploaden afneemt.</em:description>
+			</Description>
+		</em:localized>
 	</Description>
 
 </RDF>
