@@ -1,19 +1,19 @@
-content shrunked chrome/content/
+content shrunked content/
 overlay chrome://browser/content/browser.xul chrome://shrunked/content/browser.xul
 overlay chrome://navigator/content/navigator.xul chrome://shrunked/content/browser.xul
 overlay chrome://messenger/content/messenger.xul chrome://shrunked/content/messenger.xul
 overlay chrome://messenger/content/messengercompose/messengercompose.xul chrome://shrunked/content/compose.xul
 resource shrunked modules/
 
-locale shrunked en-US chrome/locale/en-US/
+locale shrunked en-US locale/en-US/
 
-locale shrunked ca chrome/locale/ca/
-locale shrunked de chrome/locale/de/
-locale shrunked fr chrome/locale/fr/
-locale shrunked hr chrome/locale/hr/
-locale shrunked it chrome/locale/it/
-locale shrunked pl chrome/locale/pl/
-locale shrunked pt-BR chrome/locale/pt-BR/
-locale shrunked sv-SE chrome/locale/sv-SE/
-locale shrunked tr chrome/locale/tr/
-locale shrunked zh-CN chrome/locale/zh-CN/
+locale shrunked ca locale/ca/
+locale shrunked de locale/de/
+locale shrunked fr locale/fr/
+locale shrunked hr locale/hr/
+locale shrunked it locale/it/
+locale shrunked pl locale/pl/
+locale shrunked pt-BR locale/pt-BR/
+locale shrunked sv-SE locale/sv-SE/
+locale shrunked tr locale/tr/
+locale shrunked zh-CN locale/zh-CN/
