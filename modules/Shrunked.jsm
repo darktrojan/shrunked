@@ -59,17 +59,22 @@ let Shrunked = {
 
 		let currentVersion = 0;
 		let oldVersion = 0;
+		let shouldRemind = true;
 
 		if (Shrunked.prefs.getPrefType('version') == Components.interfaces.nsIPrefBranch.PREF_STRING) {
-			oldVersion = Shrunked.prefs.getCharPref('version');
+			oldVersion = parseVersion(Shrunked.prefs.getCharPref('version'));
 		}
+		if (Shrunked.prefs.getPrefType('donationreminder') == Components.interfaces.nsIPrefBranch.PREF_INT) {
+			let lastReminder = Shrunked.prefs.getIntPref('donationreminder') * 1000;
+			shouldRemind = Date.now() - lastReminder > 604800000;
+		}
+
 		Components.utils.import('resource://gre/modules/AddonManager.jsm');
 		AddonManager.getAddonByID(ID, function(addon) {
-			currentVersion = addon.version;
-			Shrunked.prefs.setCharPref('version', currentVersion);
+			currentVersion = parseVersion(addon.version);
+			Shrunked.prefs.setCharPref('version', addon.version);
 
-			let comparator = Components.classes['@mozilla.org/xpcom/version-comparator;1'].createInstance(Components.interfaces.nsIVersionComparator);
-			if (oldVersion == 0 || comparator.compare(parseVersion(oldVersion), parseVersion(currentVersion)) >= 0) {
+			if (!shouldRemind || oldVersion == 0 || Services.vc.compare(oldVersion, currentVersion) >= 0) {
 				return;
 			}
 
