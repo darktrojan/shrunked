@@ -155,7 +155,7 @@ let ShrunkedCompose = {
 					let question = Shrunked.getPluralForm(this.inlineImages.length, questions);
 
 					let notification = notifyBox.appendNotification(
-						question, 'shrunked-notification', null, notifyBox.PRIORITY_INFO_HIGH, buttons
+						question, 'shrunked-notification', Shrunked.icon16, notifyBox.PRIORITY_INFO_HIGH, buttons
 					);
 				}, 500);
 			} catch (e) {

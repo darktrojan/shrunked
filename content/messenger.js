@@ -6,7 +6,7 @@ let ShrunkedMessenger = {
 			var notifyBox = document.getElementById('mail-notification-box');
 			notifyBox.removeAllNotifications(true);
 			notifyBox.appendNotification(
-				text, 'shrunked-notification', null, notifyBox.PRIORITY_INFO_HIGH, buttons
+				text, 'shrunked-notification', Shrunked.icon16, notifyBox.PRIORITY_INFO_HIGH, buttons
 			);
 		});
 	},

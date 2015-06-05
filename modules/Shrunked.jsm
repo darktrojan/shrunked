@@ -209,6 +209,9 @@ let Shrunked = {
 		get resample() {
 			return Shrunked.prefs.getBoolPref('options.resample');
 		}
+	},
+	get icon16() {
+		return 'chrome://shrunked/content/icon16.png';
 	}
 };
 XPCOMUtils.defineLazyGetter(Shrunked, 'prefs', function() {
