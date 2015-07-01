@@ -1,4 +1,6 @@
 Components.utils.import('resource://shrunked/Shrunked.jsm');
+Components.utils.import('resource://shrunked/ShrunkedImage.jsm');
+Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
 
 let returnValues = window.arguments[0];
@@ -89,11 +91,31 @@ function advancePreview(delta) {
 	i_previewthumb.src = imageURLs[imageIndex];
 }
 
+function humanSize(size) {
+	let unit = 'B';
+	if (size >= 1000000) {
+		size = size / 1000000;
+		unit = 'MB'
+	} else if (size >= 1000) {
+		size = size / 1000;
+		unit = 'KB'
+	}
+
+	return size.toFixed(size >= 9.95 ? 0 : 1) + ' ' + unit;
+}
+
 function imageLoad() {
 	let img = new Image();
 	img.onload = function() {
 		let {width, height, src} = img;
 		let scale = 1;
+		let size = null;
+
+		let uri = Services.io.newURI(src, null, null);
+		if (uri.schemeIs('file')) {
+			size = uri.QueryInterface(Components.interfaces.nsIFileURL).file.fileSize;
+			size = humanSize(size);
+		}
 
 		if (maxWidth > 0 && maxHeight > 0) {
 			scale = Math.min(1, Math.min(maxWidth / width, maxHeight / height));
@@ -115,11 +137,24 @@ function imageLoad() {
 				l_previewfilename.setAttribute('value', src.substring(src.lastIndexOf('/') + 1));
 			}
 		}
-		l_previeworiginalsize.setAttribute('value', Shrunked.strings.formatStringFromName('preview_originalsize', [width, height], 2));
+		l_previeworiginalsize.setAttribute('value', getString('preview_originalsize', width, height));
+		if (size) {
+			l_previeworiginalfilesize.setAttribute('value', getString('preview_originalfilesize', size));
+		}
 		if (scale == 1) {
-			l_previewresized.setAttribute('value', Shrunked.strings.GetStringFromName('preview_notresized'));
+			l_previewresized.setAttribute('value', getString('preview_notresized'));
+			l_previewresizedfilesize.setAttribute('value', '');
 		} else {
-			l_previewresized.setAttribute('value', Shrunked.strings.formatStringFromName('preview_resized', [Math.floor(width * scale), Math.floor(height * scale)], 2));
+			let newWidth = Math.floor(width * scale);
+			let newHeight = Math.floor(height * scale);
+			let quality = Shrunked.prefs.getIntPref('default.quality');
+
+			l_previewresized.setAttribute('value', getString('preview_resized', newWidth, newHeight));
+			l_previewresizedfilesize.setAttribute('value', getString('preview_resizedfilesize_estimating'));
+
+			new ShrunkedImage(src, newWidth, newHeight, quality).estimateSize().then(size => {
+				l_previewresizedfilesize.setAttribute('value', getString('preview_resizedfilesize', humanSize(size)));
+			});
 		}
 	};
 	img.src = i_previewthumb.src;
@@ -143,4 +178,11 @@ function accept() {
 
 function cancel() {
 	returnValues.cancelDialog = true;
+}
+
+function getString(name, ...values) {
+	if (values.length == 0) {
+		return Shrunked.strings.GetStringFromName(name);
+	}
+	return Shrunked.strings.formatStringFromName(name, values, values.length);
 }

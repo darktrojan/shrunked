@@ -204,6 +204,12 @@ ShrunkedImage.prototype = {
 			Components.utils.reportError(error);
 		});
 		return deferred.promise;
+	},
+	estimateSize: function() {
+		return this.loadImage()
+			.then(image => this.drawOnCanvas(image, 0))
+			.then(canvas => this.getBytes(canvas))
+			.then(bytes => bytes.length);
 	}
 };
 

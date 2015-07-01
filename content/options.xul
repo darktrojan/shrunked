@@ -63,7 +63,9 @@
 			<vbox pack="center" flex="1">
 				<label id="l_previewfilename" class="header" crop="end" />
 				<label id="l_previeworiginalsize" crop="end" />
+				<label id="l_previeworiginalfilesize" crop="end" />
 				<label id="l_previewresized" crop="end" />
+				<label id="l_previewresizedfilesize" crop="end" />
 			</vbox>
 			<vbox id="b_previewarrownext" pack="center">
 				<toolbarbutton oncommand="advancePreview(1);" tabindex="0" tooltiptext="&shrunked-preview.next.tooltip;" />
