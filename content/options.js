@@ -121,6 +121,7 @@ function imageLoad() {
 			scale = Math.min(1, Math.min(maxWidth / width, maxHeight / height));
 		}
 
+		l_previewfilename.setAttribute('value', '');
 		if (imageNames && imageNames[imageIndex]) {
 			l_previewfilename.setAttribute('value', imageNames[imageIndex]);
 		} else {
@@ -140,6 +141,8 @@ function imageLoad() {
 		l_previeworiginalsize.setAttribute('value', getString('preview_originalsize', width, height));
 		if (size) {
 			l_previeworiginalfilesize.setAttribute('value', getString('preview_originalfilesize', size));
+		} else {
+			l_previeworiginalfilesize.setAttribute('value', '');
 		}
 		if (scale == 1) {
 			l_previewresized.setAttribute('value', getString('preview_notresized'));

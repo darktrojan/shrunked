@@ -100,11 +100,11 @@ ShrunkedImage.prototype = {
 
 		return deferred.promise;
 	},
-	drawOnCanvas: function ShrunkedImage_drawOnCanvas(image, orientation) {
+	drawOnCanvas: function ShrunkedImage_drawOnCanvas(image, orientation, resample = true) {
 		let deferred = Promise.defer();
 		let ratio = Math.max(1, image.width / this.maxWidth, image.height / this.maxHeight);
 		let resampleRatio = 1;
-		if (Shrunked.options.resample) {
+		if (resample && Shrunked.options.resample) {
 			resampleRatio = Math.min(ratio, 3);
 			if (resampleRatio > 2 && resampleRatio < 3) {
 				resampleRatio = 2;
@@ -207,7 +207,7 @@ ShrunkedImage.prototype = {
 	},
 	estimateSize: function() {
 		return this.loadImage()
-			.then(image => this.drawOnCanvas(image, 0))
+			.then(image => this.drawOnCanvas(image, 0, false))
 			.then(canvas => this.getBytes(canvas))
 			.then(bytes => bytes.length);
 	}
