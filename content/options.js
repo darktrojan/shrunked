@@ -5,7 +5,8 @@ Components.utils.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
 
 let returnValues = window.arguments[0];
 let imageURLs = window.arguments[1];
-let imageNames = window.arguments[2];
+let imageNames = window.arguments[2] || [];
+let imageData = [];
 let windowIsPrivate = PrivateBrowsingUtils.isWindowPrivate(window.opener);
 let imageIndex = 0;
 let maxWidth, maxHeight;
@@ -109,55 +110,69 @@ function imageLoad() {
 	img.onload = function() {
 		let {width, height, src} = img;
 		let scale = 1;
-		let size = null;
 
-		let uri = Services.io.newURI(src, null, null);
-		if (uri.schemeIs('file')) {
-			size = uri.QueryInterface(Components.interfaces.nsIFileURL).file.fileSize;
-			size = humanSize(size);
+		let data = imageData[imageIndex];
+		if (!data) {
+			data = imageData[imageIndex] = {};
+		}
+
+		if (data.originalSize === undefined) {
+			let uri = Services.io.newURI(src, null, null);
+			if (uri.schemeIs('file')) {
+				let file = uri.QueryInterface(Components.interfaces.nsIFileURL).file;
+				data.filename = file.leafName;
+				data.originalSize = humanSize(file.fileSize);
+			}
+		}
+		if (data.filename === undefined) {
+			if (!!imageNames[imageIndex]) {
+				data.filename = imageNames[imageIndex];
+			} else {
+				let i = src.indexOf('filename=');
+				if (i > -1) {
+					i += 9;
+					let j = src.indexOf('&', i);
+					if (j > i) {
+						data.filename = decodeURIComponent(src.substring(i, j));
+					} else {
+						data.filename = decodeURIComponent(src.substring(i));
+					}
+				} else {
+					data.filename = src.substring(src.lastIndexOf('/') + 1);
+				}
+			}
+		}
+
+		setValue(l_previewfilename, data.filename);
+		setValueFromString(l_previeworiginalsize, 'preview_originalsize', width, height);
+		if (data.originalSize) {
+			setValueFromString(l_previeworiginalfilesize, 'preview_originalfilesize', data.originalSize);
+		} else {
+			setValue(l_previeworiginalfilesize, '');
 		}
 
 		if (maxWidth > 0 && maxHeight > 0) {
 			scale = Math.min(1, Math.min(maxWidth / width, maxHeight / height));
 		}
-
-		l_previewfilename.setAttribute('value', '');
-		if (imageNames && imageNames[imageIndex]) {
-			l_previewfilename.setAttribute('value', imageNames[imageIndex]);
-		} else {
-			let i = src.indexOf('filename=');
-			if (i > -1) {
-				i += 9;
-				let j = src.indexOf('&', i);
-				if (j > i) {
-					l_previewfilename.setAttribute('value', src.substring(i, j));
-				} else {
-					l_previewfilename.setAttribute('value', src.substring(i));
-				}
-			} else {
-				l_previewfilename.setAttribute('value', src.substring(src.lastIndexOf('/') + 1));
-			}
-		}
-		l_previeworiginalsize.setAttribute('value', getString('preview_originalsize', width, height));
-		if (size) {
-			l_previeworiginalfilesize.setAttribute('value', getString('preview_originalfilesize', size));
-		} else {
-			l_previeworiginalfilesize.setAttribute('value', '');
-		}
 		if (scale == 1) {
-			l_previewresized.setAttribute('value', getString('preview_notresized'));
-			l_previewresizedfilesize.setAttribute('value', '');
+			setValueFromString(l_previewresized, 'preview_notresized');
+			setValue(l_previewresizedfilesize, '');
 		} else {
 			let newWidth = Math.floor(width * scale);
 			let newHeight = Math.floor(height * scale);
 			let quality = Shrunked.prefs.getIntPref('default.quality');
+			let cacheKey = newWidth + 'x' + newHeight + 'x' + quality;
 
-			l_previewresized.setAttribute('value', getString('preview_resized', newWidth, newHeight));
-			l_previewresizedfilesize.setAttribute('value', getString('preview_resizedfilesize_estimating'));
-
-			new ShrunkedImage(src, newWidth, newHeight, quality).estimateSize().then(size => {
-				l_previewresizedfilesize.setAttribute('value', getString('preview_resizedfilesize', humanSize(size)));
-			});
+			setValueFromString(l_previewresized, 'preview_resized', newWidth, newHeight);
+			if (data[cacheKey] === undefined) {
+				setValueFromString(l_previewresizedfilesize, 'preview_resizedfilesize_estimating');
+				new ShrunkedImage(src, newWidth, newHeight, quality).estimateSize().then(size => {
+					data[cacheKey] = humanSize(size);
+					setValueFromString(l_previewresizedfilesize, 'preview_resizedfilesize', data[cacheKey]);
+				});
+			} else {
+				setValueFromString(l_previewresizedfilesize, 'preview_resizedfilesize', data[cacheKey]);
+			}
 		}
 	};
 	img.src = i_previewthumb.src;
@@ -183,9 +198,16 @@ function cancel() {
 	returnValues.cancelDialog = true;
 }
 
-function getString(name, ...values) {
+function setValue(element, value) {
+	element.setAttribute('value', value);
+}
+
+function setValueFromString(element, name, ...values) {
+	let value;
 	if (values.length == 0) {
-		return Shrunked.strings.GetStringFromName(name);
+		value = Shrunked.strings.GetStringFromName(name);
+	} else {
+		value = Shrunked.strings.formatStringFromName(name, values, values.length);
 	}
-	return Shrunked.strings.formatStringFromName(name, values, values.length);
+	setValue(element, value);
 }
