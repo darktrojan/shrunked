@@ -23,3 +23,8 @@
 #b_previewarrownext > toolbarbutton {
 	transform: scaleX(-1);
 }
+
+#l_previeworiginalfilesize[value=""],
+#l_previewresizedfilesize[value=""] {
+	display: none;
+}
