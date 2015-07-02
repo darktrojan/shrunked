@@ -109,12 +109,19 @@ let ShrunkedCompose = {
 							srcSize--;
 						}
 					}
+					if (srcSize < Shrunked.fileSizeMinimum) {
+						Shrunked.log('Not resizing - image file size is too small');
+						return;
+					}
 					for (let [name, size] of this.droppedCache) {
 						if (srcSize == size) {
 							target.maybesrc = name;
 							break;
 						}
 					}
+				} else if (/^file:/.test(src) && !Shrunked.fileLargerThanThreshold(src)) {
+					Shrunked.log('Not resizing - image file size is too small');
+					return;
 				}
 
 				this.inlineImages.push(target);
@@ -212,12 +219,11 @@ let ShrunkedCompose = {
 		try {
 			if (doResize) {
 				let bucket = document.getElementById('attachmentBucket');
-				let minimum = Shrunked.prefs.getIntPref('fileSizeMinimum') * 1024;
 				let imageURLs = [];
 
 				for (let index = 0; index < bucket.getRowCount(); index++) {
 					let item = bucket.getItemAtIndex(index);
-					if (/\.jpe?g$/i.test(item.attachment.url) && item.attachment.size >= minimum) {
+					if (/\.jpe?g$/i.test(item.attachment.url) && item.attachment.size >= Shrunked.fileSizeMinimum) {
 						Shrunked.log('JPEG attachment found, source is ' + item.attachment.size);
 						images.push({ url: item.attachment.url, item: item });
 						imageURLs.push(item.attachment.url);

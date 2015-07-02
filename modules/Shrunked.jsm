@@ -20,10 +20,16 @@ let temporaryFiles = [];
 
 let Shrunked = {
 	get fileSizeMinimum() {
-		return Shrunked.prefs.getIntPref('fileSizeMinimum') * 1024;
+		return Shrunked.prefs.getIntPref('fileSizeMinimum') * 1000;
 	},
 	fileLargerThanThreshold: function Shrunked_fileLargerThanThreshold(path) {
-		let file = new FileUtils.File(path);
+		let file;
+		if (/^file:/.test(path)) {
+			let uri = Services.io.newURI(path, null, null);
+			file = uri.QueryInterface(Components.interfaces.nsIFileURL).file;
+		} else {
+			file = new FileUtils.File(path);
+		}
 		return file.fileSize >= this.fileSizeMinimum;
 	},
 	imageIsJPEG: function Shrunked_imageIsJPEG(image) {
