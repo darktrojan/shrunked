@@ -30,4 +30,4 @@
 <!ENTITY shrunked-advanced.orient.label "自动旋转图片">
 <!ENTITY shrunked-advanced.gps.label "转移 GPS 数据">
 <!ENTITY shrunked-advanced.logenabled.label "Log messages to Error Console">
-<!ENTITY shrunked-compose.context.label "Resize this image&#x2026;">
+<!ENTITY shrunked-compose.context.label "Resize this image…">
