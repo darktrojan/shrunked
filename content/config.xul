@@ -37,7 +37,7 @@
 							preference="p_minsize"
 							size="5"
 							increment="10"
-							min="0" unit="&shrunked-minsize.kilobytes;"
+							min="0" unit="&shrunked-unit.kilobytes;"
 							style="-moz-binding: url(chrome://shrunked/content/bindings.xml#numberbox)" />
 					</hbox>
 

@@ -11,9 +11,9 @@
 <!ENTITY shrunked-options.remembersite.label "Se souvenir de mes choix pour ce site Web">
 <!ENTITY shrunked-options.savedefault.label "Enregistrer comme paramètres par défaut">
 <!ENTITY shrunked-noresize.label "Original">
-<!ENTITY shrunked-small.label "500 px">
-<!ENTITY shrunked-medium.label "800 px">
-<!ENTITY shrunked-large.label "1200 px">
+<!ENTITY shrunked-small.label "500 px">
+<!ENTITY shrunked-medium.label "800 px">
+<!ENTITY shrunked-large.label "1200 px">
 <!ENTITY shrunked-custom.label "Personnalisée">
 <!ENTITY shrunked-width.label "Largeur:">
 <!ENTITY shrunked-height.label "Hauteur:">
@@ -21,7 +21,8 @@
 <!ENTITY shrunked-preview.previous.tooltip "Previous image">
 <!ENTITY shrunked-preview.next.tooltip "Next image">
 <!ENTITY shrunked-minsize.label "Taille minimum pour redimensionner:">
-<!ENTITY shrunked-minsize.kilobytes "Ko">
+<!-- Localization note: this should match unit_kilobytes in shrunked.properties -->
+<!ENTITY shrunked-unit.kilobytes "Ko">
 <!ENTITY shrunked-maxsize.label "Taille maximum pour vos photos:">
 <!ENTITY shrunked-custom.pixels "px">
 <!ENTITY shrunked-advanced.label "Advanced">

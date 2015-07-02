@@ -11,9 +11,9 @@
 <!ENTITY shrunked-options.remembersite.label "Remember my answer for this website">
 <!ENTITY shrunked-options.savedefault.label "Save as default settings">
 <!ENTITY shrunked-noresize.label "Original">
-<!ENTITY shrunked-small.label "500px">
-<!ENTITY shrunked-medium.label "800px">
-<!ENTITY shrunked-large.label "1200px">
+<!ENTITY shrunked-small.label "500 px">
+<!ENTITY shrunked-medium.label "800 px">
+<!ENTITY shrunked-large.label "1200 px">
 <!ENTITY shrunked-custom.label "Custom">
 <!ENTITY shrunked-width.label "Width:">
 <!ENTITY shrunked-height.label "Height:">
@@ -21,7 +21,8 @@
 <!ENTITY shrunked-preview.previous.tooltip "Previous image">
 <!ENTITY shrunked-preview.next.tooltip "Next image">
 <!ENTITY shrunked-minsize.label "Minimum file size to resize:">
-<!ENTITY shrunked-minsize.kilobytes "KB">
+<!-- Localization note: this should match unit_kilobytes in shrunked.properties -->
+<!ENTITY shrunked-unit.kilobytes "kB">
 <!ENTITY shrunked-maxsize.label "Maximum size for your photos:">
 <!ENTITY shrunked-custom.pixels "px">
 <!ENTITY shrunked-advanced.label "Advanced">

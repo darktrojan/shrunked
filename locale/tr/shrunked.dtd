@@ -11,9 +11,9 @@
 <!ENTITY shrunked-options.remembersite.label "Bu site için yanıtımı hatırla">
 <!ENTITY shrunked-options.savedefault.label "Varsayılan ayarlar olarak kaydet">
 <!ENTITY shrunked-noresize.label "Orjinal">
-<!ENTITY shrunked-small.label "500px">
-<!ENTITY shrunked-medium.label "800px">
-<!ENTITY shrunked-large.label "1200px">
+<!ENTITY shrunked-small.label "500 px">
+<!ENTITY shrunked-medium.label "800 px">
+<!ENTITY shrunked-large.label "1200 px">
 <!ENTITY shrunked-custom.label "Diğer">
 <!ENTITY shrunked-width.label "Genişlik:">
 <!ENTITY shrunked-height.label "Yükseklik:">
@@ -21,7 +21,8 @@
 <!ENTITY shrunked-preview.previous.tooltip "Previous image">
 <!ENTITY shrunked-preview.next.tooltip "Next image">
 <!ENTITY shrunked-minsize.label "Boyutlandırma için en düşük ölçü:">
-<!ENTITY shrunked-minsize.kilobytes "KB">
+<!-- Localization note: this should match unit_kilobytes in shrunked.properties -->
+<!ENTITY shrunked-unit.kilobytes "kB">
 <!ENTITY shrunked-maxsize.label "Resimler için en büyük ölçü:">
 <!ENTITY shrunked-custom.pixels "px">
 <!ENTITY shrunked-advanced.label "Advanced">

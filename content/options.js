@@ -93,16 +93,16 @@ function advancePreview(delta) {
 }
 
 function humanSize(size) {
-	let unit = 'B';
+	let unit = 'bytes';
 	if (size >= 1000000) {
 		size = size / 1000000;
-		unit = 'MB'
+		unit = 'megabytes';
 	} else if (size >= 1000) {
 		size = size / 1000;
-		unit = 'KB'
+		unit = 'kilobytes';
 	}
 
-	return size.toFixed(size >= 9.95 ? 0 : 1) + ' ' + unit;
+	return size.toFixed(size >= 9.95 ? 0 : 1) + '\u2006' + Shrunked.strings.GetStringFromName('unit_' + unit);
 }
 
 function imageLoad() {

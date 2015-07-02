@@ -21,7 +21,8 @@
 <!ENTITY shrunked-preview.previous.tooltip "Previous image">
 <!ENTITY shrunked-preview.next.tooltip "Next image">
 <!ENTITY shrunked-minsize.label "Dimensioni minime del file da ridimensionare:">
-<!ENTITY shrunked-minsize.kilobytes "kB">
+<!-- Localization note: this should match unit_kilobytes in shrunked.properties -->
+<!ENTITY shrunked-unit.kilobytes "kB">
 <!ENTITY shrunked-maxsize.label "Selezionare le dimensioni massime per le immagini:">
 <!ENTITY shrunked-custom.pixels "pixel">
 <!ENTITY shrunked-advanced.label "Avanzate">
