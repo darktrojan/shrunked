@@ -143,7 +143,7 @@ let Shrunked = {
 							accessKey: 'F',
 							popup: null,
 							callback: function() {
-								callbackObject.resolve('translate');
+								callbackObject.resolve('update');
 							}
 						});
 					} else if (globalLocale in wantedLanguages) {
@@ -154,16 +154,22 @@ let Shrunked = {
 							accessKey: 'F',
 							popup: null,
 							callback: function() {
-								callbackObject.resolve('translate');
+								callbackObject.resolve('wanted');
 							}
 						});
 					}
 
 					shrunkedWindow.showNotificationBar(label, buttons, callbackObject).then(function(which) {
-						if (which == 'donate') {
+						switch (which) {
+						case 'donate':
 							shrunkedWindow.donateCallback(DONATE_URL);
-						} else {
+							break;
+						case 'update':
 							shrunkedWindow.donateCallback('https://github.com/darktrojan/shrunked/issues/8');
+							break;
+						case 'wanted':
+							shrunkedWindow.donateCallback('https://github.com/darktrojan/shrunked/issues/9');
+							break;
 						}
 					});
 
