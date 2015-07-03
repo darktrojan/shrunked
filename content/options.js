@@ -51,8 +51,9 @@ function load() {
 
 	i_previewthumb.src = imageURLs[0];
 	if (imageURLs.length < 2) {
-		b_previewarrowprevious.setAttribute('hidden', 'true');
-		b_previewarrownext.setAttribute('hidden', 'true');
+		b_previewarrows.setAttribute('hidden', 'true');
+	} else {
+		l_previewarrows.setAttribute('value', '1/' + imageURLs.length);
 	}
 	window.sizeToContent();
 }
@@ -89,6 +90,7 @@ function setSize() {
 
 function advancePreview(delta) {
 	imageIndex = (imageIndex + delta + imageURLs.length) % imageURLs.length;
+	l_previewarrows.setAttribute('value', (imageIndex + 1) + '/' + imageURLs.length);
 	i_previewthumb.src = imageURLs[imageIndex];
 }
 

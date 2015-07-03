@@ -52,8 +52,10 @@
 		</radiogroup>
 		<label id="l_previewheader" class="header" value="&shrunked-preview.label;" />
 		<hbox id="b_previewbox" flex="1" minwidth="400">
-			<vbox id="b_previewarrowprevious" pack="center">
+			<vbox id="b_previewarrows" pack="center" align="center">
 				<toolbarbutton oncommand="advancePreview(-1);" tabindex="0" tooltiptext="&shrunked-preview.previous.tooltip;" />
+				<label id="l_previewarrows" />
+				<toolbarbutton oncommand="advancePreview(1);" tabindex="0" tooltiptext="&shrunked-preview.next.tooltip;" />
 			</vbox>
 			<hbox width="110" pack="center">
 				<vbox pack="center">
@@ -66,9 +68,6 @@
 				<label id="l_previeworiginalfilesize" crop="end" />
 				<label id="l_previewresized" crop="end" />
 				<label id="l_previewresizedfilesize" crop="end" />
-			</vbox>
-			<vbox id="b_previewarrownext" pack="center">
-				<toolbarbutton oncommand="advancePreview(1);" tabindex="0" tooltiptext="&shrunked-preview.next.tooltip;" />
 			</vbox>
 		</hbox>
 		<checkbox
