@@ -9,6 +9,7 @@ content/compose.js
 content/compose.xul
 content/config.js
 content/config.xul
+content/icon16.png
 content/messenger.js
 content/messenger.xul
 content/options.css

@@ -57,7 +57,7 @@ let Shrunked = {
 		}
 		return Promise.all(promises);
 	},
-	donateNotification: function donateNotification(notificationBox, callback) {
+	donateNotification: function donateNotification() {
 		function parseVersion(version) {
 			let match = /^\d+(\.\d+)?/.exec(version);
 			return match ? match[0] : version;
@@ -95,7 +95,7 @@ let Shrunked = {
 						accessKey: Shrunked.strings.GetStringFromName('donate_button_accesskey'),
 						popup: null,
 						callback: function() {
-							callbackObject.resolve();
+							callbackObject.resolve('donate');
 						}
 					}];
 
@@ -113,8 +113,58 @@ let Shrunked = {
 						}
 					}
 
-					shrunkedWindow.showNotificationBar(label, buttons, callbackObject).then(function() {
-						shrunkedWindow.donateCallback(DONATE_URL);
+					let updateLanguages = {
+						'ca': 'Catalan',
+						'de': 'German',
+						'de-DE': 'German',
+						'fr': 'French',
+						'it': 'Italian',
+						'pl': 'Polish',
+						'pt-BR': 'Brazilian Portuguese',
+						'sv-SE': 'Swedish',
+						'tr': 'Turkish',
+						'zh-CN': 'Chinese'
+					};
+					let wantedLanguages = {
+						'cs': 'Czech',
+						'es': 'Spanish',
+						'ru': 'Russian'
+					};
+					let chromeRegistry = Components.classes['@mozilla.org/chrome/chrome-registry;1']
+						.getService(Components.interfaces.nsIXULChromeRegistry);
+					let currentLocale = chromeRegistry.getSelectedLocale('shrunked');
+					let globalLocale = chromeRegistry.getSelectedLocale('global');
+
+					if (currentLocale in updateLanguages) {
+						label = 'Shrunked Image Resizer has been updated to version ' + currentVersion + '. ' +
+							'We need somebody to update the ' + updateLanguages[currentLocale] + ' translation. Can you help?';
+						buttons.unshift({
+							label: 'Find out more',
+							accessKey: 'F',
+							popup: null,
+							callback: function() {
+								callbackObject.resolve('translate');
+							}
+						});
+					} else if (globalLocale in wantedLanguages) {
+						label = 'Shrunked Image Resizer has been updated to version ' + currentVersion + '. ' +
+							'Can you help by translating Shrunked into ' + wantedLanguages[globalLocale] + '?';
+						buttons.unshift({
+							label: 'Find out more',
+							accessKey: 'F',
+							popup: null,
+							callback: function() {
+								callbackObject.resolve('translate');
+							}
+						});
+					}
+
+					shrunkedWindow.showNotificationBar(label, buttons, callbackObject).then(function(which) {
+						if (which == 'donate') {
+							shrunkedWindow.donateCallback(DONATE_URL);
+						} else {
+							shrunkedWindow.donateCallback('https://github.com/darktrojan/shrunked/issues/8');
+						}
 					});
 
 					Shrunked.prefs.setIntPref('donationreminder', Date.now() / 1000);
