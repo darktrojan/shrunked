@@ -1,3 +1,5 @@
+/* globals AsyncShutdown, AddonManager, OS, PluralForm, ShrunkedImage, idleService */
+/* exported EXPORTED_SYMBOLS */
 let EXPORTED_SYMBOLS = ['Shrunked'];
 
 const ID = 'shrunked@darktrojan.net';
@@ -7,6 +9,7 @@ Components.utils.import('resource://gre/modules/AsyncShutdown.jsm');
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'AddonManager', 'resource://gre/modules/AddonManager.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'NetUtil', 'resource://gre/modules/NetUtil.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'OS', 'resource://gre/modules/osfile.jsm');
@@ -57,7 +60,7 @@ let Shrunked = {
 		}
 		return Promise.all(promises);
 	},
-	donateNotification: function donateNotification() {
+	versionUpgrade: function Shrunked_versionUpgrade() {
 		function parseVersion(version) {
 			let match = /^\d+(\.\d+)?/.exec(version);
 			return match ? match[0] : version;
@@ -75,7 +78,6 @@ let Shrunked = {
 			shouldRemind = Date.now() - lastReminder > 604800000;
 		}
 
-		Components.utils.import('resource://gre/modules/AddonManager.jsm');
 		AddonManager.getAddonByID(ID, function(addon) {
 			currentVersion = parseVersion(addon.version);
 			Shrunked.prefs.setCharPref('version', addon.version);
@@ -87,96 +89,98 @@ let Shrunked = {
 			idleService.addIdleObserver({
 				observe: function() {
 					idleService.removeIdleObserver(this, 10);
-
-					let callbackObject = {};
-					let label = Shrunked.strings.formatStringFromName('donate_notification', [currentVersion], 1);
-					let buttons = [{
-						label: Shrunked.strings.GetStringFromName('donate_button_label'),
-						accessKey: Shrunked.strings.GetStringFromName('donate_button_accesskey'),
-						popup: null,
-						callback: function() {
-							callbackObject.resolve('donate');
-						}
-					}];
-
-					let recentWindow = Services.wm.getMostRecentWindow('navigator:browser');
-					let shrunkedWindow;
-
-					if (recentWindow) {
-						shrunkedWindow = recentWindow.ShrunkedBrowser;
-					} else {
-						recentWindow = Services.wm.getMostRecentWindow('mail:3pane');
-						if (recentWindow) {
-							shrunkedWindow = recentWindow.ShrunkedMessenger;
-						} else {
-							return;
-						}
-					}
-
-					let updateLanguages = {
-						'ca': 'Catalan',
-						'de': 'German',
-						'de-DE': 'German',
-						'fr': 'French',
-						'it': 'Italian',
-						'pl': 'Polish',
-						'pt-BR': 'Brazilian Portuguese',
-						'sv-SE': 'Swedish',
-						'tr': 'Turkish',
-						'zh-CN': 'Chinese'
-					};
-					let wantedLanguages = {
-						'cs': 'Czech',
-						'es': 'Spanish',
-						'ru': 'Russian'
-					};
-					let chromeRegistry = Components.classes['@mozilla.org/chrome/chrome-registry;1']
-						.getService(Components.interfaces.nsIXULChromeRegistry);
-					let currentLocale = chromeRegistry.getSelectedLocale('shrunked');
-					let globalLocale = chromeRegistry.getSelectedLocale('global');
-
-					if (currentLocale in updateLanguages) {
-						label = 'Shrunked Image Resizer has been updated to version ' + currentVersion + '. ' +
-							'We need somebody to update the ' + updateLanguages[currentLocale] + ' translation. Can you help?';
-						buttons.unshift({
-							label: 'Find out more',
-							accessKey: 'F',
-							popup: null,
-							callback: function() {
-								callbackObject.resolve('update');
-							}
-						});
-					} else if (globalLocale in wantedLanguages) {
-						label = 'Shrunked Image Resizer has been updated to version ' + currentVersion + '. ' +
-							'Can you help by translating Shrunked into ' + wantedLanguages[globalLocale] + '?';
-						buttons.unshift({
-							label: 'Find out more',
-							accessKey: 'F',
-							popup: null,
-							callback: function() {
-								callbackObject.resolve('wanted');
-							}
-						});
-					}
-
-					shrunkedWindow.showNotificationBar(label, buttons, callbackObject).then(function(which) {
-						switch (which) {
-						case 'donate':
-							shrunkedWindow.donateCallback(DONATE_URL);
-							break;
-						case 'update':
-							shrunkedWindow.donateCallback('https://github.com/darktrojan/shrunked/issues/8');
-							break;
-						case 'wanted':
-							shrunkedWindow.donateCallback('https://github.com/darktrojan/shrunked/issues/9');
-							break;
-						}
-					});
-
-					Shrunked.prefs.setIntPref('donationreminder', Date.now() / 1000);
+					Shrunked.showNotification(currentVersion);
 				}
 			}, 10);
 		});
+	},
+	showNotification: function Shrunked_showNotification(currentVersion) {
+		let callbackObject = {};
+		let label = Shrunked.strings.formatStringFromName('donate_notification', [currentVersion], 1);
+		let buttons = [{
+			label: Shrunked.strings.GetStringFromName('donate_button_label'),
+			accessKey: Shrunked.strings.GetStringFromName('donate_button_accesskey'),
+			popup: null,
+			callback: function() {
+				callbackObject.resolve('donate');
+			}
+		}];
+
+		let recentWindow = Services.wm.getMostRecentWindow('navigator:browser');
+		let shrunkedWindow;
+
+		if (recentWindow) {
+			shrunkedWindow = recentWindow.ShrunkedBrowser;
+		} else {
+			recentWindow = Services.wm.getMostRecentWindow('mail:3pane');
+			if (recentWindow) {
+				shrunkedWindow = recentWindow.ShrunkedMessenger;
+			} else {
+				return;
+			}
+		}
+
+		let updateLanguages = {
+			'ca': 'Catalan',
+			'de': 'German',
+			'de-DE': 'German',
+			'fr': 'French',
+			'it': 'Italian',
+			'pl': 'Polish',
+			'pt-BR': 'Brazilian Portuguese',
+			'sv-SE': 'Swedish',
+			'tr': 'Turkish',
+			'zh-CN': 'Chinese'
+		};
+		let wantedLanguages = {
+			'cs': 'Czech',
+			'es': 'Spanish',
+			'ru': 'Russian'
+		};
+		let chromeRegistry = Components.classes['@mozilla.org/chrome/chrome-registry;1']
+			.getService(Components.interfaces.nsIXULChromeRegistry);
+		let currentLocale = chromeRegistry.getSelectedLocale('shrunked');
+		let globalLocale = chromeRegistry.getSelectedLocale('global');
+
+		if (currentLocale in updateLanguages) {
+			label = 'Shrunked Image Resizer has been updated to version ' + currentVersion + '. ' +
+				'We need somebody to update the ' + updateLanguages[currentLocale] + ' translation. Can you help?';
+			buttons.unshift({
+				label: 'Find out more',
+				accessKey: 'F',
+				popup: null,
+				callback: function() {
+					callbackObject.resolve('update');
+				}
+			});
+		} else if (globalLocale in wantedLanguages) {
+			label = 'Shrunked Image Resizer has been updated to version ' + currentVersion + '. ' +
+				'Can you help by translating Shrunked into ' + wantedLanguages[globalLocale] + '?';
+			buttons.unshift({
+				label: 'Find out more',
+				accessKey: 'F',
+				popup: null,
+				callback: function() {
+					callbackObject.resolve('wanted');
+				}
+			});
+		}
+
+		shrunkedWindow.showNotificationBar(label, buttons, callbackObject).then(function(which) {
+			switch (which) {
+			case 'donate':
+				shrunkedWindow.donateCallback(DONATE_URL);
+				break;
+			case 'update':
+				shrunkedWindow.donateCallback('https://github.com/darktrojan/shrunked/issues/8');
+				break;
+			case 'wanted':
+				shrunkedWindow.donateCallback('https://github.com/darktrojan/shrunked/issues/9');
+				break;
+			}
+		});
+
+		Shrunked.prefs.setIntPref('donationreminder', Date.now() / 1000);
 	},
 	getContentPref: function Shrunked_getContentPref(uri, name, context) {
 		let deferred = Promise.defer();
@@ -319,7 +323,7 @@ let observer = {
 
 if (Components.classes['@mozilla.org/xre/app-info;1'].getService(Components.interfaces.nsIXULRuntime).processType ==
 		Components.interfaces.nsIXULRuntime.PROCESS_TYPE_DEFAULT) {
-	Shrunked.donateNotification();
+	Shrunked.versionUpgrade();
 }
 
 Services.obs.addObserver(observer, 'last-pb-context-exited', false);
