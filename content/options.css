@@ -29,6 +29,11 @@
 	transform: rotate(-90deg);
 }
 
+#l_previeworiginalsize,
+#l_previewresized {
+	margin-top: 0.25em;
+}
+
 #l_previeworiginalfilesize[value=""],
 #l_previewresizedfilesize[value=""] {
 	display: none;
