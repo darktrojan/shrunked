@@ -17,18 +17,18 @@
 <!ENTITY shrunked-custom.label "Personnalisée">
 <!ENTITY shrunked-width.label "Largeur:">
 <!ENTITY shrunked-height.label "Hauteur:">
-<!ENTITY shrunked-preview.label "Preview:">
-<!ENTITY shrunked-preview.previous.tooltip "Previous image">
-<!ENTITY shrunked-preview.next.tooltip "Next image">
+<!ENTITY shrunked-preview.label "Previsualisation :">
+<!ENTITY shrunked-preview.previous.tooltip "Image précédente">
+<!ENTITY shrunked-preview.next.tooltip "Image suivante">
 <!ENTITY shrunked-minsize.label "Taille minimum pour redimensionner:">
 <!-- Localization note: this should match unit_kilobytes in shrunked.properties -->
 <!ENTITY shrunked-unit.kilobytes "Ko">
 <!ENTITY shrunked-maxsize.label "Taille maximum pour vos photos:">
 <!ENTITY shrunked-custom.pixels "px">
-<!ENTITY shrunked-advanced.label "Advanced">
-<!ENTITY shrunked-advanced.resample.label "Resample images using javascript">
-<!ENTITY shrunked-advanced.exif.label "Transfer EXIF data">
-<!ENTITY shrunked-advanced.orient.label "Automatically rotate images">
-<!ENTITY shrunked-advanced.gps.label "Transfer GPS data">
-<!ENTITY shrunked-advanced.logenabled.label "Log messages to Error Console">
-<!ENTITY shrunked-compose.context.label "Resize this image…">
+<!ENTITY shrunked-advanced.label "Avancé">
+<!ENTITY shrunked-advanced.resample.label "Rééchantillonner les images en utilisant JavaScript">
+<!ENTITY shrunked-advanced.exif.label "Transfert des données EXIF">
+<!ENTITY shrunked-advanced.orient.label "Roation automatique des images">
+<!ENTITY shrunked-advanced.gps.label "Transférer les données GPS">
+<!ENTITY shrunked-advanced.logenabled.label "Messages d'erreur">
+<!ENTITY shrunked-compose.context.label "Redimensionner cette image…">
