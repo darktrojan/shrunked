@@ -81,6 +81,14 @@
 				<em:description>Verkleint uw afbeeldingen zodat de tijd om ze te e-mailen of naar websites te uploaden afneemt.</em:description>
 			</Description>
 		</em:localized>
+
+		<em:localized>
+			<Description>
+				<em:locale>es-MX</em:locale>
+				<em:name>Herramienta para disminuir el tamaño de imágenes.</em:name>
+				<em:description>Haga sus fotos más pequeñas para que no tome tanto tiempo enviarlas por correo o subirlas a sitios web.</em:description>
+			</Description>
+		</em:localized>
 	</Description>
 
 </RDF>
