@@ -45,26 +45,16 @@
 		</em:localized>
 		<em:localized>
 			<Description>
-				<em:locale>de-DE</em:locale>
+				<em:locale>de</em:locale>
 				<em:name>Shrunked Image Resizer</em:name>
-				<em:description>Verkleinern Sie Ihre Fotos, damit es nicht mehr so lange dauert, sie per E-Mail zu versenden oder sie auf eine Internetseite hochzuladen.</em:description>
-				<em:translator>rau360</em:translator>
+				<em:description>Verkleinert Deine Fotos, damit der Mailversand oder Upload zu Websites nicht ewig dauert.</em:description>
 			</Description>
 		</em:localized>
 		<em:localized>
 			<Description>
-				<em:locale>pt-BR</em:locale>
-				<em:name>Shrunked Image Resizer (Redimensionador de Imagens)</em:name>
-				<em:description>Diminua o tamanho de suas fotos, para evitar que demore uma eternidade para enviá-las por email ou para sites.</em:description>
-				<em:translator>Marcelo Ghelman</em:translator>
-			</Description>
-		</em:localized>
-		<em:localized>
-			<Description>
-				<em:locale>sv-SE</em:locale>
+				<em:locale>fr</em:locale>
 				<em:name>Shrunked Image Resizer</em:name>
-				<em:description>Gör dina bilder mindre, så att de inte tar evigheter att skicka med e-post eller ladda upp till webbplatser.</em:description>
-				<em:translator>Mikael Hiort af Ornäs</em:translator>
+				<em:description>Alléger le poids de vos photos , de sorte qu'elles prennent moins de place dans le courrier électronique ou dans les sites Web</em:description>
 			</Description>
 		</em:localized>
 		<em:localized>
@@ -81,12 +71,20 @@
 				<em:description>Verkleint uw afbeeldingen zodat de tijd om ze te e-mailen of naar websites te uploaden afneemt.</em:description>
 			</Description>
 		</em:localized>
-
 		<em:localized>
 			<Description>
-				<em:locale>fr</em:locale>
+				<em:locale>pt-BR</em:locale>
+				<em:name>Shrunked Image Resizer (Redimensionador de Imagens)</em:name>
+				<em:description>Diminua o tamanho de suas fotos, para evitar que demore uma eternidade para enviá-las por email ou para sites.</em:description>
+				<em:translator>Marcelo Ghelman</em:translator>
+			</Description>
+		</em:localized>
+		<em:localized>
+			<Description>
+				<em:locale>sv-SE</em:locale>
 				<em:name>Shrunked Image Resizer</em:name>
-				<em:description>Alléger le poids de vos photos , de sorte qu'elles prennent moins de place dans le courrier électronique ou dans les sites Web</em:description>
+				<em:description>Gör dina bilder mindre, så att de inte tar evigheter att skicka med e-post eller ladda upp till webbplatser.</em:description>
+				<em:translator>Mikael Hiort af Ornäs</em:translator>
 			</Description>
 		</em:localized>
 	</Description>

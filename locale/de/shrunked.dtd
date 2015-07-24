@@ -1,4 +1,4 @@
-<!ENTITY shrunked-config.title "Shrunked - Einstellungen">
+<!ENTITY shrunked-config.title "Shrunked Image Resizer - Einstellungen">
 <!ENTITY shrunked-sites.label "Seiten-Einstellungen">
 <!ENTITY shrunked-sites.sitelist.site "Seite">
 <!ENTITY shrunked-sites.sitelist.settings "Einstellungen">
@@ -17,18 +17,18 @@
 <!ENTITY shrunked-custom.label "Benutzerdefiniert">
 <!ENTITY shrunked-width.label "Breite:">
 <!ENTITY shrunked-height.label "Höhe:">
-<!ENTITY shrunked-preview.label "Preview:">
-<!ENTITY shrunked-preview.previous.tooltip "Previous image">
-<!ENTITY shrunked-preview.next.tooltip "Next image">
-<!ENTITY shrunked-minsize.label "Minimum file size to resize:">
+<!ENTITY shrunked-preview.label "Vorschau:">
+<!ENTITY shrunked-preview.previous.tooltip "Voriges Bild">
+<!ENTITY shrunked-preview.next.tooltip "Nächstes Bild">
+<!ENTITY shrunked-minsize.label "Minimale Dateigröße, auf die verkleinert wird:">
 <!-- Localization note: this should match unit_kilobytes in shrunked.properties -->
 <!ENTITY shrunked-unit.kilobytes "kB">
-<!ENTITY shrunked-maxsize.label "Maximum size for your photos:">
+<!ENTITY shrunked-maxsize.label "Maximale Größe für die Fotos:">
 <!ENTITY shrunked-custom.pixels "px">
-<!ENTITY shrunked-advanced.label "Advanced">
-<!ENTITY shrunked-advanced.resample.label "Resample images using javascript">
-<!ENTITY shrunked-advanced.exif.label "Transfer EXIF data">
-<!ENTITY shrunked-advanced.orient.label "Automatically rotate images">
-<!ENTITY shrunked-advanced.gps.label "Transfer GPS data">
-<!ENTITY shrunked-advanced.logenabled.label "Log messages to Error Console">
-<!ENTITY shrunked-compose.context.label "Resize this image…">
+<!ENTITY shrunked-advanced.label "Erweitert">
+<!ENTITY shrunked-advanced.resample.label "Neuberechnung der Bilder mithilfe von Javascript">
+<!ENTITY shrunked-advanced.exif.label "Übernehme EXIF-Daten">
+<!ENTITY shrunked-advanced.orient.label "Rotiere die Bilder automatsich">
+<!ENTITY shrunked-advanced.gps.label "Übernehme GPS-Daten">
+<!ENTITY shrunked-advanced.logenabled.label "Protokolliere Meldungen zur Fehlerkonsole">
+<!ENTITY shrunked-compose.context.label "Dieses Bild skalieren…">
