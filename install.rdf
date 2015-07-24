@@ -81,6 +81,14 @@
 				<em:description>Verkleint uw afbeeldingen zodat de tijd om ze te e-mailen of naar websites te uploaden afneemt.</em:description>
 			</Description>
 		</em:localized>
+
+		<em:localized>
+			<Description>
+				<em:locale>de</em:locale>
+				<em:name>Shrunked Image Resizer</em:name>
+				<em:description>Verkleinert Deine Fotos, damit der Mailversand oder Upload zu Websites nicht ewig dauert.</em:description>
+			</Description>
+		</em:localized>
 	</Description>
 
 </RDF>
