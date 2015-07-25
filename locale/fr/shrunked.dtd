@@ -17,7 +17,7 @@
 <!ENTITY shrunked-custom.label "Personnalisée">
 <!ENTITY shrunked-width.label "Largeur:">
 <!ENTITY shrunked-height.label "Hauteur:">
-<!ENTITY shrunked-preview.label "Previsualisation :">
+<!ENTITY shrunked-preview.label "Previsualisation:">
 <!ENTITY shrunked-preview.previous.tooltip "Image précédente">
 <!ENTITY shrunked-preview.next.tooltip "Image suivante">
 <!ENTITY shrunked-minsize.label "Taille minimum pour redimensionner:">

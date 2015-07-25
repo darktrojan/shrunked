@@ -122,9 +122,6 @@ let Shrunked = {
 
 		let updateLanguages = {
 			'ca': 'Catalan',
-			'de': 'German',
-			'de-DE': 'German',
-			'fr': 'French',
 			'it': 'Italian',
 			'pl': 'Polish',
 			'pt-BR': 'Brazilian Portuguese',
