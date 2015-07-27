@@ -1,0 +1,34 @@
+<!ENTITY shrunked-config.title "Shrunked Image Resizer Konfigurace">
+<!ENTITY shrunked-sites.label "Nastavení">
+<!ENTITY shrunked-sites.sitelist.site "Site">
+<!ENTITY shrunked-sites.sitelist.settings "Nastavení">
+<!ENTITY shrunked-sites.forget.label "Vybraná složka">
+<!ENTITY shrunked-defaults.label "Výchozí">
+<!ENTITY shrunked-defaults.quality.label "Kvalita komprese JPEG:">
+<!ENTITY shrunked-defaults.quality.smaller "Menší soubory">
+<!ENTITY shrunked-defaults.quality.better "Lepší kvalita">
+<!ENTITY shrunked-options.title "Shrunked Image Resizer  - Volby">
+<!ENTITY shrunked-options.remembersite.label "Zapamatovat volbu pro tento web">
+<!ENTITY shrunked-options.savedefault.label "Uložit jako výchozí nastavení">
+<!ENTITY shrunked-noresize.label "Originál">
+<!ENTITY shrunked-small.label "500 px">
+<!ENTITY shrunked-medium.label "800 px">
+<!ENTITY shrunked-large.label "1200 px">
+<!ENTITY shrunked-custom.label "Vlastní">
+<!ENTITY shrunked-width.label "Šířka:">
+<!ENTITY shrunked-height.label "Výška:">
+<!ENTITY shrunked-preview.label "Náhled:">
+<!ENTITY shrunked-preview.previous.tooltip "Předchozí obrázek">
+<!ENTITY shrunked-preview.next.tooltip "Next image">
+<!ENTITY shrunked-minsize.label "Minimum file size to resize:">
+<!-- Localization note: this should match unit_kilobytes in shrunked.properties -->
+<!ENTITY shrunked-unit.kilobytes "kB">
+<!ENTITY shrunked-maxsize.label "Maximální velikost vašich obrázků:">
+<!ENTITY shrunked-custom.pixels "px">
+<!ENTITY shrunked-advanced.label "Rozšířené">
+<!ENTITY shrunked-advanced.resample.label "Změnit velikost JavaScriptem">
+<!ENTITY shrunked-advanced.exif.label "Přenést EXIF data">
+<!ENTITY shrunked-advanced.orient.label "Automaticky otočit obrázky">
+<!ENTITY shrunked-advanced.gps.label "Přenést GPS údaje">
+<!ENTITY shrunked-advanced.logenabled.label "Zaznamenat chybové zprávy">
+<!ENTITY shrunked-compose.context.label "Změnit velikost tohoto obrázku…">

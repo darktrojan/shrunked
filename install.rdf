@@ -81,6 +81,14 @@
 				<em:description>Verkleint uw afbeeldingen zodat de tijd om ze te e-mailen of naar websites te uploaden afneemt.</em:description>
 			</Description>
 		</em:localized>
+
+		<em:localized>
+			<Description>
+				<em:locale>cs</em:locale>
+				<em:name>Shrunked Image Resizer - změna velikosti obrázků</em:name>
+				<em:description>Zmenší obrázky, takže to netrvá uherský rok odeslat e-mail s fotografiemi.</em:description>
+			</Description>
+		</em:localized>
 	</Description>
 
 </RDF>
