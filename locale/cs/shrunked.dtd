@@ -1,6 +1,6 @@
 <!ENTITY shrunked-config.title "Shrunked Image Resizer Konfigurace">
 <!ENTITY shrunked-sites.label "Nastavení">
-<!ENTITY shrunked-sites.sitelist.site "Site">
+<!ENTITY shrunked-sites.sitelist.site "Stránky">
 <!ENTITY shrunked-sites.sitelist.settings "Nastavení">
 <!ENTITY shrunked-sites.forget.label "Vybraná složka">
 <!ENTITY shrunked-defaults.label "Výchozí">
@@ -19,8 +19,8 @@
 <!ENTITY shrunked-height.label "Výška:">
 <!ENTITY shrunked-preview.label "Náhled:">
 <!ENTITY shrunked-preview.previous.tooltip "Předchozí obrázek">
-<!ENTITY shrunked-preview.next.tooltip "Next image">
-<!ENTITY shrunked-minsize.label "Minimum file size to resize:">
+<!ENTITY shrunked-preview.next.tooltip "Další obrázek">
+<!ENTITY shrunked-minsize.label "Minimální velikost souboru pro změnu velikosti:">
 <!-- Localization note: this should match unit_kilobytes in shrunked.properties -->
 <!ENTITY shrunked-unit.kilobytes "kB">
 <!ENTITY shrunked-maxsize.label "Maximální velikost vašich obrázků:">
