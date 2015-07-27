@@ -8,6 +8,7 @@ resource shrunked modules/
 locale shrunked en-US locale/en-US/
 
 locale shrunked ca locale/ca/
+locale shrunked cs locale/cs/
 locale shrunked de locale/de/
 locale shrunked fr locale/fr/
 locale shrunked hr locale/hr/

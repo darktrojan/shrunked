@@ -45,6 +45,13 @@
 		</em:localized>
 		<em:localized>
 			<Description>
+				<em:locale>cs</em:locale>
+				<em:name>Shrunked Image Resizer - změna velikosti obrázků</em:name>
+				<em:description>Zmenší obrázky, takže to netrvá uherský rok odeslat e-mail s fotografiemi.</em:description>
+			</Description>
+		</em:localized>
+		<em:localized>
+			<Description>
 				<em:locale>de</em:locale>
 				<em:name>Shrunked Image Resizer</em:name>
 				<em:description>Verkleinert Deine Fotos, damit der Mailversand oder Upload zu Websites nicht ewig dauert.</em:description>
