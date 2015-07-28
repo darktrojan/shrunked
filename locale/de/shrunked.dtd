@@ -4,7 +4,7 @@
 <!ENTITY shrunked-sites.sitelist.settings "Einstellungen">
 <!ENTITY shrunked-sites.forget.label "Ausgewählte Einträge löschen">
 <!ENTITY shrunked-defaults.label "Standard">
-<!ENTITY shrunked-defaults.quality.label "JPEG-Encoder Qualität:">
+<!ENTITY shrunked-defaults.quality.label "JPEG-Encoder-Qualität:">
 <!ENTITY shrunked-defaults.quality.smaller "Kleinere Dateien">
 <!ENTITY shrunked-defaults.quality.better "Bessere Qualität">
 <!ENTITY shrunked-options.title "Shrunked - Optionen">
@@ -20,15 +20,15 @@
 <!ENTITY shrunked-preview.label "Vorschau:">
 <!ENTITY shrunked-preview.previous.tooltip "Voriges Bild">
 <!ENTITY shrunked-preview.next.tooltip "Nächstes Bild">
-<!ENTITY shrunked-minsize.label "Minimale Dateigröße, auf die verkleinert wird:">
+<!ENTITY shrunked-minsize.label "Mindestdateigröße beim Verkleinern:">
 <!-- Localization note: this should match unit_kilobytes in shrunked.properties -->
-<!ENTITY shrunked-unit.kilobytes "kB">
-<!ENTITY shrunked-maxsize.label "Maximale Größe für die Fotos:">
+<!ENTITY shrunked-unit.kilobytes "KB">
+<!ENTITY shrunked-maxsize.label "Maximale Größe der Grafik:">
 <!ENTITY shrunked-custom.pixels "px">
 <!ENTITY shrunked-advanced.label "Erweitert">
-<!ENTITY shrunked-advanced.resample.label "Neuberechnung der Bilder mithilfe von Javascript">
-<!ENTITY shrunked-advanced.exif.label "Übernehme EXIF-Daten">
-<!ENTITY shrunked-advanced.orient.label "Rotiere die Bilder automatsich">
-<!ENTITY shrunked-advanced.gps.label "Übernehme GPS-Daten">
-<!ENTITY shrunked-advanced.logenabled.label "Protokolliere Meldungen zur Fehlerkonsole">
+<!ENTITY shrunked-advanced.resample.label "Neuberechnung der Bilder mit Hilfe von Javascript">
+<!ENTITY shrunked-advanced.exif.label "EXIF-Daten übernehmen">
+<!ENTITY shrunked-advanced.orient.label "Bilder automatisch rotieren">
+<!ENTITY shrunked-advanced.gps.label "GPS-Daten übernehmen">
+<!ENTITY shrunked-advanced.logenabled.label "Meldungen in Fehlerkonsole protokollieren">
 <!ENTITY shrunked-compose.context.label "Dieses Bild skalieren…">
