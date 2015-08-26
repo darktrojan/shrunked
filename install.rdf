@@ -88,6 +88,14 @@
 		</em:localized>
 		<em:localized>
 			<Description>
+				<em:locale>it</em:locale>
+				<em:name>Ridimensionatore di immagini</em:name>
+				<em:description>Fai diventare le tue foto più piccole, così da veloccizare la spedizione via email o il caricamento sul web</em:description>
+				<em:translator>Mikael Hiort af Ornäs</em:translator>
+			</Description>
+		</em:localized>
+		<em:localized>
+			<Description>
 				<em:locale>sv-SE</em:locale>
 				<em:name>Shrunked Image Resizer</em:name>
 				<em:description>Gör dina bilder mindre, så att de inte tar evigheter att skicka med e-post eller ladda upp till webbplatser.</em:description>

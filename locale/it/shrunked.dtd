@@ -17,9 +17,9 @@
 <!ENTITY shrunked-custom.label "Personalizzate">
 <!ENTITY shrunked-width.label "Larghezza:">
 <!ENTITY shrunked-height.label "Altezza:">
-<!ENTITY shrunked-preview.label "Preview:">
-<!ENTITY shrunked-preview.previous.tooltip "Previous image">
-<!ENTITY shrunked-preview.next.tooltip "Next image">
+<!ENTITY shrunked-preview.label "Anteprima">
+<!ENTITY shrunked-preview.previous.tooltip "Immagine precedente">
+<!ENTITY shrunked-preview.next.tooltip "Immagine successiva">
 <!ENTITY shrunked-minsize.label "Dimensioni minime del file da ridimensionare:">
 <!-- Localization note: this should match unit_kilobytes in shrunked.properties -->
 <!ENTITY shrunked-unit.kilobytes "kB">
@@ -31,4 +31,4 @@
 <!ENTITY shrunked-advanced.orient.label "Ruota le immagini automaticamente">
 <!ENTITY shrunked-advanced.gps.label "Trasferisci i dati GPS">
 <!ENTITY shrunked-advanced.logenabled.label "Log messages to Error Console">
-<!ENTITY shrunked-compose.context.label "Resize this image…">
+<!ENTITY shrunked-compose.context.label "Ridimensiona questa immagine …">
