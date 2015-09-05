@@ -3,7 +3,7 @@
 
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>shrunked@darktrojan.net</em:id>
-		<em:version>4.2.1</em:version>
+		<em:version>4.2.2</em:version>
 		<em:type>2</em:type>
 
 		<em:homepageURL>https://github.com/darktrojan/shrunked</em:homepageURL>

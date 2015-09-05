@@ -122,7 +122,6 @@ let Shrunked = {
 
 		let updateLanguages = {
 			'ca': 'Catalan',
-			'it': 'Italian',
 			'pl': 'Polish',
 			'pt-BR': 'Brazilian Portuguese',
 			'sv-SE': 'Swedish',
@@ -130,7 +129,6 @@ let Shrunked = {
 			'zh-CN': 'Chinese'
 		};
 		let wantedLanguages = {
-			'cs': 'Czech',
 			'es-ES': 'Spanish',
 			'ru': 'Russian'
 		};
