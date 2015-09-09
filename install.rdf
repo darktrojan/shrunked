@@ -73,6 +73,13 @@
 		</em:localized>
 		<em:localized>
 			<Description>
+				<em:locale>es-ES</em:locale>
+				<em:name>Redimensionador de imágenes Shrunked</em:name>
+				<em:description>Haz tus fotos más pequeñas para que no cueste una eternidad enviarlas por e-mail o subirlas a la web</em:description>
+			</Description>
+		</em:localized>
+		<em:localized>
+			<Description>
 				<em:locale>nl</em:locale>
 				<em:name>Shrunked Afbeeldingsverkleiner</em:name>
 				<em:description>Verkleint uw afbeeldingen zodat de tijd om ze te e-mailen of naar websites te uploaden afneemt.</em:description>
