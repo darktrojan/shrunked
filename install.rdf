@@ -3,7 +3,7 @@
 
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>shrunked@darktrojan.net</em:id>
-		<em:version>4.2.2</em:version>
+		<em:version>4.2.3</em:version>
 		<em:type>2</em:type>
 
 		<em:homepageURL>https://github.com/darktrojan/shrunked</em:homepageURL>
@@ -59,23 +59,31 @@
 		</em:localized>
 		<em:localized>
 			<Description>
+				<em:locale>es-ES</em:locale>
+				<em:name>Redimensionador de imágenes Shrunked</em:name>
+				<em:description>Haz tus fotos más pequeñas para que no cueste una eternidad enviarlas por e-mail o subirlas a la web.</em:description>
+			</Description>
+		</em:localized>
+		<em:localized>
+			<Description>
 				<em:locale>fr</em:locale>
 				<em:name>Shrunked Image Resizer</em:name>
-				<em:description>Alléger le poids de vos photos , de sorte qu'elles prennent moins de place dans le courrier électronique ou dans les sites Web</em:description>
+				<em:description>Alléger le poids de vos photos, de sorte qu'elles prennent moins de place dans le courrier électronique ou dans les sites Web.</em:description>
 			</Description>
 		</em:localized>
 		<em:localized>
 			<Description>
 				<em:locale>hr</em:locale>
 				<em:name>Shrunked Image Resizer</em:name>
-				<em:description>Smanjite Vaše fotografije da ne zauzimaju previše mjesta i učitajte ih na web stranice</em:description>
+				<em:description>Smanjite Vaše fotografije da ne zauzimaju previše mjesta i učitajte ih na web stranice.</em:description>
 			</Description>
 		</em:localized>
 		<em:localized>
 			<Description>
-				<em:locale>es-ES</em:locale>
-				<em:name>Redimensionador de imágenes Shrunked</em:name>
-				<em:description>Haz tus fotos más pequeñas para que no cueste una eternidad enviarlas por e-mail o subirlas a la web</em:description>
+				<em:locale>it</em:locale>
+				<em:name>Ridimensionatore di immagini</em:name>
+				<em:description>Fai diventare le tue foto più piccole, così da veloccizare la spedizione via email o il caricamento sul web.</em:description>
+				<em:translator>Mikael Hiort af Ornäs</em:translator>
 			</Description>
 		</em:localized>
 		<em:localized>
@@ -91,14 +99,6 @@
 				<em:name>Shrunked Image Resizer (Redimensionador de Imagens)</em:name>
 				<em:description>Diminua o tamanho de suas fotos, para evitar que demore uma eternidade para enviá-las por email ou para sites.</em:description>
 				<em:translator>Marcelo Ghelman</em:translator>
-			</Description>
-		</em:localized>
-		<em:localized>
-			<Description>
-				<em:locale>it</em:locale>
-				<em:name>Ridimensionatore di immagini</em:name>
-				<em:description>Fai diventare le tue foto più piccole, così da veloccizare la spedizione via email o il caricamento sul web</em:description>
-				<em:translator>Mikael Hiort af Ornäs</em:translator>
 			</Description>
 		</em:localized>
 		<em:localized>

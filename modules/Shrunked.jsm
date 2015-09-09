@@ -129,7 +129,6 @@ let Shrunked = {
 			'zh-CN': 'Chinese'
 		};
 		let wantedLanguages = {
-			'es-ES': 'Spanish',
 			'ru': 'Russian'
 		};
 		let chromeRegistry = Components.classes['@mozilla.org/chrome/chrome-registry;1']
