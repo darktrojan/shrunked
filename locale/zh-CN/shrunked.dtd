@@ -17,18 +17,18 @@
 <!ENTITY shrunked-custom.label "自定义">
 <!ENTITY shrunked-width.label "宽度：">
 <!ENTITY shrunked-height.label "高度：">
-<!ENTITY shrunked-preview.label "Preview:">
-<!ENTITY shrunked-preview.previous.tooltip "Previous image">
-<!ENTITY shrunked-preview.next.tooltip "Next image">
+<!ENTITY shrunked-preview.label "预览：">
+<!ENTITY shrunked-preview.previous.tooltip "预览图片">
+<!ENTITY shrunked-preview.next.tooltip "下一张图片">
 <!ENTITY shrunked-minsize.label "要调整的最小文件大小：">
 <!-- Localization note: this should match unit_kilobytes in shrunked.properties -->
 <!ENTITY shrunked-unit.kilobytes "kB">
 <!ENTITY shrunked-maxsize.label "您的图片的最大尺寸：">
 <!ENTITY shrunked-custom.pixels "px">
 <!ENTITY shrunked-advanced.label "高级">
-<!ENTITY shrunked-advanced.resample.label "使用javascript重新取样图片">
+<!ENTITY shrunked-advanced.resample.label "使用 javascript 重新采样图片">
 <!ENTITY shrunked-advanced.exif.label "转移 EXIF 数据">
 <!ENTITY shrunked-advanced.orient.label "自动旋转图片">
 <!ENTITY shrunked-advanced.gps.label "转移 GPS 数据">
-<!ENTITY shrunked-advanced.logenabled.label "Log messages to Error Console">
-<!ENTITY shrunked-compose.context.label "Resize this image…">
+<!ENTITY shrunked-advanced.logenabled.label "记录信息到错误控制台">
+<!ENTITY shrunked-compose.context.label "调整此图像的尺寸…">
