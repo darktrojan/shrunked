@@ -87,7 +87,11 @@ let Shrunked = {
 			}
 
 			idleService.addIdleObserver({
-				observe: function() {
+				observe: function(service, state) {
+					if (state != 'idle') {
+					  return;
+					}
+
 					idleService.removeIdleObserver(this, 10);
 					Shrunked.showNotification(currentVersion);
 				}
