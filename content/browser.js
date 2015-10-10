@@ -1,6 +1,6 @@
 /* global Shrunked, messageManager, PrivateBrowsingUtils */
 
-let ShrunkedBrowser = {
+this.ShrunkedBrowser = {
 	init: function ShrunkedBrowser_init() {
 		messageManager.addMessageListener('Shrunked:Resize', ShrunkedBrowser);
 		messageManager.addMessageListener('Shrunked:PromptAndResize', ShrunkedBrowser);

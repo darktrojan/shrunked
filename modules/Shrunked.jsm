@@ -1,6 +1,5 @@
 /* globals AsyncShutdown, AddonManager, OS, PluralForm, ShrunkedImage, idleService */
-/* exported EXPORTED_SYMBOLS */
-let EXPORTED_SYMBOLS = ['Shrunked'];
+this.EXPORTED_SYMBOLS = ['Shrunked'];
 
 const ID = 'shrunked@darktrojan.net';
 const DONATE_URL = 'https://addons.mozilla.org/addon/shrunked-image-resizer/contribute/installed/';

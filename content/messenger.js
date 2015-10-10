@@ -1,4 +1,4 @@
-let ShrunkedMessenger = {
+this.ShrunkedMessenger = {
 	showNotificationBar: function(text, buttons, callbackObject) {
 		return new Promise(function(resolve) {
 			callbackObject.resolve = resolve;

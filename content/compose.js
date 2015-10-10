@@ -1,4 +1,4 @@
-let ShrunkedCompose = {
+this.ShrunkedCompose = {
 	OPTIONS_DIALOG: 'chrome://shrunked/content/options.xul',
 	POPUP_ARGS: 'chrome,centerscreen,modal',
 

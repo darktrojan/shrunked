@@ -1,4 +1,4 @@
-let EXPORTED_SYMBOLS = ['ShrunkedImage'];
+this.EXPORTED_SYMBOLS = ['ShrunkedImage'];
 
 Components.utils.import('resource://gre/modules/Promise.jsm');
 Components.utils.import('resource://gre/modules/Services.jsm');

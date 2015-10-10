@@ -1,4 +1,4 @@
-let EXPORTED_SYMBOLS = ['ExifData'];
+this.EXPORTED_SYMBOLS = ['ExifData'];
 
 Components.utils.import('resource://gre/modules/Promise.jsm');
 Components.utils.import('resource://gre/modules/Task.jsm');
