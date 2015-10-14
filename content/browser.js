@@ -107,7 +107,7 @@ this.ShrunkedBrowser = {
 				}
 			}
 
-			return [ maxWidth, maxHeight ];
+			return [maxWidth, maxHeight];
 		});
 	},
 	resize: function ShrunkedBrowser_resize(files, maxWidth, maxHeight, quality) {
@@ -125,7 +125,7 @@ this.ShrunkedBrowser = {
 					newFiles.set(file, new File(destFile, { type: 'image/jpeg' }));
 				}
 			}
-			return [ newPaths, newFiles ];
+			return [newPaths, newFiles];
 		});
 	},
 	showNotificationBar: function ShrunkedBrowser_showNotificationBar(text, buttons, callbackObject) {

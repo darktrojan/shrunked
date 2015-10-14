@@ -58,11 +58,11 @@ this.ShrunkedCompose = {
 	maybeResizeInline: function ShrunkedCompose_maybeResizeInline(target) {
 		if (target.nodeName == 'IMG') {
 			try {
-				Shrunked.log('<IMG> found, source is ' + target.src.substring(0, 200) + (target.src.length <= 200 ? '' : '\u2026'));
+				Shrunked.log('<IMG> found, source is ' + target.src.substring(0, 100) + (target.src.length <= 100 ? '' : '\u2026'));
 				let parent = target.parentNode;
 				while (parent && 'classList' in parent) {
 					if (parent.classList.contains('moz-signature')) {
-					Shrunked.log('Not resizing - image is part of signature');
+						Shrunked.log('Not resizing - image is part of signature');
 						return;
 					}
 					if (parent.getAttribute('type') == 'cite') {

@@ -88,7 +88,7 @@ let Shrunked = {
 			idleService.addIdleObserver({
 				observe: function(service, state) {
 					if (state != 'idle') {
-					  return;
+						return;
 					}
 
 					idleService.removeIdleObserver(this, 10);
@@ -296,7 +296,7 @@ XPCOMUtils.defineLazyGetter(Shrunked, 'strings', function() {
 });
 XPCOMUtils.defineLazyGetter(Shrunked, 'getPluralForm', function() {
 	let pluralForm = Shrunked.strings.GetStringFromName('question_pluralform');
-	let [getPlural,] = PluralForm.makeGetter(pluralForm);
+	let [getPlural, ] = PluralForm.makeGetter(pluralForm);
 	return getPlural;
 });
 

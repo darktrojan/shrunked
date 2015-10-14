@@ -163,7 +163,7 @@ ShrunkedImage.prototype = {
 		canvas.toBlob(function(blob) {
 			try {
 				let reader = getFileReader();
-				reader.onloadend = function () {
+				reader.onloadend = function() {
 					deferred.resolve(new Uint8Array(reader.result));
 				};
 				reader.readAsArrayBuffer(blob);
