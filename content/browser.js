@@ -132,7 +132,7 @@ this.ShrunkedBrowser = {
 		return new Promise(function(resolve) {
 			callbackObject.resolve = resolve;
 
-			let notifyBox = gBrowser.getNotificationBox();
+			let notifyBox = document.getElementById('global-notificationbox') || gBrowser.getNotificationBox();
 			notifyBox.removeAllNotifications(true);
 			notifyBox.appendNotification(
 				text, 'shrunked-notification', Shrunked.icon16, notifyBox.PRIORITY_INFO_HIGH, buttons
