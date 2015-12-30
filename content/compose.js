@@ -1,4 +1,7 @@
-this.ShrunkedCompose = {
+/* globals -name, -parent */
+/* globals Components, XPCOMUtils, FileUtils, Services, Shrunked, Task */
+/* globals fixIterator, gAttachmentsSize, UpdateAttachmentBucket, gMessenger */
+var ShrunkedCompose = {
 	OPTIONS_DIALOG: 'chrome://shrunked/content/options.xul',
 	POPUP_ARGS: 'chrome,centerscreen,modal',
 
@@ -7,8 +10,9 @@ this.ShrunkedCompose = {
 	timeout: null,
 
 	init: function ShrunkedCompose_init() {
-		this.oldGenericSendMessage = window.GenericSendMessage;
-		window.GenericSendMessage = this.newGenericSendMessage.bind(this);
+		// this.oldGenericSendMessage = window.GenericSendMessage;
+		// window.GenericSendMessage = this.newGenericSendMessage.bind(this);
+		addEventListener('attachments-added', this.attachmentsAdded);
 
 		// the editor's document isn't available immediately
 		let editFrame = document.getElementById('content-frame');
@@ -129,41 +133,28 @@ this.ShrunkedCompose = {
 					clearTimeout(this.timeout);
 				}
 
-				let notifyBox = document.getElementById('shrunked-notification-box');
-				if (notifyBox.childElementCount > 0) {
-					Shrunked.log('Notification already visible');
-					return;
-				}
-
 				this.timeout = setTimeout(() => {
-					Shrunked.log('Showing resize notification');
 					this.timeout = null;
 					this.droppedCache.clear();
 
-					let buttons = [{
-						accessKey: Shrunked.strings.GetStringFromName('yes_accesskey'),
-						callback: () => {
-							this.showOptionsDialog(this.inlineImages);
-							this.inlineImages = [];
+					this.showNotification({
+						images: this.inlineImages,
+						onResize: function(image, destFile) {
+							image.src = Services.io.newFileURI(destFile).spec;
+							image.removeAttribute('width');
+							image.removeAttribute('height');
+							image.setAttribute('shrunked:resized', 'true');
 						},
-						label: Shrunked.strings.GetStringFromName('yes_label')
-					}, {
-						accessKey: Shrunked.strings.GetStringFromName('no_accesskey'),
-						callback: () => {
-							for (let img of this.inlineImages) {
+						onResizeComplete: function() {
+							ShrunkedCompose.inlineImages = [];
+						},
+						onResizeCancelled: function() {
+							for (let img of ShrunkedCompose.inlineImages) {
 								img.setAttribute('shrunked:resized', 'false');
 							}
-							this.inlineImages = [];
-						},
-						label: Shrunked.strings.GetStringFromName('no_label')
-					}];
-
-					let questions = Shrunked.strings.GetStringFromName('questions');
-					let question = Shrunked.getPluralForm(this.inlineImages.length, questions);
-
-					let notification = notifyBox.appendNotification(
-						question, 'shrunked-notification', Shrunked.icon16, notifyBox.PRIORITY_INFO_HIGH, buttons
-					);
+							ShrunkedCompose.inlineImages = [];
+						}
+					});
 				}, 500);
 			} catch (e) {
 				Components.utils.reportError(e);
@@ -175,11 +166,80 @@ this.ShrunkedCompose = {
 			}
 		}
 	},
-	showOptionsDialog: function ShrunkedCompose_showOptionsDialog(images) {
+	attachmentsAdded: function ShrunkedCompose_attachmentsAdded(event) {
+		let bucket = document.getElementById('attachmentBucket');
+		let images = [];
+		for (let attachment in fixIterator(event.detail, Components.interfaces.nsIMsgAttachment)) {
+			if (/\.jpe?g$/i.test(attachment.url) && attachment.size >= Shrunked.fileSizeMinimum) {
+				Shrunked.log('JPEG attachment detected');
+				images.push({
+					attachment: attachment,
+					src: attachment.url
+				});
+			}
+		}
+
+		if (images.length) {
+			ShrunkedCompose.showNotification({
+				images: images,
+				onResize: function(imageData, destFile) {
+					let attachment = imageData.attachment;
+					attachment.contentLocation = attachment.url;
+					attachment.url = Services.io.newFileURI(destFile).spec;
+					gAttachmentsSize += destFile.fileSize - attachment.size; // jshint ignore:line
+					attachment.size = destFile.fileSize;
+
+					UpdateAttachmentBucket(true);
+					for (let index = 0; index < bucket.getRowCount(); index++) {
+						let item = bucket.getItemAtIndex(index);
+						if (item.attachment == attachment) {
+							item.setAttribute('size', gMessenger.formatFileSize(item.attachment.size));
+						}
+					}
+				},
+				onResizeComplete: function() {
+				},
+				onResizeCancelled: function() {
+				}
+			});
+		}
+	},
+	showNotification: function(callbackObject) {
+		Shrunked.log('Showing resize notification');
+		let notifyBox = document.getElementById('shrunked-notification-box');
+		if (notifyBox.childElementCount > 0) {
+			Shrunked.log('Notification already visible');
+			return;
+		}
+
+		let buttons = [{
+			accessKey: Shrunked.strings.GetStringFromName('yes_accesskey'),
+			callback: () => {
+				Shrunked.log('Resizing started');
+				this.showOptionsDialog(callbackObject);
+			},
+			label: Shrunked.strings.GetStringFromName('yes_label')
+		}, {
+			accessKey: Shrunked.strings.GetStringFromName('no_accesskey'),
+			callback: function() {
+				Shrunked.log('Resizing cancelled');
+				callbackObject.onResizeCancelled();
+			},
+			label: Shrunked.strings.GetStringFromName('no_label')
+		}];
+
+		let questions = Shrunked.strings.GetStringFromName('questions');
+		let question = Shrunked.getPluralForm(callbackObject.images.length, questions);
+
+		notifyBox.appendNotification(
+			question, 'shrunked-notification', Shrunked.icon16, notifyBox.PRIORITY_INFO_HIGH, buttons
+		);
+	},
+	showOptionsDialog: function ShrunkedCompose_showOptionsDialog(callbackObject) {
 		let returnValues = { cancelDialog: true };
 		let imageURLs = [];
 		let imageNames = [];
-		for (let image of images) {
+		for (let image of callbackObject.images) {
 			imageURLs.push(image.src);
 			imageNames.push(image.maybesrc);
 		}
@@ -187,32 +247,36 @@ this.ShrunkedCompose = {
 		window.openDialog(this.OPTIONS_DIALOG, 'options', this.POPUP_ARGS, returnValues, imageURLs, imageNames);
 
 		if (returnValues.cancelDialog) {
+			Shrunked.log('Resizing cancelled');
 			return;
 		}
 
 		Task.spawn((function*() {
 			let {maxWidth, maxHeight} = returnValues;
 			let quality = Shrunked.prefs.getIntPref('default.quality');
+			Shrunked.log('Resizing to ' + maxWidth + ' \u00D7 ' + maxHeight + ', ' + quality + ' quality');
 			let count = 0;
-			this.setStatus(images.length);
-			for (let image of images) {
+			this.setStatus(callbackObject.images.length);
+			for (let image of callbackObject.images) {
 				try {
 					let destFile = yield Shrunked.resize(image.src, maxWidth, maxHeight, quality, image.maybesrc);
-					image.src = Services.io.newFileURI(new FileUtils.File(destFile)).spec;
-					image.removeAttribute('width');
-					image.removeAttribute('height');
-					image.setAttribute('shrunked:resized', 'true');
+					destFile = new FileUtils.File(destFile);
+					Shrunked.log('Successfully resized ' + destFile.leafName);
+					callbackObject.onResize(image, destFile);
 					this.setStatusCount(++count);
 				} catch (ex) {
 					Components.utils.reportError(ex);
 				}
 			}
 			this.clearStatus();
+			Shrunked.log('Resizing complete');
+			callbackObject.onResizeComplete();
 		}).bind(this)).catch(function(error) {
 			Components.utils.reportError(error);
 		});
 	},
 	newGenericSendMessage: function ShrunkedCompose_newGenericSendMessage(msgType) {
+		/* globals nsIMsgCompDeliverMode */
 		let doResize = msgType == nsIMsgCompDeliverMode.Now || msgType == nsIMsgCompDeliverMode.Later;
 		let images = [];
 
@@ -290,6 +354,7 @@ this.ShrunkedCompose = {
 		let meter = document.getElementById('compose-progressmeter');
 		let statuses = Shrunked.strings.GetStringFromName('status_resizing');
 
+		/* globals ToggleWindowLock */
 		ToggleWindowLock(true);
 		statusText.setAttribute('label', Shrunked.getPluralForm(total, statuses));
 		meter.setAttribute('mode', total == 1 ? 'undetermined' : 'normal');
@@ -316,7 +381,6 @@ this.ShrunkedCompose = {
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
-XPCOMUtils.defineLazyModuleGetter(window, 'Promise', 'resource://gre/modules/Promise.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Services', 'resource://gre/modules/Services.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Task', 'resource://gre/modules/Task.jsm');
