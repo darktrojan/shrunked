@@ -10,3 +10,4 @@ pref('extensions.shrunked.options.exif', true);
 pref('extensions.shrunked.options.orientation', true);
 pref('extensions.shrunked.options.gps', true);
 pref('extensions.shrunked.options.resample', true);
+pref('extensions.shrunked.resizeAttachmentsOnSend', false);

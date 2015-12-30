@@ -10,9 +10,12 @@ var ShrunkedCompose = {
 	timeout: null,
 
 	init: function ShrunkedCompose_init() {
-		// this.oldGenericSendMessage = window.GenericSendMessage;
-		// window.GenericSendMessage = this.newGenericSendMessage.bind(this);
-		addEventListener('attachments-added', this.attachmentsAdded);
+		if (Shrunked.prefs.getBoolPref('resizeAttachmentsOnSend')) {
+			this.oldGenericSendMessage = window.GenericSendMessage;
+			window.GenericSendMessage = this.newGenericSendMessage.bind(this);
+		} else {
+			addEventListener('attachments-added', this.attachmentsAdded);
+		}
 
 		// the editor's document isn't available immediately
 		let editFrame = document.getElementById('content-frame');
