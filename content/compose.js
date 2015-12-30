@@ -251,6 +251,7 @@ var ShrunkedCompose = {
 
 		if (returnValues.cancelDialog) {
 			Shrunked.log('Resizing cancelled');
+			callbackObject.onResizeCancelled();
 			return;
 		}
 
@@ -286,48 +287,43 @@ var ShrunkedCompose = {
 		try {
 			if (doResize) {
 				let bucket = document.getElementById('attachmentBucket');
-				let imageURLs = [];
-
 				for (let index = 0; index < bucket.getRowCount(); index++) {
-					let item = bucket.getItemAtIndex(index);
-					if (/\.jpe?g$/i.test(item.attachment.url) && item.attachment.size >= Shrunked.fileSizeMinimum) {
-						Shrunked.log('JPEG attachment found, source is ' + item.attachment.size);
-						images.push({ url: item.attachment.url, item: item });
-						imageURLs.push(item.attachment.url);
+					let attachment = bucket.getItemAtIndex(index).attachment;
+					if (/\.jpe?g$/i.test(attachment.url) && attachment.size >= Shrunked.fileSizeMinimum) {
+						Shrunked.log('JPEG attachment detected');
+						images.push({
+							attachment: attachment,
+							src: attachment.url
+						});
 					}
 				}
 
-				if (images.length > 0) {
-					Shrunked.log('Offering to resize ' + images.length + ' attachments');
-					let returnValues = { cancelDialog: true, isAttachment: true };
-					window.openDialog(this.OPTIONS_DIALOG, 'options', this.POPUP_ARGS, returnValues, imageURLs);
-					if (returnValues.cancelDialog) {
-						return;
-					}
-					if (returnValues.maxWidth > 0) {
-						Task.spawn((function*() {
-							let {maxWidth, maxHeight} = returnValues;
-							let quality = Shrunked.prefs.getIntPref('default.quality');
-							let count = 0;
-							this.setStatus(images.length);
-							for (let image of images) {
-								try {
-									let item = image.item;
-									let destFile = yield Shrunked.resize(image.url, maxWidth, maxHeight, quality);
-									item.attachment.contentLocation = item.attachment.url;
-									item.attachment.url = Services.io.newFileURI(new FileUtils.File(destFile)).spec;
-									this.setStatusCount(++count);
-								} catch (ex) {
-									Components.utils.reportError(ex);
+				if (images.length) {
+					ShrunkedCompose.showOptionsDialog({
+						images: images,
+						onResize: function(imageData, destFile) {
+							let attachment = imageData.attachment;
+							attachment.contentLocation = attachment.url;
+							attachment.url = Services.io.newFileURI(destFile).spec;
+							gAttachmentsSize += destFile.fileSize - attachment.size; // jshint ignore:line
+							attachment.size = destFile.fileSize;
+
+							UpdateAttachmentBucket(true);
+							for (let index = 0; index < bucket.getRowCount(); index++) {
+								let item = bucket.getItemAtIndex(index);
+								if (item.attachment == attachment) {
+									item.setAttribute('size', gMessenger.formatFileSize(item.attachment.size));
 								}
 							}
-							this.clearStatus();
+						},
+						onResizeComplete: function() {
 							finish();
-						}).bind(this)).catch(function(error) {
-							Components.utils.reportError(error);
-						});
-						return;
-					}
+						},
+						onResizeCancelled: function() {
+							finish();
+						}
+					});
+					return;
 				}
 			}
 
@@ -341,12 +337,12 @@ var ShrunkedCompose = {
 
 			// undo, in case send failed
 			if (doResize) {
-				for (let image of images) {
-					let item = image.item;
-					let contentLocation = item.attachment.contentLocation;
+				for (let imageData of images) {
+					let attachment = imageData.attachment;
+					let contentLocation = attachment.contentLocation;
 					if (contentLocation && /\.jpe?g$/i.test(contentLocation)) {
-						item.attachment.url = contentLocation;
-						item.attachment.contentLocation = null;
+						attachment.url = contentLocation;
+						attachment.contentLocation = null;
 					}
 				}
 			}
