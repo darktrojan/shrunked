@@ -1,11 +1,12 @@
+/* globals Components, XPCOMUtils, Shrunked, sendAsyncMessage, addMessageListener, content */
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
 
-let index = 1;
-let inputMap = new Map();
+var index = 1;
+var inputMap = new Map();
 
 addEventListener('change', function(event) {
-	if (event.target.localName != 'input' || event.target.type != 'file' || event.target.files.length == 0) {
+	if (event.target.localName != 'input' || event.target.type != 'file' || event.target.files.length === 0) {
 		return;
 	}
 
@@ -18,7 +19,7 @@ addEventListener('change', function(event) {
 		}
 	}
 
-	if (filesToResize.length == 0) {
+	if (filesToResize.length === 0) {
 		return;
 	}
 

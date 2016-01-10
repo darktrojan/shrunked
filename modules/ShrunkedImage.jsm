@@ -1,16 +1,18 @@
-this.EXPORTED_SYMBOLS = ['ShrunkedImage'];
+/* exported EXPORTED_SYMBOLS, ShrunkedImage */
+var EXPORTED_SYMBOLS = ['ShrunkedImage'];
 
-Components.utils.import('resource://gre/modules/Promise.jsm');
+/* globals Components, Services, Task, XPCOMUtils, ChromeWorker */
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/Task.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
+/* globals ExifData, NetUtil, OS, Shrunked */
 XPCOMUtils.defineLazyModuleGetter(this, 'ExifData', 'resource://shrunked/ExifData.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'NetUtil', 'resource://gre/modules/NetUtil.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'OS', 'resource://gre/modules/osfile.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
 
-const XHTMLNS = 'http://www.w3.org/1999/xhtml';
+var XHTMLNS = 'http://www.w3.org/1999/xhtml';
 
 function ShrunkedImage(source, maxWidth, maxHeight, quality) {
 	this.maxWidth = maxWidth;
@@ -25,11 +27,13 @@ function ShrunkedImage(source, maxWidth, maxHeight, quality) {
 			this.basename = file.leafName;
 		} else {
 			let match;
+			/* jshint -W084 */
 			if (match = /[?&]filename=([\w.-]+)/.exec(this.sourceURI.spec)) {
 				this.basename = match[1];
 			} else if (match = /\/([\w.-]+\.jpg)$/i.exec(this.sourceURI.spec)) {
 				this.basename = match[1];
 			}
+			/* jshint +W084 */
 		}
 	} else if (source instanceof Components.interfaces.nsIFile) {
 		this.sourceURI = Services.io.newFileURI(source);
@@ -54,10 +58,12 @@ ShrunkedImage.prototype = {
 			let image = yield this.loadImage();
 			let canvas = yield this.drawOnCanvas(image, orientation);
 
+			/* jshint -W069 */
 			if (this.exifData && this.exifData.exif2['a002']) {
 				this.exifData.exif2['a002'].value = canvas.width;
 				this.exifData.exif2['a003'].value = canvas.height;
 			}
+			/* jshint +W069 */
 
 			let bytes = yield this.getBytes(canvas);
 			let newPath = yield this.save(bytes);
@@ -84,94 +90,91 @@ ShrunkedImage.prototype = {
 		}).bind(this));
 	},
 	loadImage: function ShrunkedImage_load() {
-		let deferred = Promise.defer();
-
-		let image = getWindow().document.createElementNS(XHTMLNS, 'img');
-		image.onload = function() {
-			// https://bugzilla.mozilla.org/show_bug.cgi?id=574330#c54
-			if (!image.complete) {
-				image.src = image.src;
-				return;
-			}
-			deferred.resolve(image);
-		};
-		image.onerror = deferred.reject;
-		image.src = this.sourceURI.spec;
-
-		return deferred.promise;
+		return new Promise((resolve, reject) => {
+			let image = getWindow().document.createElementNS(XHTMLNS, 'img');
+			image.onload = function() {
+				// https://bugzilla.mozilla.org/show_bug.cgi?id=574330#c54
+				if (!image.complete) {
+					image.src = image.src;
+					return;
+				}
+				resolve(image);
+			};
+			image.onerror = reject;
+			image.src = this.sourceURI.spec;
+		});
 	},
 	drawOnCanvas: function ShrunkedImage_drawOnCanvas(image, orientation, resample = true) {
-		let deferred = Promise.defer();
-		let ratio = Math.max(1, image.width / this.maxWidth, image.height / this.maxHeight);
-		let resampleRatio = 1;
-		if (resample && Shrunked.options.resample) {
-			resampleRatio = Math.min(ratio, 3);
-			if (resampleRatio > 2 && resampleRatio < 3) {
-				resampleRatio = 2;
+		return new Promise((resolve) => {
+			let ratio = Math.max(1, image.width / this.maxWidth, image.height / this.maxHeight);
+			let resampleRatio = 1;
+			if (resample && Shrunked.options.resample) {
+				resampleRatio = Math.min(ratio, 3);
+				if (resampleRatio > 2 && resampleRatio < 3) {
+					resampleRatio = 2;
+				}
 			}
-		}
 
-		let width = Math.floor(image.width / ratio);
-		let height = Math.floor(image.height / ratio);
+			let width = Math.floor(image.width / ratio);
+			let height = Math.floor(image.height / ratio);
 
-		if (orientation == 90 || orientation == 270) {
-			[width, height] = [height, width];
-		}
+			if (orientation == 90 || orientation == 270) {
+				[width, height] = [height, width];
+			}
 
-		let canvas = getWindow().document.createElementNS(XHTMLNS, 'canvas');
-		canvas.width = Math.floor(width * resampleRatio);
-		canvas.height = Math.floor(height * resampleRatio);
+			let canvas = getWindow().document.createElementNS(XHTMLNS, 'canvas');
+			canvas.width = Math.floor(width * resampleRatio);
+			canvas.height = Math.floor(height * resampleRatio);
 
-		let context = canvas.getContext('2d');
-		if (orientation == 90) {
-			context.translate(0, canvas.height);
-			context.rotate(-0.5 * Math.PI);
-		} else if (orientation == 180) {
-			context.translate(canvas.width, canvas.height);
-			context.rotate(Math.PI);
-		} else if (orientation == 270) {
-			context.translate(canvas.width, 0);
-			context.rotate(0.5 * Math.PI);
-		}
-		context.drawImage(image, 0, 0, image.width / ratio * resampleRatio, image.height / ratio * resampleRatio);
+			let context = canvas.getContext('2d');
+			if (orientation == 90) {
+				context.translate(0, canvas.height);
+				context.rotate(-0.5 * Math.PI);
+			} else if (orientation == 180) {
+				context.translate(canvas.width, canvas.height);
+				context.rotate(Math.PI);
+			} else if (orientation == 270) {
+				context.translate(canvas.width, 0);
+				context.rotate(0.5 * Math.PI);
+			}
+			context.drawImage(image, 0, 0, image.width / ratio * resampleRatio, image.height / ratio * resampleRatio);
 
-		if (resampleRatio > 1) {
-			let oldData = context.getImageData(0, 0, canvas.width, canvas.height);
-			canvas.width = width;
-			canvas.height = height;
-			let newData = context.createImageData(canvas.width, canvas.height);
+			if (resampleRatio > 1) {
+				let oldData = context.getImageData(0, 0, canvas.width, canvas.height);
+				canvas.width = width;
+				canvas.height = height;
+				let newData = context.createImageData(canvas.width, canvas.height);
 
-			let worker = new ChromeWorker('resource://shrunked/worker.js');
-			worker.onmessage = function(event) {
-				context.putImageData(event.data, 0, 0);
-				deferred.resolve(canvas);
-			};
-			worker.postMessage({
-				oldData: oldData,
-				newData: newData,
-				func: (resampleRatio == 3 ? 'nineResample' : (resampleRatio == 2 ? 'fourResample' : 'floatResample')),
-				ratio: resampleRatio // only for floatResample
-			});
-		} else {
-			deferred.resolve(canvas);
-		}
-
-		return deferred.promise;
+				let worker = new ChromeWorker('resource://shrunked/worker.js');
+				worker.onmessage = function(event) {
+					context.putImageData(event.data, 0, 0);
+					resolve(canvas);
+				};
+				worker.postMessage({
+					oldData: oldData,
+					newData: newData,
+					func: (resampleRatio == 3 ? 'nineResample' : (resampleRatio == 2 ? 'fourResample' : 'floatResample')),
+					ratio: resampleRatio // only for floatResample
+				});
+			} else {
+				resolve(canvas);
+			}
+		});
 	},
 	getBytes: function ShrunkedImage_getBytes(canvas) {
-		let deferred = Promise.defer();
-		canvas.toBlob(function(blob) {
-			try {
-				let reader = getFileReader();
-				reader.onloadend = function() {
-					deferred.resolve(new Uint8Array(reader.result));
-				};
-				reader.readAsArrayBuffer(blob);
-			} catch (ex) {
-				deferred.reject(ex);
-			}
-		}, 'image/jpeg', 'quality=' + this.quality);
-		return deferred.promise;
+		return new Promise((resolve, reject) => {
+			canvas.toBlob(function(blob) {
+				try {
+					let reader = getFileReader();
+					reader.onloadend = function() {
+						resolve(new Uint8Array(reader.result));
+					};
+					reader.readAsArrayBuffer(blob);
+				} catch (ex) {
+					reject(ex);
+				}
+			}, 'image/jpeg', 'quality=' + this.quality);
+		});
 	},
 	save: function ShrunkedImage_save(bytes) {
 		let destFile;
@@ -182,8 +185,7 @@ ShrunkedImage.prototype = {
 			destFile = OS.Path.join(tempDir, 'shrunked-image.jpg');
 		}
 
-		let deferred = Promise.defer();
-		Task.spawn((function*() {
+		return Task.spawn((function*() {
 			let output = yield OS.File.openUnique(destFile);
 			let { path: outputPath, file: outputFile } = output;
 			try {
@@ -194,16 +196,13 @@ ShrunkedImage.prototype = {
 				} else {
 					yield outputFile.write(bytes);
 				}
-				deferred.resolve(outputPath);
-			} catch (ex) {
-				deferred.reject(ex);
+				return outputPath;
 			} finally {
 				outputFile.close();
 			}
 		}).bind(this)).catch(function(error) {
 			Components.utils.reportError(error);
 		});
-		return deferred.promise;
 	},
 	estimateSize: function() {
 		return this.loadImage()
@@ -214,41 +213,41 @@ ShrunkedImage.prototype = {
 };
 
 function Readable(url) {
-	let deferred = Promise.defer();
-	NetUtil.asyncFetch(url, function(stream) {
-		try {
-			let binaryStream = Components.classes['@mozilla.org/binaryinputstream;1'].createInstance(Components.interfaces.nsIBinaryInputStream);
-			binaryStream.setInputStream(stream);
-			let bytes = binaryStream.readByteArray(stream.available());
-			binaryStream.close();
-			stream.close();
+	return new Promise(function(resolve, reject) {
+		NetUtil.asyncFetch(url, function(stream) {
+			try {
+				let binaryStream = Components.classes['@mozilla.org/binaryinputstream;1'].createInstance(Components.interfaces.nsIBinaryInputStream);
+				binaryStream.setInputStream(stream);
+				let bytes = binaryStream.readByteArray(stream.available());
+				binaryStream.close();
+				stream.close();
 
-			deferred.resolve({
-				data: new Uint8Array(bytes),
-				pointer: 0,
-				read: function(count) {
-					let result;
-					if (count) {
-						result = this.data.subarray(this.pointer, this.pointer + count);
-						this.pointer += count;
-					} else {
-						result = this.data.subarray(this.pointer);
-						this.pointer = this.data.length;
+				resolve({
+					data: new Uint8Array(bytes),
+					pointer: 0,
+					read: function(count) {
+						let result;
+						if (count) {
+							result = this.data.subarray(this.pointer, this.pointer + count);
+							this.pointer += count;
+						} else {
+							result = this.data.subarray(this.pointer);
+							this.pointer = this.data.length;
+						}
+						return result;
+					},
+					setPosition: function(position) {
+						this.pointer = position;
+					},
+					close: function() {
+						delete this.data;
 					}
-					return result;
-				},
-				setPosition: function(position) {
-					this.pointer = position;
-				},
-				close: function() {
-					delete this.data;
-				}
-			});
-		} catch (ex) {
-			deferred.reject(ex);
-		}
+				});
+			} catch (ex) {
+				reject(ex);
+			}
+		});
 	});
-	return deferred.promise;
 }
 
 function getWindow() {

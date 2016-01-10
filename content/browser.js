@@ -1,6 +1,13 @@
-/* global Shrunked, messageManager, PrivateBrowsingUtils */
+/* globals Components, Shrunked, XPCOMUtils, gBrowser, messageManager, PrivateBrowsingUtils, File */
+Components.utils.import('resource://shrunked/Shrunked.jsm');
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
-this.ShrunkedBrowser = {
+/* globals FileUtils, Services, Task */
+XPCOMUtils.defineLazyModuleGetter(window, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
+XPCOMUtils.defineLazyModuleGetter(window, 'Services', 'resource://gre/modules/Services.jsm');
+XPCOMUtils.defineLazyModuleGetter(window, 'Task', 'resource://gre/modules/Task.jsm');
+
+var ShrunkedBrowser = {
 	init: function ShrunkedBrowser_init() {
 		messageManager.addMessageListener('Shrunked:Resize', ShrunkedBrowser);
 		messageManager.addMessageListener('Shrunked:PromptAndResize', ShrunkedBrowser);
@@ -143,11 +150,5 @@ this.ShrunkedBrowser = {
 		gBrowser.selectedTab = gBrowser.addTab(url);
 	}
 };
-
-Components.utils.import('resource://shrunked/Shrunked.jsm');
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-XPCOMUtils.defineLazyModuleGetter(window, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
-XPCOMUtils.defineLazyModuleGetter(window, 'Services', 'resource://gre/modules/Services.jsm');
-XPCOMUtils.defineLazyModuleGetter(window, 'Task', 'resource://gre/modules/Task.jsm');
 
 window.addEventListener('load', ShrunkedBrowser.init);

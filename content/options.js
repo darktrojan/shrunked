@@ -1,20 +1,21 @@
+/* jshint -W117 */
+/* globals Components, Shrunked, ShrunkedImage, Services */
 Components.utils.import('resource://shrunked/Shrunked.jsm');
 Components.utils.import('resource://shrunked/ShrunkedImage.jsm');
 Components.utils.import('resource://gre/modules/Services.jsm');
-Components.utils.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
 
-let returnValues = window.arguments[0];
-let imageURLs = window.arguments[1];
-let imageNames = window.arguments[2] || [];
-let imageData = [];
-let windowIsPrivate = PrivateBrowsingUtils.isWindowPrivate(window.opener);
-let imageIndex = 0;
-let maxWidth, maxHeight;
+var returnValues = window.arguments[0];
+var imageURLs = window.arguments[1];
+var imageNames = window.arguments[2] || [];
+var imageData = [];
+var imageIndex = 0;
+var maxWidth, maxHeight;
 
 for (let element of document.querySelectorAll('[id]')) {
 	window[element.id] = element;
 }
 
+/* exported load */
 function load() {
 	maxWidth = Shrunked.prefs.getIntPref('default.maxWidth');
 	maxHeight = Shrunked.prefs.getIntPref('default.maxHeight');
@@ -58,6 +59,7 @@ function load() {
 	window.sizeToContent();
 }
 
+/* exported setSize */
 function setSize() {
 	switch (rg_size.selectedIndex) {
 	case 0:
@@ -88,6 +90,7 @@ function setSize() {
 	imageLoad();
 }
 
+/* exported advancePreview */
 function advancePreview(delta) {
 	imageIndex = (imageIndex + delta + imageURLs.length) % imageURLs.length;
 	l_previewarrows.setAttribute('value', (imageIndex + 1) + '/' + imageURLs.length);
@@ -107,6 +110,7 @@ function humanSize(size) {
 	return size.toFixed(size >= 9.95 ? 0 : 1) + '\u2006' + Shrunked.strings.GetStringFromName('unit_' + unit);
 }
 
+/* exported imageLoad */
 function imageLoad() {
 	let img = new Image();
 	img.onload = function() {
@@ -180,6 +184,7 @@ function imageLoad() {
 	img.src = i_previewthumb.src;
 }
 
+/* exported accept */
 function accept() {
 	returnValues.cancelDialog = false;
 
@@ -196,6 +201,7 @@ function accept() {
 	Shrunked.prefs.setBoolPref('default.saveDefault', cb_savedefault.checked);
 }
 
+/* exported cancel */
 function cancel() {
 	returnValues.cancelDialog = true;
 }
@@ -206,7 +212,7 @@ function setValue(element, value) {
 
 function setValueFromString(element, name, ...values) {
 	let value;
-	if (values.length == 0) {
+	if (values.length === 0) {
 		value = Shrunked.strings.GetStringFromName(name);
 	} else {
 		value = Shrunked.strings.formatStringFromName(name, values, values.length);

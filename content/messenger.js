@@ -1,4 +1,8 @@
-this.ShrunkedMessenger = {
+/* globals Components, Shrunked, openLinkExternally */
+Components.utils.import('resource://shrunked/Shrunked.jsm');
+
+/* exported ShrunkedMessenger */
+var ShrunkedMessenger = {
 	showNotificationBar: function(text, buttons, callbackObject) {
 		return new Promise(function(resolve) {
 			callbackObject.resolve = resolve;
@@ -14,5 +18,3 @@ this.ShrunkedMessenger = {
 		openLinkExternally(url);
 	}
 };
-
-Components.utils.import('resource://shrunked/Shrunked.jsm');

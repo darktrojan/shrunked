@@ -1,26 +1,27 @@
-/* globals AsyncShutdown, AddonManager, OS, PluralForm, ShrunkedImage, idleService */
-this.EXPORTED_SYMBOLS = ['Shrunked'];
+/* exported EXPORTED_SYMBOLS, Shrunked */
+var EXPORTED_SYMBOLS = ['Shrunked'];
 
-const ID = 'shrunked@darktrojan.net';
-const DONATE_URL = 'https://addons.mozilla.org/addon/shrunked-image-resizer/contribute/installed/';
+var ID = 'shrunked@darktrojan.net';
+var DONATE_URL = 'https://addons.mozilla.org/addon/shrunked-image-resizer/contribute/installed/';
 
+/* globals Components, AsyncShutdown, Services, XPCOMUtils, dump */
 Components.utils.import('resource://gre/modules/AsyncShutdown.jsm');
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
+/* globals AddonManager, FileUtils, OS, PluralForm, ShrunkedImage */
 XPCOMUtils.defineLazyModuleGetter(this, 'AddonManager', 'resource://gre/modules/AddonManager.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'NetUtil', 'resource://gre/modules/NetUtil.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'OS', 'resource://gre/modules/osfile.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'PluralForm', 'resource://gre/modules/PluralForm.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'Promise', 'resource://gre/modules/Promise.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'ShrunkedImage', 'resource://shrunked/ShrunkedImage.jsm');
 
+/* globals idleService */
 XPCOMUtils.defineLazyServiceGetter(this, 'idleService', '@mozilla.org/widget/idleservice;1', 'nsIIdleService');
 
-let temporaryFiles = [];
+var temporaryFiles = [];
 
-let Shrunked = {
+var Shrunked = {
 	get fileSizeMinimum() {
 		return Shrunked.prefs.getIntPref('fileSizeMinimum') * 1000;
 	},
@@ -39,18 +40,14 @@ let Shrunked = {
 		return !!request && request.mimeType == 'image/jpeg';
 	},
 	resize: function Shrunked_resize(sourceFile, maxWidth, maxHeight, quality, name) {
-		let deferred = Promise.defer();
 		let image = new ShrunkedImage(sourceFile, maxWidth, maxHeight, quality);
 		if (!!name) {
 			image.basename = name;
 		}
-		image.resize().then(function(destFile) {
+		return image.resize().then(function(destFile) {
 			temporaryFiles.push(destFile);
-			deferred.resolve(destFile);
-		}, function(error) {
-			deferred.reject(error);
+			return destFile;
 		});
-		return deferred.promise;
 	},
 	cleanup: function Shrunked_cleanup() {
 		let promises = [];
@@ -81,7 +78,7 @@ let Shrunked = {
 			currentVersion = parseVersion(addon.version);
 			Shrunked.prefs.setCharPref('version', addon.version);
 
-			if (!shouldRemind || oldVersion == 0 || Services.vc.compare(oldVersion, currentVersion) >= 0) {
+			if (!shouldRemind || oldVersion === 0 || Services.vc.compare(oldVersion, currentVersion) >= 0) {
 				return;
 			}
 
@@ -180,54 +177,51 @@ let Shrunked = {
 		Shrunked.prefs.setIntPref('donationreminder', Date.now() / 1000);
 	},
 	getContentPref: function Shrunked_getContentPref(uri, name, context) {
-		let deferred = Promise.defer();
-
-		this.contentPrefs2.getByDomainAndName(uri.host, name, context, {
-			handleCompletion: function() {
-				// If we get here without calling handleError or handleResult, there is no pref.
-				deferred.resolve(null);
-			},
-			handleError: function(error) {
-				deferred.reject(error);
-			},
-			handleResult: function(pref) {
-				deferred.resolve(pref.value);
-			}
-		});
-
-		return deferred.promise;
-	},
-	getAllContentPrefs: function Shrunked_getAllContentPrefs(name) {
-		let deferred = Promise.defer();
-		let allPrefs = new Map();
-
-		if ('getByName' in this.contentPrefs2) {
-			this.contentPrefs2.getByName(name, null, {
+		return new Promise((resolve, reject) => {
+			this.contentPrefs2.getByDomainAndName(uri.host, name, context, {
 				handleCompletion: function() {
-					deferred.resolve(allPrefs);
+					// If we get here without calling handleError or handleResult, there is no pref.
+					resolve(null);
 				},
 				handleError: function(error) {
-					deferred.reject(error);
+					reject(error);
 				},
 				handleResult: function(pref) {
-					allPrefs.set(pref.domain, pref.value);
+					resolve(pref.value);
 				}
 			});
-		} else {
-			try {
-				let prefs = Services.contentPrefs.getPrefsByName(name, null);
-				let enumerator = prefs.enumerator;
-				while (enumerator.hasMoreElements()) {
-					let property = enumerator.getNext().QueryInterface(Components.interfaces.nsIProperty);
-					allPrefs.set(property.name, property.value);
-				}
-				deferred.resolve(allPrefs);
-			} catch (e) {
-				deferred.reject(e);
-			}
-		}
+		});
+	},
+	getAllContentPrefs: function Shrunked_getAllContentPrefs(name) {
+		return new Promise((resolve, reject) => {
+			let allPrefs = new Map();
 
-		return deferred.promise;
+			if ('getByName' in this.contentPrefs2) {
+				this.contentPrefs2.getByName(name, null, {
+					handleCompletion: function() {
+						resolve(allPrefs);
+					},
+					handleError: function(error) {
+						reject(error);
+					},
+					handleResult: function(pref) {
+						allPrefs.set(pref.domain, pref.value);
+					}
+				});
+			} else {
+				try {
+					let prefs = Services.contentPrefs.getPrefsByName(name, null);
+					let enumerator = prefs.enumerator;
+					while (enumerator.hasMoreElements()) {
+						let property = enumerator.getNext().QueryInterface(Components.interfaces.nsIProperty);
+						allPrefs.set(property.name, property.value);
+					}
+					resolve(allPrefs);
+				} catch (e) {
+					reject(e);
+				}
+			}
+		});
 	},
 	log: function Shrunked_log(message) {
 		if (this.logEnabled) {
@@ -302,7 +296,7 @@ XPCOMUtils.defineLazyGetter(Shrunked, 'getPluralForm', function() {
 
 AsyncShutdown.profileBeforeChange.addBlocker('Shrunked: clean up temporary files', Shrunked.cleanup);
 
-let observer = {
+var observer = {
 	observe: function(subject, topic) {
 		switch (topic) {
 			case 'quit-application-granted':

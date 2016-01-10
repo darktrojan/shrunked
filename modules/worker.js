@@ -1,3 +1,4 @@
+/* globals self */
 self.onmessage = function(event) {
 	let {oldData, newData, ratio, func} = event.data;
 
@@ -6,6 +7,7 @@ self.onmessage = function(event) {
 	self.postMessage(newData);
 };
 
+/* exported nineResample*/
 function nineResample(oldData, newData) {
 	let oldPix = oldData.data;
 	let oldWidth = oldData.width;
@@ -75,6 +77,7 @@ function nineResample(oldData, newData) {
 	}
 }
 
+/* exported fourResample*/
 function fourResample(oldData, newData) {
 	let oldPix = oldData.data;
 	let oldWidth = oldData.width;
@@ -120,6 +123,7 @@ function fourResample(oldData, newData) {
 	}
 }
 
+/* exported floatResample*/
 function floatResample(oldData, newData, ratio) {
 	let oldPix = oldData.data;
 	let oldWidth = oldData.width;

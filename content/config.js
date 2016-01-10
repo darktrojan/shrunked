@@ -1,3 +1,6 @@
+/* jshint -W117 */
+/* jshint browser: false */
+/* globals Components, Services, Task, Shrunked */
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/Task.jsm');
 Components.utils.import('resource://shrunked/Shrunked.jsm');
@@ -9,6 +12,7 @@ for (let element of document.querySelectorAll('[id]')) {
 	window[element.id] = element;
 }
 
+/* exported load */
 function load() {
 	if (IS_FIREFOX) {
 		r_noresize.collapsed = true;
@@ -57,6 +61,7 @@ function load() {
 	window.sizeToContent();
 }
 
+/* exported setSize */
 function setSize() {
 	l_width.disabled = tb_width.disabled =
 		l_height.disabled = tb_height.disabled = !r_custom.selected;
@@ -78,10 +83,12 @@ function setSize() {
 	}
 }
 
+/* exported enableExif */
 function enableExif() {
 	cb_orient.disabled = cb_gps.disabled = !cb_exif.checked;
 }
 
+/* exported handleData */
 function handleData(data) {
 	for (let [domain, prefs] of data) {
 		if (prefs.disabled) {
@@ -110,10 +117,12 @@ function handleData(data) {
 	}
 }
 
+/* exported enableForget */
 function enableForget() {
-	b_forget.disabled = lb_sites.selectedItem == null;
+	b_forget.disabled = lb_sites.selectedItem === null;
 }
 
+/* exported forgetSite */
 function forgetSite() {
 	let item = lb_sites.getSelectedItem(0);
 	if (item) {

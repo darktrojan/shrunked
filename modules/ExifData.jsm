@@ -1,9 +1,11 @@
-this.EXPORTED_SYMBOLS = ['ExifData'];
+/* exported EXPORTED_SYMBOLS, ExifData */
+var EXPORTED_SYMBOLS = ['ExifData'];
 
-Components.utils.import('resource://gre/modules/Promise.jsm');
+/* globals Components, Task, XPCOMUtils, Iterator */
 Components.utils.import('resource://gre/modules/Task.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
+/* globals Shrunked */
 XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
 
 function ExifData() {
@@ -29,38 +31,31 @@ ExifData.prototype = {
 	},
 	_readSection: function ExifData__readSection() {
 		let fieldLengths = [null, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8];
-		let deferred = Promise.defer();
-		Task.spawn((function*() {
-			try {
-				let section = {};
-				let array = yield this.readable.read(2);
-				let sectionSize = this._getShort(array);
-				array = yield this.readable.read(12 * sectionSize);
-				for (let i = 0; i < sectionSize; i++) {
-					let sub = array.subarray(i * 12, i * 12 + 12);
-					let field = {
-						code: this._getShort(sub, 0),
-						type: this._getShort(sub, 2),
-						count: this._getInt(sub, 4),
-						value: this._getInt(sub, 8)
-					};
-					field.size = field.count * fieldLengths[field.type];
-					if (field.size > 4) {
-						this.readable.setPosition(12 + field.value);
-						field.data = yield this.readable.read(field.size);
-					}
-					section[field.code.toString(16)] = field;
+		return Task.spawn((function*() {
+			let section = {};
+			let array = yield this.readable.read(2);
+			let sectionSize = this._getShort(array);
+			array = yield this.readable.read(12 * sectionSize);
+			for (let i = 0; i < sectionSize; i++) {
+				let sub = array.subarray(i * 12, i * 12 + 12);
+				let field = {
+					code: this._getShort(sub, 0),
+					type: this._getShort(sub, 2),
+					count: this._getInt(sub, 4),
+					value: this._getInt(sub, 8)
+				};
+				field.size = field.count * fieldLengths[field.type];
+				if (field.size > 4) {
+					this.readable.setPosition(12 + field.value);
+					field.data = yield this.readable.read(field.size);
 				}
-				deferred.resolve(section);
-			} catch (ex) {
-				deferred.reject(ex);
+				section[field.code.toString(16)] = field;
 			}
+			return section;
 		}).bind(this));
-		return deferred.promise;
 	},
 	read: function ExifData_read(readable) {
-		let deferred = Promise.defer();
-		Task.spawn((function*() {
+		return Task.spawn((function*() {
 			try {
 				this.readable = readable;
 				let array = yield this.readable.read(4);
@@ -110,15 +105,10 @@ ExifData.prototype = {
 						delete this.exif2[key];
 					}
 				}
-
-				deferred.resolve();
-			} catch (ex) {
-				deferred.reject(ex);
 			} finally {
 				this.readable.close();
 			}
 		}).bind(this));
-		return deferred.promise;
 	},
 	_countSection: function ExifData__countSection(section) {
 		if (!section) {
@@ -181,47 +171,40 @@ ExifData.prototype = {
 		return dataindex;
 	},
 	write: function ExifData_write(file) {
-		let deferred = Promise.defer();
-		Task.spawn((function*() {
-			try {
-				let [e1count, e1size] = this._countSection(this.exif1);
-				let [e2count, e2size] = this._countSection(this.exif2);
-				this.exif1['8769'].value = 8 + e1size;
+		return Task.spawn((function*() {
+			let [e1count, e1size] = this._countSection(this.exif1);
+			let [e2count, e2size] = this._countSection(this.exif2);
+			this.exif1['8769'].value = 8 + e1size;
 
-				let [gpscount, gpssize] = this._countSection(this.gps);
-				if (Shrunked.options.gps && this.gps) {
-					this.exif1['8825'].value = 8 + e1size + e2size;
-				} else {
-					delete this.exif1['8825'];
-					gpssize = 0;
-				}
-
-				let buffer = new Uint8Array(20 + e1size + e2size + gpssize);
-				buffer.set([0xFF, 0xD8, 0xFF, 0xE1]);
-				buffer[4] = ((buffer.length - 4) & 0xFF00) >> 8;
-				buffer[5] = (buffer.length - 4) & 0x00FF;
-				buffer.set([0x45, 0x78, 0x69, 0x66], 6);
-				if (this.littleEndian) {
-					buffer.set([0x49, 0x49], 12);
-				} else {
-					buffer.set([0x4D, 0x4D], 12);
-				}
-				buffer.set(this._get2Bytes(0x2A), 14);
-				buffer.set(this._get4Bytes(0x08), 16);
-
-				let index = 20;
-				index = this._writeSection(this.exif1, buffer, index, e1count);
-				index = this._writeSection(this.exif2, buffer, index, e2count);
-				if (Shrunked.options.gps && this.gps) {
-					this._writeSection(this.gps, buffer, index, gpscount);
-				}
-
-				yield file.write(buffer);
-				deferred.resolve();
-			} catch (ex) {
-				deferred.reject(ex);
+			let [gpscount, gpssize] = this._countSection(this.gps);
+			if (Shrunked.options.gps && this.gps) {
+				this.exif1['8825'].value = 8 + e1size + e2size;
+			} else {
+				delete this.exif1['8825'];
+				gpssize = 0;
 			}
+
+			let buffer = new Uint8Array(20 + e1size + e2size + gpssize);
+			buffer.set([0xFF, 0xD8, 0xFF, 0xE1]);
+			buffer[4] = ((buffer.length - 4) & 0xFF00) >> 8;
+			buffer[5] = (buffer.length - 4) & 0x00FF;
+			buffer.set([0x45, 0x78, 0x69, 0x66], 6);
+			if (this.littleEndian) {
+				buffer.set([0x49, 0x49], 12);
+			} else {
+				buffer.set([0x4D, 0x4D], 12);
+			}
+			buffer.set(this._get2Bytes(0x2A), 14);
+			buffer.set(this._get4Bytes(0x08), 16);
+
+			let index = 20;
+			index = this._writeSection(this.exif1, buffer, index, e1count);
+			index = this._writeSection(this.exif2, buffer, index, e2count);
+			if (Shrunked.options.gps && this.gps) {
+				this._writeSection(this.gps, buffer, index, gpscount);
+			}
+
+			yield file.write(buffer);
 		}).bind(this));
-		return deferred.promise;
 	}
 };
