@@ -4,19 +4,26 @@
 <overlay id="shrunked-compose-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
 	<menupopup id="msgComposeContext">
-		<menuseparator id="shrunked-context-item" insertbefore="spellCheckSeparator" />
-		<menuitem id="shrunked-context-separator"
+		<menuseparator id="shrunked-content-context-separator" insertbefore="spellCheckSeparator" />
+		<menuitem id="shrunked-content-context-item"
 			label="&shrunked-compose.context.label;"
 			insertbefore="spellCheckSeparator"
-			oncommand="ShrunkedCompose.showOptionsDialog([document.popupNode]);" />
+			oncommand="ShrunkedCompose.onContentContextMenuCommand();" />
 	</menupopup>
 
 	<menupopup id="contentAreaContextMenu">
-		<menuseparator id="shrunked-context-item" insertbefore="spell-separator" />
-		<menuitem id="shrunked-context-separator"
+		<menuseparator id="shrunked-content-context-separator" insertbefore="spell-separator" />
+		<menuitem id="shrunked-content-context-item"
 			label="&shrunked-compose.context.label;"
 			insertbefore="spell-separator"
-			oncommand="ShrunkedCompose.showOptionsDialog([document.popupNode]);" />
+			oncommand="ShrunkedCompose.onContentContextMenuCommand();" />
+	</menupopup>
+
+	<menupopup id="msgComposeAttachmentItemContext">
+		<menuitem id="shrunked-attachment-context-item"
+			label="&shrunked-compose.context.label;"
+			insertbefore="composeAttachmentContext_renameItem"
+			oncommand="ShrunkedCompose.onAttachmentContextMenuCommand();" />
 	</menupopup>
 
 	<hbox insertbefore="status-bar">

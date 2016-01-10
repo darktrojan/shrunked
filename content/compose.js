@@ -42,8 +42,9 @@ var ShrunkedCompose = {
 			}
 		});
 
-		let context = document.getElementById('msgComposeContext') || document.getElementById('contentAreaContextMenu');
-		context.addEventListener('popupshowing', function() {
+		let contentContext = document.getElementById('msgComposeContext') ||
+				document.getElementById('contentAreaContextMenu');
+		contentContext.addEventListener('popupshowing', function() {
 			let target = document.popupNode;
 			let shouldShow = false;
 			if (target.nodeName == 'IMG') {
@@ -58,8 +59,24 @@ var ShrunkedCompose = {
 					Shrunked.log('Not resizing - image is not JPEG');
 				}
 			}
-			document.getElementById('shrunked-context-item').style.display = shouldShow ? null : 'none';
-			document.getElementById('shrunked-context-separator').style.display = shouldShow ? null : 'none';
+			document.getElementById('shrunked-content-context-item').hidden = !shouldShow;
+			document.getElementById('shrunked-content-context-separator').hidden = !shouldShow;
+		});
+
+		let attachmentContext = document.getElementById('msgComposeAttachmentItemContext');
+		attachmentContext.addEventListener('popupshowing', function() {
+			let shouldShow = false;
+			let bucket = document.getElementById('attachmentBucket');
+			if (bucket.selectedItems.length == 1) {
+				Shrunked.log('Context menu on a single attachment');
+				let attachment = bucket.getSelectedItem(0).attachment;
+				if (/\.jpe?g$/i.test(attachment.url) && attachment.size >= Shrunked.fileSizeMinimum) {
+					shouldShow = true;
+				} else {
+					Shrunked.log('Not resizing - image is too small or not JPEG');
+				}
+			}
+			document.getElementById('shrunked-attachment-context-item').hidden = !shouldShow;
 		});
 	},
 	maybeResizeInline: function ShrunkedCompose_maybeResizeInline(target) {
@@ -196,7 +213,7 @@ var ShrunkedCompose = {
 					for (let index = 0; index < bucket.getRowCount(); index++) {
 						let item = bucket.getItemAtIndex(index);
 						if (item.attachment == attachment) {
-							item.setAttribute('size', gMessenger.formatFileSize(item.attachment.size));
+							item.setAttribute('size', gMessenger.formatFileSize(attachment.size));
 						}
 					}
 				},
@@ -206,6 +223,41 @@ var ShrunkedCompose = {
 				}
 			});
 		}
+	},
+	onContentContextMenuCommand: function() {
+		this.showOptionsDialog({
+			images: [document.popupNode],
+			onResize: function(image, destFile) {
+				image.src = Services.io.newFileURI(destFile).spec;
+				image.removeAttribute('width');
+				image.removeAttribute('height');
+				image.setAttribute('shrunked:resized', 'true');
+			},
+			onResizeComplete: function() {},
+			onResizeCancelled: function() {}
+		});
+	},
+	onAttachmentContextMenuCommand: function() {
+		let bucket = document.getElementById('attachmentBucket');
+		let item = bucket.getSelectedItem(0);
+		let attachment = item.attachment;
+		this.showOptionsDialog({
+			images: [{
+				attachment: attachment,
+				src: attachment.url
+			}],
+			onResize: function(image, destFile) {
+				attachment.contentLocation = attachment.url;
+				attachment.url = Services.io.newFileURI(destFile).spec;
+				gAttachmentsSize += destFile.fileSize - attachment.size; // jshint ignore:line
+				attachment.size = destFile.fileSize;
+
+				UpdateAttachmentBucket(true);
+				item.setAttribute('size', gMessenger.formatFileSize(attachment.size));
+			},
+			onResizeComplete: function() {},
+			onResizeCancelled: function() {}
+		});
 	},
 	showNotification: function(callbackObject) {
 		Shrunked.log('Showing resize notification');
