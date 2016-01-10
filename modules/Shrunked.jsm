@@ -4,8 +4,7 @@ var EXPORTED_SYMBOLS = ['Shrunked'];
 var ID = 'shrunked@darktrojan.net';
 var DONATE_URL = 'https://addons.mozilla.org/addon/shrunked-image-resizer/contribute/installed/';
 
-/* globals Components, AsyncShutdown, Services, XPCOMUtils, dump */
-Components.utils.import('resource://gre/modules/AsyncShutdown.jsm');
+/* globals Components, Services, XPCOMUtils, dump */
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
@@ -294,29 +293,30 @@ XPCOMUtils.defineLazyGetter(Shrunked, 'getPluralForm', function() {
 	return getPlural;
 });
 
-AsyncShutdown.profileBeforeChange.addBlocker('Shrunked: clean up temporary files', Shrunked.cleanup);
+if (Services.appinfo.processType == Services.appinfo.PROCESS_TYPE_DEFAULT) {
+	/* globals AsyncShutdown */
+	Components.utils.import('resource://gre/modules/AsyncShutdown.jsm');
+	AsyncShutdown.profileBeforeChange.addBlocker('Shrunked: clean up temporary files', Shrunked.cleanup);
 
-var observer = {
-	observe: function(subject, topic) {
-		switch (topic) {
-			case 'quit-application-granted':
-				Services.obs.removeObserver(this, 'last-pb-context-exited');
-				Services.obs.removeObserver(this, 'quit-application-granted');
-				Services.obs.removeObserver(this, 'browser:purge-session-history');
-				return;
-			case 'last-pb-context-exited':
-			case 'browser:purge-session-history':
-				Shrunked.cleanup();
-				return;
+	var observer = {
+		observe: function(subject, topic) {
+			switch (topic) {
+				case 'quit-application-granted':
+					Services.obs.removeObserver(this, 'last-pb-context-exited');
+					Services.obs.removeObserver(this, 'quit-application-granted');
+					Services.obs.removeObserver(this, 'browser:purge-session-history');
+					return;
+				case 'last-pb-context-exited':
+				case 'browser:purge-session-history':
+					Shrunked.cleanup();
+					return;
+			}
 		}
-	}
-};
+	};
 
-if (Components.classes['@mozilla.org/xre/app-info;1'].getService(Components.interfaces.nsIXULRuntime).processType ==
-		Components.interfaces.nsIXULRuntime.PROCESS_TYPE_DEFAULT) {
 	Shrunked.versionUpgrade();
-}
 
-Services.obs.addObserver(observer, 'last-pb-context-exited', false);
-Services.obs.addObserver(observer, 'quit-application-granted', false);
-Services.obs.addObserver(observer, 'browser:purge-session-history', false);
+	Services.obs.addObserver(observer, 'last-pb-context-exited', false);
+	Services.obs.addObserver(observer, 'quit-application-granted', false);
+	Services.obs.addObserver(observer, 'browser:purge-session-history', false);
+}
