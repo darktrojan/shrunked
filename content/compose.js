@@ -22,7 +22,7 @@ var ShrunkedCompose = {
 		editFrame.addEventListener('pageshow', function addObserver() {
 			editFrame.removeEventListener('pageshow', addObserver, false);
 			let target = editFrame.contentDocument.body;
-			let config = { attributes: false, childList: true, characterData: false };
+			let config = { attributes: false, childList: true, characterData: false, subtree: true };
 			let observer = new MutationObserver(function(mutations) {
 				for (let mutation of mutations) {
 					if (mutation.addedNodes && mutation.addedNodes.length) {
