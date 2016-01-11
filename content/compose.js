@@ -59,24 +59,36 @@ var ShrunkedCompose = {
 					Shrunked.log('Not resizing - image is not JPEG');
 				}
 			}
-			document.getElementById('shrunked-content-context-item').hidden = !shouldShow;
+
+			let menuitem = document.getElementById('shrunked-content-context-item');
+			menuitem.hidden = !shouldShow;
+			if (shouldShow) {
+				let labels = Shrunked.strings.GetStringFromName('context_label');
+				menuitem.label = Shrunked.getPluralForm(1, labels);
+			}
 			document.getElementById('shrunked-content-context-separator').hidden = !shouldShow;
 		});
 
 		let attachmentContext = document.getElementById('msgComposeAttachmentItemContext');
 		attachmentContext.addEventListener('popupshowing', function() {
-			let shouldShow = false;
-			let bucket = document.getElementById('attachmentBucket');
-			if (bucket.selectedItems.length == 1) {
-				Shrunked.log('Context menu on a single attachment');
-				let attachment = bucket.getSelectedItem(0).attachment;
+			Shrunked.log('Context menu on attachments');
+			let imageCount = 0;
+			let items = document.getElementById('attachmentBucket').selectedItems;
+			for (let i = 0; i < items.length; i++) {
+				let attachment = items[i].attachment;
 				if (/\.jpe?g$/i.test(attachment.url) && attachment.size >= Shrunked.fileSizeMinimum) {
-					shouldShow = true;
-				} else {
-					Shrunked.log('Not resizing - image is too small or not JPEG');
+					imageCount++;
 				}
 			}
-			document.getElementById('shrunked-attachment-context-item').hidden = !shouldShow;
+
+			let menuitem = document.getElementById('shrunked-attachment-context-item');
+			menuitem.hidden = !imageCount;
+			if (imageCount >= 1) {
+				let labels = Shrunked.strings.GetStringFromName('context_label');
+				menuitem.label = Shrunked.getPluralForm(imageCount, labels);
+			} else {
+				Shrunked.log('Not resizing - no attachments were JPEG and large enough');
+			}
 		});
 	},
 	maybeResizeInline: function ShrunkedCompose_maybeResizeInline(target) {
@@ -238,22 +250,29 @@ var ShrunkedCompose = {
 		});
 	},
 	onAttachmentContextMenuCommand: function() {
-		let bucket = document.getElementById('attachmentBucket');
-		let item = bucket.getSelectedItem(0);
-		let attachment = item.attachment;
+		let items = document.getElementById('attachmentBucket').selectedItems;
+		let images = [];
+		for (let i = 0; i < items.length; i++) {
+			let attachment = items[i].attachment;
+			if (/\.jpe?g$/i.test(attachment.url) && attachment.size >= Shrunked.fileSizeMinimum) {
+				images.push({
+					attachment: attachment,
+					item: items[i],
+					src: attachment.url
+				});
+			}
+		}
 		this.showOptionsDialog({
-			images: [{
-				attachment: attachment,
-				src: attachment.url
-			}],
-			onResize: function(image, destFile) {
+			images: images,
+			onResize: function(imageData, destFile) {
+				let attachment = imageData.attachment;
 				attachment.contentLocation = attachment.url;
 				attachment.url = Services.io.newFileURI(destFile).spec;
 				gAttachmentsSize += destFile.fileSize - attachment.size; // jshint ignore:line
 				attachment.size = destFile.fileSize;
 
 				UpdateAttachmentBucket(true);
-				item.setAttribute('size', gMessenger.formatFileSize(attachment.size));
+				imageData.item.setAttribute('size', gMessenger.formatFileSize(attachment.size));
 			},
 			onResizeComplete: function() {},
 			onResizeCancelled: function() {}

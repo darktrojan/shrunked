@@ -6,7 +6,6 @@
 	<menupopup id="msgComposeContext">
 		<menuseparator id="shrunked-content-context-separator" insertbefore="spellCheckSeparator" />
 		<menuitem id="shrunked-content-context-item"
-			label="&shrunked-compose.context.label;"
 			insertbefore="spellCheckSeparator"
 			oncommand="ShrunkedCompose.onContentContextMenuCommand();" />
 	</menupopup>
@@ -14,14 +13,12 @@
 	<menupopup id="contentAreaContextMenu">
 		<menuseparator id="shrunked-content-context-separator" insertbefore="spell-separator" />
 		<menuitem id="shrunked-content-context-item"
-			label="&shrunked-compose.context.label;"
 			insertbefore="spell-separator"
 			oncommand="ShrunkedCompose.onContentContextMenuCommand();" />
 	</menupopup>
 
 	<menupopup id="msgComposeAttachmentItemContext">
 		<menuitem id="shrunked-attachment-context-item"
-			label="&shrunked-compose.context.label;"
 			insertbefore="composeAttachmentContext_renameItem"
 			oncommand="ShrunkedCompose.onAttachmentContextMenuCommand();" />
 	</menupopup>
