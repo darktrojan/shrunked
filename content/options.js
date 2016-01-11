@@ -128,6 +128,15 @@ function imageLoad() {
 				let file = uri.QueryInterface(Components.interfaces.nsIFileURL).file;
 				data.filename = file.leafName;
 				data.originalSize = humanSize(file.fileSize);
+			} else if (uri.schemeIs('data')) {
+				let srcSize = (src.length - src.indexOf(',') - 1) * 3 / 4;
+				if (src.substr(-1) == '=') {
+					srcSize--;
+					if (src.substr(-2, 1) == '=') {
+						srcSize--;
+					}
+				}
+				data.originalSize = humanSize(srcSize);
 			}
 		}
 		if (data.filename === undefined) {
