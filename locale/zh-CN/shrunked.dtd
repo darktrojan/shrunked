@@ -31,4 +31,3 @@
 <!ENTITY shrunked-advanced.orient.label "自动旋转图片">
 <!ENTITY shrunked-advanced.gps.label "转移 GPS 数据">
 <!ENTITY shrunked-advanced.logenabled.label "记录信息到错误控制台">
-<!ENTITY shrunked-compose.context.label "调整此图像的尺寸…">
