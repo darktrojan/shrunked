@@ -80,7 +80,7 @@ var ShrunkedBrowser = {
 				let questions = Shrunked.strings.GetStringFromName('questions');
 				let question = Shrunked.getPluralForm(files.length, questions);
 
-				let action = yield ShrunkedBrowser.showNotificationBar(question, buttons, callbackObject);
+				let action = yield ShrunkedBrowser.showNotificationBar(question, buttons, callbackObject, false);
 				if (action == 'no') {
 					return;
 				}
@@ -135,11 +135,14 @@ var ShrunkedBrowser = {
 			return [newPaths, newFiles];
 		});
 	},
-	showNotificationBar: function ShrunkedBrowser_showNotificationBar(text, buttons, callbackObject) {
+	showNotificationBar: function ShrunkedBrowser_showNotificationBar(text, buttons, callbackObject, useGlobal=true) {
 		return new Promise(function(resolve) {
 			callbackObject.resolve = resolve;
 
-			let notifyBox = document.getElementById('global-notificationbox') || gBrowser.getNotificationBox();
+			let notifyBox = document.getElementById('global-notificationbox');
+			if (!notifyBox || !useGlobal) {
+				notifyBox = gBrowser.getNotificationBox();
+			}
 			notifyBox.removeAllNotifications(true);
 			notifyBox.appendNotification(
 				text, 'shrunked-notification', Shrunked.icon16, notifyBox.PRIORITY_INFO_HIGH, buttons
