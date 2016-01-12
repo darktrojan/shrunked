@@ -109,6 +109,14 @@
 				<em:translator>Mikael Hiort af Ornäs</em:translator>
 			</Description>
 		</em:localized>
+		<em:localized>
+			<Description>
+				<em:locale>zh-CN</em:locale>
+				<em:name>Shrunked Image Resizer</em:name>
+				<em:description>让你的照片尺寸更小一点，以免超过电子邮件或者网站上传的限制。</em:description>
+				<em:translator>Mikael Hiort af Ornäs</em:translator>
+			</Description>
+		</em:localized>
 	</Description>
 
 </RDF>
