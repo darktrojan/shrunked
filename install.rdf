@@ -37,14 +37,6 @@
 
 		<em:localized>
 			<Description>
-				<em:locale>ca-AD</em:locale>
-				<em:name>Shrunked Image Resizer</em:name>
-				<em:description>Fes les teves fotos més petites, per a que les puguis enviar per correu-e o pujar a webs.</em:description>
-				<em:translator>el_libre</em:translator>
-			</Description>
-		</em:localized>
-		<em:localized>
-			<Description>
 				<em:locale>cs</em:locale>
 				<em:name>Shrunked Image Resizer - změna velikosti obrázků</em:name>
 				<em:description>Zmenší obrázky, takže to netrvá uherský rok odeslat e-mail s fotografiemi.</em:description>
@@ -91,22 +83,6 @@
 				<em:locale>nl</em:locale>
 				<em:name>Shrunked Afbeeldingsverkleiner</em:name>
 				<em:description>Verkleint uw afbeeldingen zodat de tijd om ze te e-mailen of naar websites te uploaden afneemt.</em:description>
-			</Description>
-		</em:localized>
-		<em:localized>
-			<Description>
-				<em:locale>pt-BR</em:locale>
-				<em:name>Shrunked Image Resizer (Redimensionador de Imagens)</em:name>
-				<em:description>Diminua o tamanho de suas fotos, para evitar que demore uma eternidade para enviá-las por email ou para sites.</em:description>
-				<em:translator>Marcelo Ghelman</em:translator>
-			</Description>
-		</em:localized>
-		<em:localized>
-			<Description>
-				<em:locale>sv-SE</em:locale>
-				<em:name>Shrunked Image Resizer</em:name>
-				<em:description>Gör dina bilder mindre, så att de inte tar evigheter att skicka med e-post eller ladda upp till webbplatser.</em:description>
-				<em:translator>Mikael Hiort af Ornäs</em:translator>
 			</Description>
 		</em:localized>
 		<em:localized>

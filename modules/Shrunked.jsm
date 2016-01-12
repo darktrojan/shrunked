@@ -119,56 +119,10 @@ var Shrunked = {
 			}
 		}
 
-		let updateLanguages = {
-			'ca': 'Catalan',
-			'pl': 'Polish',
-			'pt-BR': 'Brazilian Portuguese',
-			'sv-SE': 'Swedish',
-			'tr': 'Turkish',
-			'zh-CN': 'Chinese'
-		};
-		let wantedLanguages = {
-			'ru': 'Russian'
-		};
-		let chromeRegistry = Components.classes['@mozilla.org/chrome/chrome-registry;1']
-			.getService(Components.interfaces.nsIXULChromeRegistry);
-		let currentLocale = chromeRegistry.getSelectedLocale('shrunked');
-		let globalLocale = chromeRegistry.getSelectedLocale('global');
-
-		if (currentLocale in updateLanguages) {
-			label = 'Shrunked Image Resizer has been updated to version ' + currentVersion + '. ' +
-				'We need somebody to update the ' + updateLanguages[currentLocale] + ' translation. Can you help?';
-			buttons.unshift({
-				label: 'Find out more',
-				accessKey: 'F',
-				popup: null,
-				callback: function() {
-					callbackObject.resolve('update');
-				}
-			});
-		} else if (globalLocale in wantedLanguages) {
-			label = 'Shrunked Image Resizer has been updated to version ' + currentVersion + '. ' +
-				'Can you help by translating Shrunked into ' + wantedLanguages[globalLocale] + '?';
-			buttons.unshift({
-				label: 'Find out more',
-				accessKey: 'F',
-				popup: null,
-				callback: function() {
-					callbackObject.resolve('wanted');
-				}
-			});
-		}
-
 		shrunkedWindow.showNotificationBar(label, buttons, callbackObject).then(function(which) {
 			switch (which) {
 			case 'donate':
 				shrunkedWindow.donateCallback(DONATE_URL);
-				break;
-			case 'update':
-				shrunkedWindow.donateCallback('https://github.com/darktrojan/shrunked/issues/8');
-				break;
-			case 'wanted':
-				shrunkedWindow.donateCallback('https://github.com/darktrojan/shrunked/issues/9');
 				break;
 			}
 		});
