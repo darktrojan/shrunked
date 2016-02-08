@@ -20,6 +20,7 @@
 			<preference id="p_orient" name="extensions.shrunked.options.orientation" type="bool" />
 			<preference id="p_gps" name="extensions.shrunked.options.gps" type="bool" />
 			<preference id="p_logenabled" name="extensions.shrunked.log.enabled" type="bool" />
+			<preference id="p_resizeonsend" name="extensions.shrunked.resizeAttachmentsOnSend" type="bool" />
 		</preferences>
 		<tabbox>
 			<tabs>
@@ -153,6 +154,15 @@
 						id="cb_logenabled"
 						label="&shrunked-advanced.logenabled.label;"
 						preference="p_logenabled" />
+					<hbox align="baseline">
+						<label value="&shrunked-advanced.resizeonsend.label;" />
+						<menulist preference="p_resizeonsend">
+							<menupopup>
+								<menuitem value="false" label="&shrunked-advanced.resizeonsend.false;" />
+								<menuitem value="true" label="&shrunked-advanced.resizeonsend.true;" />
+							</menupopup>
+						</menulist>
+					</hbox>
 				</tabpanel>
 			</tabpanels>
 		</tabbox>
