@@ -149,7 +149,7 @@ var ShrunkedBrowser = {
 			);
 		});
 	},
-	donateCallback: function(url) {
+	notificationCallback: function(url) {
 		gBrowser.selectedTab = gBrowser.addTab(url);
 	}
 };

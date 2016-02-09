@@ -14,7 +14,7 @@ var ShrunkedMessenger = {
 			);
 		});
 	},
-	donateCallback: function(url) {
+	notificationCallback: function(url) {
 		openLinkExternally(url);
 	}
 };

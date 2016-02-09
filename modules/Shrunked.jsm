@@ -2,6 +2,7 @@
 var EXPORTED_SYMBOLS = ['Shrunked'];
 
 var ID = 'shrunked@darktrojan.net';
+var CHANGELOG_URL = 'https://addons.mozilla.org/addon/shrunked-image-resizer/versions/';
 var DONATE_URL = 'https://addons.mozilla.org/addon/shrunked-image-resizer/contribute/installed/';
 
 /* globals Components, Services, XPCOMUtils, dump */
@@ -97,6 +98,12 @@ var Shrunked = {
 		let callbackObject = {};
 		let label = Shrunked.strings.formatStringFromName('donate_notification', [currentVersion], 1);
 		let buttons = [{
+			label: Shrunked.strings.GetStringFromName('changelog_button_label'),
+			accessKey: Shrunked.strings.GetStringFromName('changelog_button_accesskey'),
+			callback: function() {
+				callbackObject.resolve('changelog');
+			}
+		}, {
 			label: Shrunked.strings.GetStringFromName('donate_button_label'),
 			accessKey: Shrunked.strings.GetStringFromName('donate_button_accesskey'),
 			popup: null,
@@ -121,8 +128,12 @@ var Shrunked = {
 
 		shrunkedWindow.showNotificationBar(label, buttons, callbackObject).then(function(which) {
 			switch (which) {
+			case 'changelog':
+				let version = Shrunked.prefs.getCharPref('version');
+				shrunkedWindow.notificationCallback(CHANGELOG_URL + version);
+				break;
 			case 'donate':
-				shrunkedWindow.donateCallback(DONATE_URL);
+				shrunkedWindow.notificationCallback(DONATE_URL);
 				break;
 			}
 		});
