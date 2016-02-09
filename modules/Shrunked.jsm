@@ -159,32 +159,17 @@ var Shrunked = {
 	getAllContentPrefs: function Shrunked_getAllContentPrefs(name) {
 		return new Promise((resolve, reject) => {
 			let allPrefs = new Map();
-
-			if ('getByName' in this.contentPrefs2) {
-				this.contentPrefs2.getByName(name, null, {
-					handleCompletion: function() {
-						resolve(allPrefs);
-					},
-					handleError: function(error) {
-						reject(error);
-					},
-					handleResult: function(pref) {
-						allPrefs.set(pref.domain, pref.value);
-					}
-				});
-			} else {
-				try {
-					let prefs = Services.contentPrefs.getPrefsByName(name, null);
-					let enumerator = prefs.enumerator;
-					while (enumerator.hasMoreElements()) {
-						let property = enumerator.getNext().QueryInterface(Components.interfaces.nsIProperty);
-						allPrefs.set(property.name, property.value);
-					}
+			this.contentPrefs2.getByName(name, null, {
+				handleCompletion: function() {
 					resolve(allPrefs);
-				} catch (e) {
-					reject(e);
+				},
+				handleError: function(error) {
+					reject(error);
+				},
+				handleResult: function(pref) {
+					allPrefs.set(pref.domain, pref.value);
 				}
-			}
+			});
 		});
 	},
 	log: function Shrunked_log(message) {
