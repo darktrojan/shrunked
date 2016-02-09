@@ -16,6 +16,7 @@ for (let element of document.querySelectorAll('[id]')) {
 function load() {
 	if (IS_FIREFOX) {
 		r_noresize.collapsed = true;
+		b_resizeonsend.collapsed = true;
 	}
 	let maxWidth = p_maxwidth.value;
 	let maxHeight = p_maxheight.value;

@@ -154,7 +154,7 @@
 						id="cb_logenabled"
 						label="&shrunked-advanced.logenabled.label;"
 						preference="p_logenabled" />
-					<hbox align="baseline">
+					<hbox id="b_resizeonsend" align="baseline">
 						<label value="&shrunked-advanced.resizeonsend.label;" />
 						<menulist preference="p_resizeonsend">
 							<menupopup>
