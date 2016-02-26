@@ -31,3 +31,6 @@
 <!ENTITY shrunked-advanced.orient.label "Rotar imágenes automáticamente">
 <!ENTITY shrunked-advanced.gps.label "Tranferir datos GPS">
 <!ENTITY shrunked-advanced.logenabled.label "Registrar los mensajes en la Consola de Error">
+<!ENTITY shrunked-advanced.resizeonsend.label "Offer to resize image attachments:">
+<!ENTITY shrunked-advanced.resizeonsend.false "when attached">
+<!ENTITY shrunked-advanced.resizeonsend.true "when sending email">

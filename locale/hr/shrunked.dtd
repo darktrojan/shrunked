@@ -31,3 +31,6 @@
 <!ENTITY shrunked-advanced.orient.label "Automatski rotiraj slike">
 <!ENTITY shrunked-advanced.gps.label "Prijenos GPS podataka">
 <!ENTITY shrunked-advanced.logenabled.label "Zapis obavijesti u konzolu grešaka">
+<!ENTITY shrunked-advanced.resizeonsend.label "Offer to resize image attachments:">
+<!ENTITY shrunked-advanced.resizeonsend.false "when attached">
+<!ENTITY shrunked-advanced.resizeonsend.true "when sending email">
