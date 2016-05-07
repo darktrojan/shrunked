@@ -31,6 +31,6 @@
 <!ENTITY shrunked-advanced.orient.label "自动旋转图片">
 <!ENTITY shrunked-advanced.gps.label "转移 GPS 数据">
 <!ENTITY shrunked-advanced.logenabled.label "记录信息到错误控制台">
-<!ENTITY shrunked-advanced.resizeonsend.label "Offer to resize image attachments:">
-<!ENTITY shrunked-advanced.resizeonsend.false "when attached">
-<!ENTITY shrunked-advanced.resizeonsend.true "when sending email">
+<!ENTITY shrunked-advanced.resizeonsend.label "提醒缩减图片附件：">
+<!ENTITY shrunked-advanced.resizeonsend.false "当附加时">
+<!ENTITY shrunked-advanced.resizeonsend.true "当发送邮件时">
