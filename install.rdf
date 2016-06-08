@@ -12,6 +12,7 @@
 		<em:name>Shrunked Image Resizer</em:name>
 		<em:description>Make your photos smaller, so they don't take forever to email or upload to websites.</em:description>
 		<em:creator>Geoff Lankow</em:creator>
+		<em:multiprocessCompatible>true</em:multiprocessCompatible>
 
 		<em:targetApplication>
 			<Description>
