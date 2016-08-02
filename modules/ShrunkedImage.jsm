@@ -186,8 +186,10 @@ ShrunkedImage.prototype = {
 		}
 
 		return Task.spawn((function*() {
-			let output = yield OS.File.openUnique(destFile);
-			let { path: outputPath, file: outputFile } = output;
+			let {
+				path: outputPath,
+				file: outputFile
+			} = yield OS.File.openUnique(destFile);
 			try {
 				if (this.exifData) {
 					yield this.exifData.write(outputFile);
