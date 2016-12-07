@@ -1,10 +1,11 @@
 /* exported EXPORTED_SYMBOLS, ShrunkedImage */
 var EXPORTED_SYMBOLS = ['ShrunkedImage'];
 
-/* globals Components, Services, Task, XPCOMUtils, ChromeWorker */
+/* globals Components, Services, Task, XPCOMUtils, ChromeWorker, File */
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/Task.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.importGlobalProperties(['File']);
 
 /* globals ExifData, NetUtil, OS, Shrunked */
 XPCOMUtils.defineLazyModuleGetter(this, 'ExifData', 'resource://shrunked/ExifData.jsm');
@@ -25,6 +26,13 @@ function ShrunkedImage(source, maxWidth, maxHeight, quality) {
 			let file = this.sourceURI.QueryInterface(Components.interfaces.nsIFileURL).file;
 			this.path = file.path;
 			this.basename = file.leafName;
+		} else if (this.sourceURI.schemeIs('data')) {
+			let meta = source.substring(0, source.indexOf(',')).split(';');
+			for (let part of meta) {
+				if (part.startsWith('filename=')) {
+					this.basename = decodeURIComponent(part.substring(9));
+				}
+			}
 		} else {
 			let match;
 			/* jshint -W084 */
@@ -65,10 +73,8 @@ ShrunkedImage.prototype = {
 			}
 			/* jshint +W069 */
 
-			let bytes = yield this.getBytes(canvas);
-			let newPath = yield this.save(bytes);
-
-			return newPath;
+			let blob = yield this.getBytes(canvas);
+			return new File([blob], this.basename, {type:'image/jpeg'});
 		}).bind(this));
 	},
 	readExifData: function ShrunkedImage_readExifData() {
@@ -165,52 +171,18 @@ ShrunkedImage.prototype = {
 		return new Promise((resolve, reject) => {
 			canvas.toBlob(function(blob) {
 				try {
-					let reader = getFileReader();
-					reader.onloadend = function() {
-						resolve(new Uint8Array(reader.result));
-					};
-					reader.readAsArrayBuffer(blob);
+					resolve(blob);
 				} catch (ex) {
 					reject(ex);
 				}
 			}, 'image/jpeg', 'quality=' + this.quality);
 		});
 	},
-	save: function ShrunkedImage_save(bytes) {
-		let destFile;
-		let tempDir = OS.Constants.Path.tmpDir;
-		if (this.basename) {
-			destFile = OS.Path.join(tempDir, this.basename);
-		} else {
-			destFile = OS.Path.join(tempDir, 'shrunked-image.jpg');
-		}
-
-		return Task.spawn((function*() {
-			let {
-				path: outputPath,
-				file: outputFile
-			} = yield OS.File.openUnique(destFile);
-			try {
-				if (this.exifData) {
-					yield this.exifData.write(outputFile);
-					let offset = (bytes[4] << 8) + bytes[5] + 4;
-					yield outputFile.write(bytes.subarray(offset));
-				} else {
-					yield outputFile.write(bytes);
-				}
-				return outputPath;
-			} finally {
-				outputFile.close();
-			}
-		}).bind(this)).catch(function(error) {
-			Components.utils.reportError(error);
-		});
-	},
 	estimateSize: function() {
 		return this.loadImage()
 			.then(image => this.drawOnCanvas(image, 0, false))
 			.then(canvas => this.getBytes(canvas))
-			.then(bytes => bytes.length);
+			.then(bytes => bytes.size);
 	}
 };
 
@@ -254,9 +226,4 @@ function Readable(url) {
 
 function getWindow() {
 	return Services.wm.getMostRecentWindow('mail:3pane') || Services.wm.getMostRecentWindow('navigator:browser');
-}
-
-function getFileReader() {
-	let FileReader = getWindow().FileReader;
-	return new FileReader();
 }

@@ -9,17 +9,14 @@ var DONATE_URL = 'https://addons.mozilla.org/addon/shrunked-image-resizer/contri
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
-/* globals AddonManager, FileUtils, OS, PluralForm, ShrunkedImage */
+/* globals AddonManager, FileUtils, PluralForm, ShrunkedImage */
 XPCOMUtils.defineLazyModuleGetter(this, 'AddonManager', 'resource://gre/modules/AddonManager.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'OS', 'resource://gre/modules/osfile.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'PluralForm', 'resource://gre/modules/PluralForm.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'ShrunkedImage', 'resource://shrunked/ShrunkedImage.jsm');
 
 /* globals idleService */
 XPCOMUtils.defineLazyServiceGetter(this, 'idleService', '@mozilla.org/widget/idleservice;1', 'nsIIdleService');
-
-var temporaryFiles = [];
 
 var Shrunked = {
 	get fileSizeMinimum() {
@@ -44,17 +41,18 @@ var Shrunked = {
 		if (!!name) {
 			image.basename = name;
 		}
-		return image.resize().then(function(destFile) {
-			temporaryFiles.push(destFile);
-			return destFile;
-		});
+		return image.resize();
 	},
-	cleanup: function Shrunked_cleanup() {
-		let promises = [];
-		for (let path of temporaryFiles) {
-			promises.push(OS.File.remove(path));
-		}
-		return Promise.all(promises);
+	getDataURLFromFile: function Shrunked_getDataURLFromFile(file) {
+		return new Promise(function(resolve) {
+			let reader = new FileReader();
+			reader.onloadend = function() {
+				let dataURL = reader.result;
+				dataURL = 'data:image/jpeg;filename=' + encodeURIComponent(file.name) + dataURL.substring(15);
+				resolve(dataURL);
+			};
+			reader.readAsDataURL(file);
+		});
 	},
 	versionUpgrade: function Shrunked_versionUpgrade() {
 		function parseVersion(version) {
@@ -244,10 +242,6 @@ XPCOMUtils.defineLazyGetter(Shrunked, 'getPluralForm', function() {
 });
 
 if (Services.appinfo.processType == Services.appinfo.PROCESS_TYPE_DEFAULT) {
-	/* globals AsyncShutdown */
-	Components.utils.import('resource://gre/modules/AsyncShutdown.jsm');
-	AsyncShutdown.profileBeforeChange.addBlocker('Shrunked: clean up temporary files', Shrunked.cleanup);
-
 	var observer = {
 		observe: function(subject, topic) {
 			switch (topic) {
@@ -255,10 +249,6 @@ if (Services.appinfo.processType == Services.appinfo.PROCESS_TYPE_DEFAULT) {
 					Services.obs.removeObserver(this, 'last-pb-context-exited');
 					Services.obs.removeObserver(this, 'quit-application-granted');
 					Services.obs.removeObserver(this, 'browser:purge-session-history');
-					return;
-				case 'last-pb-context-exited':
-				case 'browser:purge-session-history':
-					Shrunked.cleanup();
 					return;
 			}
 		}

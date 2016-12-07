@@ -1,4 +1,4 @@
-/* globals Components, Shrunked, XPCOMUtils, gBrowser, messageManager, PrivateBrowsingUtils, File */
+/* globals Components, Shrunked, XPCOMUtils, gBrowser, messageManager, PrivateBrowsingUtils */
 Components.utils.import('resource://shrunked/Shrunked.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
@@ -27,10 +27,9 @@ var ShrunkedBrowser = {
 				}
 				[ maxWidth, maxHeight ] = size;
 			}
-			let [ newPaths, newFiles ] = yield ShrunkedBrowser.resize(files, maxWidth, maxHeight);
+			let newFiles = yield ShrunkedBrowser.resize(files, maxWidth, maxHeight);
 			message.target.messageManager.sendAsyncMessage('Shrunked:Resized', {
 				index: message.data.index,
-				replacementPaths: newPaths,
 				replacementFiles: newFiles,
 				maxWidth: maxWidth,
 				maxHeight: maxHeight
@@ -123,16 +122,14 @@ var ShrunkedBrowser = {
 		}
 
 		return Task.spawn(function*() {
-			let newPaths = new Map();
 			let newFiles = new Map();
 			for (let file of files) {
 				if (/\.jpe?g$/i.test(file) && Shrunked.fileLargerThanThreshold(file)) {
 					let destFile = yield Shrunked.resize(new FileUtils.File(file), maxWidth, maxHeight, quality);
-					newPaths.set(file, destFile);
-					newFiles.set(file, new File(destFile, { type: 'image/jpeg' }));
+					newFiles.set(file, destFile);
 				}
 			}
-			return [newPaths, newFiles];
+			return newFiles;
 		});
 	},
 	showNotificationBar: function ShrunkedBrowser_showNotificationBar(text, buttons, callbackObject, useGlobal=true) {

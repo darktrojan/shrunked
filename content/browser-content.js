@@ -58,7 +58,7 @@ addMessageListener('Shrunked:Resized', function(message) {
 	Shrunked.log(message.name + ': ' + JSON.stringify(message.json));
 
 	if (Shrunked.logEnabled) {
-		for (let [original, replacement] of message.data.replacementPaths.entries()) {
+		for (let [original, replacement] of message.data.replacementFiles.entries()) {
 			Shrunked.log(original + ' resized to ' + replacement);
 		}
 	}
@@ -72,39 +72,20 @@ addMessageListener('Shrunked:Resized', function(message) {
 		form.dataset.shrunkedmaxheight = message.data.maxHeight;
 	}
 
-	if ('mozSetFileArray' in inputTag) {
-		let files = inputTag.files;
-		inputTag.addEventListener('click', function resetInputTag() {
-			inputTag.removeEventListener('click', resetInputTag, true);
-			inputTag.mozSetFileArray(files);
-		}, true);
+	let files = inputTag.files;
+	inputTag.addEventListener('click', function resetInputTag() {
+		inputTag.removeEventListener('click', resetInputTag, true);
+		inputTag.mozSetFileArray(files);
+	}, true);
 
-		let newFiles = [];
-		let replacements = message.data.replacementFiles;
-		for (let i = 0; i < files.length; i++) {
-			if (replacements.has(files[i].mozFullPath)) {
-				newFiles[i] = Components.utils.cloneInto(replacements.get(files[i].mozFullPath), content);
-			} else {
-				newFiles[i] = files[i];
-			}
+	let newFiles = [];
+	let replacements = message.data.replacementFiles;
+	for (let i = 0; i < files.length; i++) {
+		if (replacements.has(files[i].mozFullPath)) {
+			newFiles[i] = Components.utils.cloneInto(replacements.get(files[i].mozFullPath), content);
+		} else {
+			newFiles[i] = files[i];
 		}
-		inputTag.mozSetFileArray(newFiles);
-	} else {
-		let paths = inputTag.mozGetFileNameArray();
-		inputTag.addEventListener('click', function resetInputTag() {
-			inputTag.removeEventListener('click', resetInputTag, true);
-			inputTag.mozSetFileNameArray(paths);
-		}, true);
-
-		let newPaths = paths.slice();
-		let replacements = message.data.replacementPaths;
-		for (let i = 0; i < paths.length; i++) {
-			if (replacements.has(paths[i])) {
-				newPaths[i] = replacements.get(paths[i]);
-			} else {
-				newPaths[i] = paths[i];
-			}
-		}
-		inputTag.mozSetFileNameArray(newPaths);
 	}
+	inputTag.mozSetFileArray(newFiles);
 });

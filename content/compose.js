@@ -1,5 +1,5 @@
 /* globals -name, -parent */
-/* globals Components, XPCOMUtils, FileUtils, Services, Shrunked, Task */
+/* globals Components, XPCOMUtils, Shrunked, Task */
 /* globals fixIterator, gAttachmentsSize, UpdateAttachmentBucket, gMessenger */
 var ShrunkedCompose = {
 	OPTIONS_DIALOG: 'chrome://shrunked/content/options.xul',
@@ -137,7 +137,9 @@ var ShrunkedCompose = {
 
 				let src = target.getAttribute('src');
 				if (/^data:/.test(src)) {
-					src = src.substring(src.indexOf(',') + 1);
+					let comma = src.indexOf(',');
+					let meta = src.substring(0, comma).split(';');
+					src = src.substring(comma + 1);
 					let srcSize = src.length * 3 / 4;
 					if (src.substr(-1) == '=') {
 						srcSize--;
@@ -149,10 +151,17 @@ var ShrunkedCompose = {
 						Shrunked.log('Not resizing - image file size is too small');
 						return;
 					}
-					for (let [name, size] of this.droppedCache) {
-						if (srcSize == size) {
-							target.maybesrc = name;
-							break;
+					for (let part of meta) {
+						if (part.startsWith('filename=')) {
+							target.maybesrc = decodeURIComponent(part.substring(9));
+						}
+					}
+					if (!target.maybesrc) {
+						for (let [name, size] of this.droppedCache) {
+							if (srcSize == size) {
+								target.maybesrc = name;
+								break;
+							}
 						}
 					}
 				} else if (/^file:/.test(src) && !Shrunked.fileLargerThanThreshold(src)) {
@@ -171,8 +180,8 @@ var ShrunkedCompose = {
 
 					this.showNotification({
 						images: this.inlineImages,
-						onResize: function(image, destFile) {
-							image.src = Services.io.newFileURI(destFile).spec;
+						onResize: function(image, dataURL) {
+							image.src = dataURL;
 							image.removeAttribute('width');
 							image.removeAttribute('height');
 							image.setAttribute('shrunked:resized', 'true');
@@ -214,12 +223,12 @@ var ShrunkedCompose = {
 		if (images.length) {
 			ShrunkedCompose.showNotification({
 				images: images,
-				onResize: function(imageData, destFile) {
+				onResize: function(imageData, dataURL, size) {
 					let attachment = imageData.attachment;
 					attachment.contentLocation = attachment.url;
-					attachment.url = Services.io.newFileURI(destFile).spec;
-					gAttachmentsSize += destFile.fileSize - attachment.size; // jshint ignore:line
-					attachment.size = destFile.fileSize;
+					attachment.url = dataURL;
+					gAttachmentsSize += size - attachment.size; // jshint ignore:line
+					attachment.size = size;
 
 					UpdateAttachmentBucket(true);
 					for (let index = 0; index < bucket.getRowCount(); index++) {
@@ -239,8 +248,8 @@ var ShrunkedCompose = {
 	onContentContextMenuCommand: function() {
 		this.showOptionsDialog({
 			images: [document.popupNode],
-			onResize: function(image, destFile) {
-				image.src = Services.io.newFileURI(destFile).spec;
+			onResize: function(image, dataURL) {
+				image.src = dataURL;
 				image.removeAttribute('width');
 				image.removeAttribute('height');
 				image.setAttribute('shrunked:resized', 'true');
@@ -264,12 +273,12 @@ var ShrunkedCompose = {
 		}
 		this.showOptionsDialog({
 			images: images,
-			onResize: function(imageData, destFile) {
+			onResize: function(imageData, dataURL, size) {
 				let attachment = imageData.attachment;
 				attachment.contentLocation = attachment.url;
-				attachment.url = Services.io.newFileURI(destFile).spec;
-				gAttachmentsSize += destFile.fileSize - attachment.size; // jshint ignore:line
-				attachment.size = destFile.fileSize;
+				attachment.url = dataURL;
+				gAttachmentsSize += size - attachment.size; // jshint ignore:line
+				attachment.size = size;
 
 				UpdateAttachmentBucket(true);
 				imageData.item.setAttribute('size', gMessenger.formatFileSize(attachment.size));
@@ -335,9 +344,9 @@ var ShrunkedCompose = {
 			for (let image of callbackObject.images) {
 				try {
 					let destFile = yield Shrunked.resize(image.src, maxWidth, maxHeight, quality, image.maybesrc);
-					destFile = new FileUtils.File(destFile);
-					Shrunked.log('Successfully resized ' + destFile.leafName);
-					callbackObject.onResize(image, destFile);
+					let dataURL = yield Shrunked.getDataURLFromFile(destFile);
+					callbackObject.onResize(image, dataURL, destFile.size);
+					Shrunked.log('Successfully resized ' + destFile.name);
 					this.setStatusCount(++count);
 				} catch (ex) {
 					Components.utils.reportError(ex);
@@ -372,12 +381,12 @@ var ShrunkedCompose = {
 				if (images.length) {
 					ShrunkedCompose.showOptionsDialog({
 						images: images,
-						onResize: function(imageData, destFile) {
+						onResize: function(imageData, dataURL, size) {
 							let attachment = imageData.attachment;
 							attachment.contentLocation = attachment.url;
-							attachment.url = Services.io.newFileURI(destFile).spec;
-							gAttachmentsSize += destFile.fileSize - attachment.size; // jshint ignore:line
-							attachment.size = destFile.fileSize;
+							attachment.url = dataURL;
+							gAttachmentsSize += size - attachment.size; // jshint ignore:line
+							attachment.size = size;
 
 							UpdateAttachmentBucket(true);
 							for (let index = 0; index < bucket.getRowCount(); index++) {
@@ -450,8 +459,6 @@ var ShrunkedCompose = {
 };
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-XPCOMUtils.defineLazyModuleGetter(window, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
-XPCOMUtils.defineLazyModuleGetter(window, 'Services', 'resource://gre/modules/Services.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Task', 'resource://gre/modules/Task.jsm');
 
