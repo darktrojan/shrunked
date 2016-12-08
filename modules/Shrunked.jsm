@@ -3,7 +3,7 @@ var EXPORTED_SYMBOLS = ['Shrunked'];
 
 var ID = 'shrunked@darktrojan.net';
 var CHANGELOG_URL = 'https://addons.mozilla.org/addon/shrunked-image-resizer/versions/';
-var DONATE_URL = 'https://addons.mozilla.org/addon/shrunked-image-resizer/contribute/installed/';
+var DONATE_URL = 'https://darktrojan.github.io/donate.html?shrunked';
 
 /* globals Components, Services, XPCOMUtils, dump */
 Components.utils.import('resource://gre/modules/Services.jsm');
