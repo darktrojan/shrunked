@@ -320,6 +320,9 @@ var ShrunkedCompose = {
 	},
 	showOptionsDialog: function ShrunkedCompose_showOptionsDialog(callbackObject) {
 		let returnValues = { cancelDialog: true };
+		if (callbackObject.isAttachment) {
+			returnValues.isAttachment = true;
+		}
 		let imageURLs = [];
 		let imageNames = [];
 		for (let image of callbackObject.images) {
@@ -332,6 +335,12 @@ var ShrunkedCompose = {
 		if (returnValues.cancelDialog) {
 			Shrunked.log('Resizing cancelled');
 			callbackObject.onResizeCancelled();
+			return;
+		}
+
+		if (returnValues.maxWidth == -1) {
+			Shrunked.log('No maximum size selected');
+			callbackObject.onResizeComplete();
 			return;
 		}
 
@@ -380,6 +389,7 @@ var ShrunkedCompose = {
 
 				if (images.length) {
 					ShrunkedCompose.showOptionsDialog({
+						isAttachment: true,
 						images: images,
 						onResize: function(imageData, dataURL, size) {
 							let attachment = imageData.attachment;
