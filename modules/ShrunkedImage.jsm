@@ -67,7 +67,7 @@ ShrunkedImage.prototype = {
 			let canvas = yield this.drawOnCanvas(image, orientation);
 
 			/* jshint -W069 */
-			if (this.exifData && this.exifData.exif2['a002']) {
+			if (this.exifData && this.exifData.exif2 && this.exifData.exif2['a002']) {
 				this.exifData.exif2['a002'].value = canvas.width;
 				this.exifData.exif2['a003'].value = canvas.height;
 			}
