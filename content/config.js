@@ -6,6 +6,7 @@ Components.utils.import('resource://gre/modules/Task.jsm');
 Components.utils.import('resource://shrunked/Shrunked.jsm');
 
 const IS_FIREFOX = Services.appinfo.name == 'Firefox';
+const IS_SEAMONKEY = Services.appinfo.name == 'SeaMonkey';
 const IS_THUNDERBIRD = Services.appinfo.name == 'Thunderbird';
 
 for (let element of document.querySelectorAll('[id]')) {
@@ -16,6 +17,8 @@ for (let element of document.querySelectorAll('[id]')) {
 function load() {
 	if (IS_FIREFOX) {
 		r_noresize.collapsed = true;
+	}
+	if (IS_FIREFOX || IS_SEAMONKEY) {
 		b_resizeonsend.collapsed = true;
 	}
 	let maxWidth = p_maxwidth.value;

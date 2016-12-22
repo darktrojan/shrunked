@@ -1,5 +1,5 @@
 /* globals -name, -parent */
-/* globals Components, XPCOMUtils, Shrunked, Task */
+/* globals Components, Services, XPCOMUtils, Shrunked, Task */
 /* globals fixIterator, gAttachmentsSize, UpdateAttachmentBucket, gMessenger */
 var ShrunkedCompose = {
 	OPTIONS_DIALOG: 'chrome://shrunked/content/options.xul',
@@ -10,7 +10,7 @@ var ShrunkedCompose = {
 	timeout: null,
 
 	init: function ShrunkedCompose_init() {
-		if (Shrunked.prefs.getBoolPref('resizeAttachmentsOnSend')) {
+		if (Services.appinfo.name == 'SeaMonkey' || Shrunked.prefs.getBoolPref('resizeAttachmentsOnSend')) {
 			this.oldGenericSendMessage = window.GenericSendMessage;
 			window.GenericSendMessage = this.newGenericSendMessage.bind(this);
 		} else {
@@ -70,6 +70,9 @@ var ShrunkedCompose = {
 		});
 
 		let attachmentContext = document.getElementById('msgComposeAttachmentItemContext');
+		if (!attachmentContext) {
+			return;
+		}
 		attachmentContext.addEventListener('popupshowing', function() {
 			Shrunked.log('Context menu on attachments');
 			let imageCount = 0;
@@ -468,6 +471,7 @@ var ShrunkedCompose = {
 	}
 };
 
+Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Task', 'resource://gre/modules/Task.jsm');
