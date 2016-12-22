@@ -18,6 +18,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ShrunkedImage', 'resource://shrunked/Sh
 /* globals idleService */
 XPCOMUtils.defineLazyServiceGetter(this, 'idleService', '@mozilla.org/widget/idleservice;1', 'nsIIdleService');
 
+if (!('FileReader' in this)) {
+	this.FileReader = Services.appShell.hiddenDOMWindow.FileReader;
+}
+
 var Shrunked = {
 	get fileSizeMinimum() {
 		return Shrunked.prefs.getIntPref('fileSizeMinimum') * 1000;
