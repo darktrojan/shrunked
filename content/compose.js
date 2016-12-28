@@ -372,8 +372,8 @@ var ShrunkedCompose = {
 		});
 	},
 	newGenericSendMessage: function ShrunkedCompose_newGenericSendMessage(msgType) {
-		/* globals nsIMsgCompDeliverMode */
-		let doResize = msgType == nsIMsgCompDeliverMode.Now || msgType == nsIMsgCompDeliverMode.Later;
+		let doResize = msgType == Components.interfaces.nsIMsgCompDeliverMode.Now ||
+				msgType == Components.interfaces.nsIMsgCompDeliverMode.Later;
 		let images = [];
 
 		try {
