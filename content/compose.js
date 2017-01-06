@@ -79,7 +79,8 @@ var ShrunkedCompose = {
 			let items = document.getElementById('attachmentBucket').selectedItems;
 			for (let i = 0; i < items.length; i++) {
 				let attachment = items[i].attachment;
-				if (/\.jpe?g$/i.test(attachment.url) && attachment.size >= Shrunked.fileSizeMinimum) {
+				if ((attachment.url.startsWith('data:image/jpeg;') || /\.jpe?g$/i.test(attachment.url)) &&
+						attachment.size >= Shrunked.fileSizeMinimum) {
 					imageCount++;
 				}
 			}
@@ -140,24 +141,16 @@ var ShrunkedCompose = {
 
 				let src = target.getAttribute('src');
 				if (/^data:/.test(src)) {
-					let comma = src.indexOf(',');
-					let meta = src.substring(0, comma).split(';');
-					src = src.substring(comma + 1);
-					let srcSize = src.length * 3 / 4;
-					if (src.substr(-1) == '=') {
+					let srcSize = (src.length - src.indexOf(',') - 1) * 3 / 4;
+					if (src.endsWith('=')) {
 						srcSize--;
-						if (src.substr(-2, 1) == '=') {
+						if (src.endsWith('==')) {
 							srcSize--;
 						}
 					}
 					if (srcSize < Shrunked.fileSizeMinimum) {
 						Shrunked.log('Not resizing - image file size is too small');
 						return;
-					}
-					for (let part of meta) {
-						if (part.startsWith('filename=')) {
-							target.maybesrc = decodeURIComponent(part.substring(9));
-						}
 					}
 					if (!target.maybesrc) {
 						for (let [name, size] of this.droppedCache) {
@@ -266,7 +259,8 @@ var ShrunkedCompose = {
 		let images = [];
 		for (let i = 0; i < items.length; i++) {
 			let attachment = items[i].attachment;
-			if (/\.jpe?g$/i.test(attachment.url) && attachment.size >= Shrunked.fileSizeMinimum) {
+			if ((attachment.url.startsWith('data:image/jpeg;') || /\.jpe?g$/i.test(attachment.url)) &&
+					attachment.size >= Shrunked.fileSizeMinimum) {
 				images.push({
 					attachment: attachment,
 					item: items[i],
@@ -330,7 +324,11 @@ var ShrunkedCompose = {
 		let imageNames = [];
 		for (let image of callbackObject.images) {
 			imageURLs.push(image.src);
-			imageNames.push(image.maybesrc);
+			if (image.src.startsWith('data:image/jpeg;filename=')) {
+				imageNames.push(decodeURIComponent(image.src.substring(25, image.src.indexOf(';', 25))));
+			} else {
+				imageNames.push(image.maybesrc);
+			}
 		}
 
 		window.openDialog(this.OPTIONS_DIALOG, 'options', this.POPUP_ARGS, returnValues, imageURLs, imageNames);
