@@ -1,0 +1,33 @@
+<!ENTITY shrunked-config.title "Shrunked Image Resizer podešavanje">
+<!ENTITY shrunked-sites.label "Postavke stranice">
+<!ENTITY shrunked-sites.sitelist.site "Stranica">
+<!ENTITY shrunked-sites.sitelist.settings "postavke">
+<!ENTITY shrunked-sites.forget.label "Zaboravi odabrano">
+<!ENTITY shrunked-defaults.label "Zadano">
+<!ENTITY shrunked-defaults.quality.label "JPEG Encoder kvaliteta:">
+<!ENTITY shrunked-defaults.quality.smaller "Manje datoteke">
+<!ENTITY shrunked-defaults.quality.better "Bolja kvaliteta">
+<!ENTITY shrunked-options.title "Shrunked Image Resizer opcije">
+<!ENTITY shrunked-options.remembersite.label "Zapamti moj odgovor za ovu web stranicu">
+<!ENTITY shrunked-options.savedefault.label "Spremi kao zadane postavke">
+<!ENTITY shrunked-noresize.label "Izvornik">
+<!ENTITY shrunked-small.label "500px">
+<!ENTITY shrunked-medium.label "800px">
+<!ENTITY shrunked-large.label "1200px">
+<!ENTITY shrunked-custom.label "Prilagođeno">
+<!ENTITY shrunked-width.label "Širina:">
+<!ENTITY shrunked-height.label "Visina:">
+<!ENTITY shrunked-preview.label "Pregled:">
+<!ENTITY shrunked-preview.previous.tooltip "Prethodna slika">
+<!ENTITY shrunked-preview.next.tooltip "Sljedeća slika">
+<!ENTITY shrunked-minsize.label "Minimalna veličina datoteke za promjenu:">
+<!ENTITY shrunked-minsize.kilobytes "KB">
+<!ENTITY shrunked-maxsize.label "Maksimalna veličina za Vaše fotografije:">
+<!ENTITY shrunked-custom.pixels "px">
+<!ENTITY shrunked-advanced.label "Napredno">
+<!ENTITY shrunked-advanced.resample.label "Promjena rezolucije pomoću JavaScript">
+<!ENTITY shrunked-advanced.exif.label "Prijenos EXIF podataka">
+<!ENTITY shrunked-advanced.orient.label "Automatski rotiraj slike">
+<!ENTITY shrunked-advanced.gps.label "Prijenos GPS podataka">
+<!ENTITY shrunked-advanced.logenabled.label "Zapis obavijesti u konzolu grešaka">
+<!ENTITY shrunked-compose.context.label "Promjena veličine ove slike&#x2026;">
