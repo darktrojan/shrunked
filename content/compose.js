@@ -206,7 +206,7 @@ var ShrunkedCompose = {
 	attachmentsAdded: function ShrunkedCompose_attachmentsAdded(event) {
 		let bucket = document.getElementById('attachmentBucket');
 		let images = [];
-		for (let attachment in fixIterator(event.detail, Components.interfaces.nsIMsgAttachment)) {
+		for (let attachment of fixIterator(event.detail, Components.interfaces.nsIMsgAttachment)) {
 			if (/\.jpe?g$/i.test(attachment.url) && attachment.size >= Shrunked.fileSizeMinimum) {
 				Shrunked.log('JPEG attachment detected');
 				images.push({

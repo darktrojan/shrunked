@@ -3,7 +3,7 @@
 
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>shrunked@darktrojan.net</em:id>
-		<em:version>4.4.3</em:version>
+		<em:version>4.4.4</em:version>
 		<em:type>2</em:type>
 
 		<em:homepageURL>https://github.com/darktrojan/shrunked</em:homepageURL>
@@ -18,7 +18,7 @@
 			<Description>
 				<em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id><!-- firefox -->
 				<em:minVersion>45.0</em:minVersion>
-				<em:maxVersion>53.0a1</em:maxVersion>
+				<em:maxVersion>56.*</em:maxVersion>
 			</Description>
 		</em:targetApplication>
 		<em:targetApplication>
@@ -32,7 +32,7 @@
 			<Description>
 				<em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id><!-- thunderbird -->
 				<em:minVersion>45.0</em:minVersion>
-				<em:maxVersion>53.0a1</em:maxVersion>
+				<em:maxVersion>57.0a1</em:maxVersion>
 			</Description>
 		</em:targetApplication>
 
