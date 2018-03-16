@@ -1,6 +1,6 @@
 /* globals -name, -parent */
 /* globals Components, Services, XPCOMUtils, Shrunked, Task */
-/* globals fixIterator, gAttachmentsSize, UpdateAttachmentBucket, gMessenger */
+/* globals fixIterator, gAttachmentsSize, updateAttachmentPane, UpdateAttachmentBucket, gMessenger */
 var ShrunkedCompose = {
 	OPTIONS_DIALOG: 'chrome://shrunked/content/options.xul',
 	POPUP_ARGS: 'chrome,centerscreen,modal',
@@ -226,7 +226,11 @@ var ShrunkedCompose = {
 					gAttachmentsSize += size - attachment.size; // jshint ignore:line
 					attachment.size = size;
 
-					UpdateAttachmentBucket(true);
+					if ('updateAttachmentPane' in window) {
+						updateAttachmentPane();
+					} else {
+						UpdateAttachmentBucket(true);
+					}
 					for (let index = 0; index < bucket.getRowCount(); index++) {
 						let item = bucket.getItemAtIndex(index);
 						if (item.attachment == attachment) {
