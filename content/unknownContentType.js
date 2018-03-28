@@ -1,4 +1,4 @@
-addEventListener('load', function() {
+setTimeout(function() {
 	let location = document.getElementById('location');
 	let source = document.getElementById('source');
 	if (source.value.startsWith('data:')) {
@@ -15,4 +15,4 @@ addEventListener('load', function() {
 			}
 		}
 	}
-});
+}, 0);

@@ -8,10 +8,10 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 Components.utils.importGlobalProperties(['File']);
 
 /* globals ExifData, NetUtil, OS, Shrunked */
-XPCOMUtils.defineLazyModuleGetter(this, 'ExifData', 'resource://shrunked/ExifData.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'ExifData', 'chrome://shrunked/content/modules/ExifData.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'NetUtil', 'resource://gre/modules/NetUtil.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'OS', 'resource://gre/modules/osfile.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'chrome://shrunked/content/modules/Shrunked.jsm');
 
 var XHTMLNS = 'http://www.w3.org/1999/xhtml';
 
@@ -151,7 +151,7 @@ ShrunkedImage.prototype = {
 				canvas.height = height;
 				let newData = context.createImageData(canvas.width, canvas.height);
 
-				let worker = new ChromeWorker('resource://shrunked/worker.js');
+				let worker = new ChromeWorker('chrome://shrunked/content/modules/worker.js');
 				worker.onmessage = function(event) {
 					context.putImageData(event.data, 0, 0);
 					resolve(canvas);

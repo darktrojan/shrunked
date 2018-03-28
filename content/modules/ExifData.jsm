@@ -6,7 +6,7 @@ Components.utils.import('resource://gre/modules/Task.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 /* globals Shrunked */
-XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'chrome://shrunked/content/modules/Shrunked.jsm');
 
 function ExifData() {
 }

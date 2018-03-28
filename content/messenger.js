@@ -1,5 +1,5 @@
 /* globals Components, Shrunked, openLinkExternally */
-Components.utils.import('resource://shrunked/Shrunked.jsm');
+Components.utils.import('chrome://shrunked/content/modules/Shrunked.jsm');
 
 /* exported ShrunkedMessenger */
 var ShrunkedMessenger = {

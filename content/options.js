@@ -1,7 +1,7 @@
 /* jshint -W117 */
 /* globals Components, Shrunked, ShrunkedImage, Services */
-Components.utils.import('resource://shrunked/Shrunked.jsm');
-Components.utils.import('resource://shrunked/ShrunkedImage.jsm');
+Components.utils.import('chrome://shrunked/content/modules/Shrunked.jsm');
+Components.utils.import('chrome://shrunked/content/modules/ShrunkedImage.jsm');
 Components.utils.import('resource://gre/modules/Services.jsm');
 
 var returnValues = window.arguments[0];

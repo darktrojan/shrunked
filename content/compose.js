@@ -1,6 +1,60 @@
 /* globals -name, -parent */
 /* globals Components, Services, XPCOMUtils, Shrunked, Task */
 /* globals fixIterator, gAttachmentsSize, updateAttachmentPane, UpdateAttachmentBucket, gMessenger */
+
+{
+	let menupopup = document.getElementById('msgComposeContext');
+	let insertBefore = document.getElementById('spellCheckSeparator');
+
+	if (menupopup) {
+		let menuseparator = document.createElement('menuseparator');
+		menuseparator.setAttribute('id', 'shrunked-content-context-separator');
+		menupopup.insertBefore(menuseparator, insertBefore);
+
+		let menuitem = document.createElement('menuitem');
+		menuitem.setAttribute('id', 'shrunked-content-context-item');
+		menuitem.setAttribute('oncommand', 'ShrunkedCompose.onContentContextMenuCommand();');
+		menupopup.insertBefore(menuitem, insertBefore);
+	}
+}
+{
+	let menupopup = document.getElementById('contentAreaContextMenu');
+	let insertBefore = document.getElementById('spell-separator');
+
+	if (menupopup) {
+		let menuseparator = document.createElement('menuseparator');
+		menuseparator.setAttribute('id', 'shrunked-content-context-separator');
+		menupopup.insertBefore(menuseparator, insertBefore);
+
+		let menuitem = document.createElement('menuitem');
+		menuitem.setAttribute('id', 'shrunked-content-context-item');
+		menuitem.setAttribute('oncommand', 'ShrunkedCompose.onContentContextMenuCommand();');
+		menupopup.insertBefore(menuitem, insertBefore);
+	}
+}
+{
+	let menupopup = document.getElementById('msgComposeAttachmentItemContext');
+	let insertBefore = document.getElementById('composeAttachmentContext_renameItem');
+
+	if (menupopup) {
+		let menuitem = document.createElement('menuitem');
+		menuitem.setAttribute('id', 'shrunked-attachment-context-item');
+		menuitem.setAttribute('oncommand', 'ShrunkedCompose.onAttachmentContextMenuCommand();');
+		menupopup.insertBefore(menuitem, insertBefore);
+	}
+}
+{
+	let insertBefore = document.getElementById('status-bar');
+
+	let hbox = document.createElement('hbox');
+	insertBefore.parentNode.insertBefore(hbox, insertBefore);
+
+	let notificationbox = document.createElement('notificationbox');
+	notificationbox.setAttribute('id', 'shrunked-notification-box');
+	notificationbox.setAttribute('flex', '1');
+	hbox.appendChild(notificationbox);
+}
+
 var ShrunkedCompose = {
 	OPTIONS_DIALOG: 'chrome://shrunked/content/options.xul',
 	POPUP_ARGS: 'chrome,centerscreen,modal',
@@ -475,7 +529,7 @@ var ShrunkedCompose = {
 
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-XPCOMUtils.defineLazyModuleGetter(window, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
+XPCOMUtils.defineLazyModuleGetter(window, 'Shrunked', 'chrome://shrunked/content/modules/Shrunked.jsm');
 XPCOMUtils.defineLazyModuleGetter(window, 'Task', 'resource://gre/modules/Task.jsm');
 
-window.addEventListener('load', ShrunkedCompose.init.bind(ShrunkedCompose));
+ShrunkedCompose.init();
