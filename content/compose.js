@@ -47,6 +47,7 @@
 	let insertBefore = document.getElementById('status-bar');
 
 	let hbox = document.createElement('hbox');
+	hbox.setAttribute('id', 'shrunked-notification-box-holder');
 	insertBefore.parentNode.insertBefore(hbox, insertBefore);
 
 	let notificationbox = document.createElement('notificationbox');
@@ -148,6 +149,31 @@ var ShrunkedCompose = {
 				Shrunked.log('Not resizing - no attachments were JPEG and large enough');
 			}
 		});
+	},
+	destroy: function ShrunkedCompose_destroy() {
+		Services.console.logStringMessage('ShrunkedCompose_destroy was called');
+
+		if (this.oldGenericSendMessage) {
+			window.GenericSendMessage = this.oldGenericSendMessage;
+		}
+		removeEventListener('attachments-added', this.attachmentsAdded);
+
+		for (let id of ['shrunked-content-context-separator',
+			'shrunked-content-context-item',
+			'shrunked-content-context-separator',
+			'shrunked-content-context-item',
+			'shrunked-attachment-context-item',
+			'shrunked-notification-box-holder'
+		]) {
+			let element = document.getElementById(id);
+			if (element) {
+				element.remove();
+			}
+		}
+
+		// Cannot delete vars.
+		window.Shrunked = null;
+		window.ShrunkedCompose = null;
 	},
 	maybeResizeInline: function ShrunkedCompose_maybeResizeInline(target) {
 		if (target.nodeName == 'IMG') {

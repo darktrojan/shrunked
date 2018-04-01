@@ -42,6 +42,10 @@ function startup() {
 }
 function shutdown() {
 	windowObserver.destroy();
+
+	Components.utils.unload('chrome://shrunked/content/modules/ExifData.jsm');
+	Components.utils.unload('chrome://shrunked/content/modules/Shrunked.jsm');
+	Components.utils.unload('chrome://shrunked/content/modules/ShrunkedImage.jsm');
 }
 
 var windowObserver = {
@@ -83,6 +87,14 @@ var windowObserver = {
 		}
 		Services.scriptloader.loadSubScript(script, win);
 	},
-	unpaint: function() {
+	unpaint: function(win) {
+		switch (win.location.href) {
+		case 'chrome://messenger/content/messenger.xul':
+			win.ShrunkedMessenger.destroy();
+			break;
+		case 'chrome://messenger/content/messengercompose/messengercompose.xul':
+			win.ShrunkedCompose.destroy();
+			break;
+		}
 	}
 };
