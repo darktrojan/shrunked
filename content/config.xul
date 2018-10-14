@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/preferences/preferences.css"?>
+<?xml-stylesheet type="text/css" href="config.css"?>
 
 <!DOCTYPE prefwindow SYSTEM "chrome://shrunked/locale/shrunked.dtd">
 <prefwindow
@@ -8,7 +9,8 @@
 	title="&shrunked-config.title;"
 	orient="vertical"
 	onload="load();"
-	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	xmlns:html="http://www.w3.org/1999/xhtml">
 
 	<prefpane>
 		<preferences>
@@ -33,14 +35,13 @@
 				<tabpanel id="tp_defaults" orient="vertical">
 					<hbox align="center">
 						<label value="&shrunked-minsize.label;" />
-						<textbox
+						<html:input
 							id="tb_minsize"
 							type="number"
-							preference="p_minsize"
-							size="5"
-							increment="10"
-							min="0" unit="&shrunked-unit.kilobytes;"
-							style="-moz-binding: url(chrome://shrunked/content/bindings.xml#numberbox)" />
+							step="10"
+							min="0"
+							onchange="p_minsize.value = this.value;" />
+						<label value="&shrunked-unit.kilobytes;" />
 					</hbox>
 
 					<label value="&shrunked-maxsize.label;" />
@@ -69,50 +70,43 @@
 							<label
 								id="l_width"
 								value="&shrunked-width.label;"
-								control="customvalue1"
+								control="tb_width"
 								disabled="true" />
-							<textbox
+							<html:input
 								id="tb_width"
 								type="number"
 								value="1500"
-								increment="50"
+								step="50"
 								max="2500"
-								size="4"
 								disabled="true"
-								onchange="setSize();"
-								unit="&shrunked-custom.pixels;"
-								style="-moz-binding: url(chrome://shrunked/content/bindings.xml#numberbox)" />
+								onchange="setSize();" />
+							<label value="&shrunked-custom.pixels;" />
 							<label
 								id="l_height"
 								value="&shrunked-height.label;"
-								control="customvalue2"
+								control="tb_height"
 								disabled="true" />
-							<textbox
+							<html:input
 								id="tb_height"
 								type="number"
 								value="1500"
-								increment="50"
+								step="50"
 								max="2500"
-								size="4"
 								disabled="true"
-								onchange="setSize();"
-								unit="&shrunked-custom.pixels;"
-								style="-moz-binding: url(chrome://shrunked/content/bindings.xml#numberbox)" />
+								onchange="setSize();" />
+							<label value="&shrunked-custom.pixels;" />
 						</hbox>
 					</radiogroup>
 					<label value="&shrunked-defaults.quality.label;" />
 					<hbox class="indent" align="center">
 						<label value="&shrunked-defaults.quality.smaller;" />
-						<tooltip id="tt_quality" onpopupshowing="this.label = s_quality.value;" />
-						<scale
+						<html:input
+							id="s_quality"
+							type="range"
 							min="30"
 							max="100"
-							id="s_quality"
-							preference="p_quality"
-							flex="1"
-							increment="5"
-							tooltip="tt_quality"
-							preference-editable="true" />
+							step="5"
+							onchange="p_quality.value = this.value;" />
 						<label value="&shrunked-defaults.quality.better;" />
 					</hbox>
 				</tabpanel>

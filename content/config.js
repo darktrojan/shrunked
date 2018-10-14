@@ -21,6 +21,7 @@ function load() {
 	if (IS_FIREFOX || IS_SEAMONKEY) {
 		b_resizeonsend.collapsed = true;
 	}
+	tb_minsize.value = p_minsize.value;
 	let maxWidth = p_maxwidth.value;
 	let maxHeight = p_maxheight.value;
 	if (maxWidth == -1 && maxHeight == -1) {
