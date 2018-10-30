@@ -1,0 +1,16 @@
+{
+	"manifest_version": 2,
+	"applications": {
+		"gecko": {
+			"id": "shrunked@darktrojan.net",
+			"strict_min_version": "63.0b1"
+		}
+	},
+	"name": "__MSG_extensionName__",
+	"description": "__MSG_extensionDescription__",
+	"version": "4.4.8",
+	"homepage_url": "https://github.com/darktrojan/shrunked",
+	"legacy": true,
+	"author": "Geoff Lankow",
+	"default_locale": "en"
+}
