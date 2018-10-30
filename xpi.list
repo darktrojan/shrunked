@@ -1,7 +1,6 @@
 chrome.manifest
 content
 content/arrow.svg
-content/bindings.xml
 content/browser-content.js
 content/browser.js
 content/browser.xul

@@ -56,7 +56,6 @@ function load() {
 	} else {
 		l_previewarrows.setAttribute('value', '1/' + imageURLs.length);
 	}
-	window.sizeToContent();
 }
 
 /* exported setSize */

@@ -62,8 +62,6 @@ function load() {
 	}
 
 	enableExif();
-
-	window.sizeToContent();
 }
 
 /* exported setSize */

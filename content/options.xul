@@ -11,7 +11,8 @@
 	onload="load()"
 	ondialogaccept="accept();"
 	ondialogcancel="cancel();"
-	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	xmlns:html="http://www.w3.org/1999/xhtml">
 
 	<vbox>
 		<label class="header" value="&shrunked-maxsize.label;" />
@@ -39,15 +40,31 @@
 					value="&shrunked-width.label;"
 					control="customvalue1"
 					disabled="true" />
-				<textbox id="tb_width" type="number" value="1500" increment="50" min="250" max="2500"
-					size="4" disabled="true" unit="&shrunked-custom.pixels;" oncommand="setSize();" />
+				<html:input
+					id="tb_width"
+					type="number"
+					value="1500"
+					step="50"
+					min="100"
+					max="2500"
+					disabled="true"
+					onchange="setSize();" />
+				<label value="&shrunked-custom.pixels;" />
 				<label
 					id="l_height"
 					value="&shrunked-height.label;"
 					control="customvalue2"
 					disabled="true" />
-				<textbox id="tb_height" type="number" value="1500" increment="50" min="250" max="2500"
-					size="4" disabled="true" unit="&shrunked-custom.pixels;" oncommand="setSize();" />
+				<html:input
+					id="tb_height"
+					type="number"
+					value="1500"
+					step="50"
+					min="100"
+					max="2500"
+					disabled="true"
+					onchange="setSize();" />
+				<label value="&shrunked-custom.pixels;" />
 			</hbox>
 		</radiogroup>
 		<label id="l_previewheader" class="header" value="&shrunked-preview.label;" />
