@@ -1,5 +1,5 @@
 /* globals Components, Shrunked, XPCOMUtils, gBrowser, messageManager, PrivateBrowsingUtils */
-Components.utils.import('chrome://shrunked/content/modules/Shrunked.jsm');
+Components.utils.import('resource://shrunked/Shrunked.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 /* globals FileUtils, Services, Task */

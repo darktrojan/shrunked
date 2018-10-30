@@ -1,4 +1,4 @@
-setTimeout(function() {
+addEventListener('load', function() {
 	let location = document.getElementById('location');
 	let source = document.getElementById('source');
 	if (source.value.startsWith('data:')) {
@@ -15,4 +15,4 @@ setTimeout(function() {
 			}
 		}
 	}
-}, 0);
+});

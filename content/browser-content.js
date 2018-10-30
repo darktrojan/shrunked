@@ -1,6 +1,6 @@
 /* globals Components, XPCOMUtils, Shrunked, sendAsyncMessage, addMessageListener, content */
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'chrome://shrunked/content/modules/Shrunked.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
 
 var index = 1;
 var inputMap = new Map();

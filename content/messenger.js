@@ -1,13 +1,8 @@
 /* globals Components, Shrunked, openLinkExternally */
-Components.utils.import('chrome://shrunked/content/modules/Shrunked.jsm');
+Components.utils.import('resource://shrunked/Shrunked.jsm');
 
 /* exported ShrunkedMessenger */
 var ShrunkedMessenger = {
-	destroy: function() {
-		// Cannot delete vars.
-		window.Shrunked = null;
-		window.ShrunkedMessenger = null;
-	},
 	showNotificationBar: function(text, buttons, callbackObject) {
 		return new Promise(function(resolve) {
 			callbackObject.resolve = resolve;

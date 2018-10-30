@@ -8,10 +8,10 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 Components.utils.importGlobalProperties(['File']);
 
 /* globals ExifData, NetUtil, OS, Shrunked */
-XPCOMUtils.defineLazyModuleGetter(this, 'ExifData', 'chrome://shrunked/content/modules/ExifData.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'ExifData', 'resource://shrunked/ExifData.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'NetUtil', 'resource://gre/modules/NetUtil.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'OS', 'resource://gre/modules/osfile.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'chrome://shrunked/content/modules/Shrunked.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
 
 var XHTMLNS = 'http://www.w3.org/1999/xhtml';
 
@@ -73,8 +73,8 @@ ShrunkedImage.prototype = {
 			}
 			/* jshint +W069 */
 
-			let blobParts = yield this.getBytes(canvas);
-			return new File(blobParts, this.basename, {type:'image/jpeg'});
+			let blob = yield this.getBytes(canvas);
+			return new File([blob], this.basename, {type:'image/jpeg'});
 		}).bind(this));
 	},
 	readExifData: function ShrunkedImage_readExifData() {
@@ -151,7 +151,7 @@ ShrunkedImage.prototype = {
 				canvas.height = height;
 				let newData = context.createImageData(canvas.width, canvas.height);
 
-				let worker = new ChromeWorker('chrome://shrunked/content/modules/worker.js');
+				let worker = new ChromeWorker('resource://shrunked/worker.js');
 				worker.onmessage = function(event) {
 					context.putImageData(event.data, 0, 0);
 					resolve(canvas);
@@ -167,23 +167,11 @@ ShrunkedImage.prototype = {
 			}
 		});
 	},
-	getBytes: function ShrunkedImage_getBytes(canvas, estimate = false) {
+	getBytes: function ShrunkedImage_getBytes(canvas) {
 		return new Promise((resolve, reject) => {
-			canvas.toBlob((blob) => {
+			canvas.toBlob(function(blob) {
 				try {
-					if (this.exifData && !estimate) {
-						let exifBlob = this.exifData.write();
-
-						let reader = new FileReader();
-						reader.onload = function() {
-							let bytes = new Uint8Array(reader.result);
-							let offset = (bytes[4] << 8) + bytes[5] + 4;
-							resolve([exifBlob, blob.slice(offset)]);
-						};
-						reader.readAsArrayBuffer(blob.slice(0, 6));
-					} else {
-						resolve([blob]);
-					}
+					resolve(blob);
 				} catch (ex) {
 					reject(ex);
 				}
@@ -193,8 +181,8 @@ ShrunkedImage.prototype = {
 	estimateSize: function() {
 		return this.loadImage()
 			.then(image => this.drawOnCanvas(image, 0, false))
-			.then(canvas => this.getBytes(canvas, true))
-			.then(bytes => bytes[0].size);
+			.then(canvas => this.getBytes(canvas))
+			.then(bytes => bytes.size);
 	}
 };
 

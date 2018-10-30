@@ -3,7 +3,7 @@
 /* globals Components, Services, Task, Shrunked */
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/Task.jsm');
-Components.utils.import('chrome://shrunked/content/modules/Shrunked.jsm');
+Components.utils.import('resource://shrunked/Shrunked.jsm');
 
 const IS_FIREFOX = Services.appinfo.name == 'Firefox';
 const IS_SEAMONKEY = Services.appinfo.name == 'SeaMonkey';

@@ -1,12 +1,12 @@
 /* exported EXPORTED_SYMBOLS, ExifData */
 var EXPORTED_SYMBOLS = ['ExifData'];
 
-/* globals Components, Task, XPCOMUtils */
+/* globals Components, Task, XPCOMUtils, Iterator */
 Components.utils.import('resource://gre/modules/Task.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 /* globals Shrunked */
-XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'chrome://shrunked/content/modules/Shrunked.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
 
 function ExifData() {
 }
@@ -117,7 +117,7 @@ ExifData.prototype = {
 
 		let count = 0;
 		let size = 6;
-		for (let e of Object.values(section)) {
+		for (let [, e] of Iterator(section)) {
 			count++;
 			size += 12;
 			if (e.size > 4) {
@@ -153,7 +153,7 @@ ExifData.prototype = {
 
 		index += 2;
 		let dataindex = index + 4 + 12 * count;
-		for (let e of Object.values(section)) {
+		for (let [, e] of Iterator(section)) {
 			let sub = [];
 			sub = sub.concat(this._get2Bytes(e.code));
 			sub = sub.concat(this._get2Bytes(e.type));
@@ -170,39 +170,41 @@ ExifData.prototype = {
 		}
 		return dataindex;
 	},
-	write: function ExifData_write() {
-		let [e1count, e1size] = this._countSection(this.exif1);
-		let [e2count, e2size] = this._countSection(this.exif2);
-		this.exif1['8769'].value = 8 + e1size;
+	write: function ExifData_write(file) {
+		return Task.spawn((function*() {
+			let [e1count, e1size] = this._countSection(this.exif1);
+			let [e2count, e2size] = this._countSection(this.exif2);
+			this.exif1['8769'].value = 8 + e1size;
 
-		let [gpscount, gpssize] = this._countSection(this.gps);
-		if (Shrunked.options.gps && this.gps) {
-			this.exif1['8825'].value = 8 + e1size + e2size;
-		} else {
-			delete this.exif1['8825'];
-			gpssize = 0;
-		}
+			let [gpscount, gpssize] = this._countSection(this.gps);
+			if (Shrunked.options.gps && this.gps) {
+				this.exif1['8825'].value = 8 + e1size + e2size;
+			} else {
+				delete this.exif1['8825'];
+				gpssize = 0;
+			}
 
-		let buffer = new Uint8Array(20 + e1size + e2size + gpssize);
-		buffer.set([0xFF, 0xD8, 0xFF, 0xE1]);
-		buffer[4] = ((buffer.length - 4) & 0xFF00) >> 8;
-		buffer[5] = (buffer.length - 4) & 0x00FF;
-		buffer.set([0x45, 0x78, 0x69, 0x66], 6);
-		if (this.littleEndian) {
-			buffer.set([0x49, 0x49], 12);
-		} else {
-			buffer.set([0x4D, 0x4D], 12);
-		}
-		buffer.set(this._get2Bytes(0x2A), 14);
-		buffer.set(this._get4Bytes(0x08), 16);
+			let buffer = new Uint8Array(20 + e1size + e2size + gpssize);
+			buffer.set([0xFF, 0xD8, 0xFF, 0xE1]);
+			buffer[4] = ((buffer.length - 4) & 0xFF00) >> 8;
+			buffer[5] = (buffer.length - 4) & 0x00FF;
+			buffer.set([0x45, 0x78, 0x69, 0x66], 6);
+			if (this.littleEndian) {
+				buffer.set([0x49, 0x49], 12);
+			} else {
+				buffer.set([0x4D, 0x4D], 12);
+			}
+			buffer.set(this._get2Bytes(0x2A), 14);
+			buffer.set(this._get4Bytes(0x08), 16);
 
-		let index = 20;
-		index = this._writeSection(this.exif1, buffer, index, e1count);
-		index = this._writeSection(this.exif2, buffer, index, e2count);
-		if (Shrunked.options.gps && this.gps) {
-			this._writeSection(this.gps, buffer, index, gpscount);
-		}
+			let index = 20;
+			index = this._writeSection(this.exif1, buffer, index, e1count);
+			index = this._writeSection(this.exif2, buffer, index, e2count);
+			if (Shrunked.options.gps && this.gps) {
+				this._writeSection(this.gps, buffer, index, gpscount);
+			}
 
-		return buffer;
+			yield file.write(buffer);
+		}).bind(this));
 	}
 };
