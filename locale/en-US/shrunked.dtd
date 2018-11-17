@@ -1,14 +1,9 @@
 <!ENTITY shrunked-config.title "Shrunked Image Resizer Configuration">
-<!ENTITY shrunked-sites.label "Site Settings">
-<!ENTITY shrunked-sites.sitelist.site "Site">
-<!ENTITY shrunked-sites.sitelist.settings "Settings">
-<!ENTITY shrunked-sites.forget.label "Forget Selected">
 <!ENTITY shrunked-defaults.label "Defaults">
 <!ENTITY shrunked-defaults.quality.label "JPEG Encoder Quality:">
 <!ENTITY shrunked-defaults.quality.smaller "Smaller Files">
 <!ENTITY shrunked-defaults.quality.better "Better Quality">
 <!ENTITY shrunked-options.title "Shrunked Image Resizer Options">
-<!ENTITY shrunked-options.remembersite.label "Remember my answer for this website">
 <!ENTITY shrunked-options.savedefault.label "Save as default settings">
 <!ENTITY shrunked-noresize.label "Original">
 <!ENTITY shrunked-small.label "500 px">

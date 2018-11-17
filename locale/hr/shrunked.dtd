@@ -1,14 +1,9 @@
 <!ENTITY shrunked-config.title "Shrunked Image Resizer podešavanje">
-<!ENTITY shrunked-sites.label "Postavke stranice">
-<!ENTITY shrunked-sites.sitelist.site "Stranica">
-<!ENTITY shrunked-sites.sitelist.settings "Postavke">
-<!ENTITY shrunked-sites.forget.label "Zaboravi odabrano">
 <!ENTITY shrunked-defaults.label "Zadano">
 <!ENTITY shrunked-defaults.quality.label "JPEG Encoder kvaliteta:">
 <!ENTITY shrunked-defaults.quality.smaller "Manje datoteke">
 <!ENTITY shrunked-defaults.quality.better "Bolja kvaliteta">
 <!ENTITY shrunked-options.title "Shrunked Image Resizer opcije">
-<!ENTITY shrunked-options.remembersite.label "Zapamti moj odgovor za ovu web stranicu">
 <!ENTITY shrunked-options.savedefault.label "Spremi kao zadane postavke">
 <!ENTITY shrunked-noresize.label "Izvornik">
 <!ENTITY shrunked-small.label "500 px">

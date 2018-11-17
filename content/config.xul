@@ -28,7 +28,6 @@
 		<tabbox>
 			<tabs>
 				<tab id="t_defaults" label="&shrunked-defaults.label;" />
-				<tab id="t_sites" label="&shrunked-sites.label;" />
 				<tab id="t_advanced" label="&shrunked-advanced.label;" />
 			</tabs>
 			<tabpanels>
@@ -110,21 +109,6 @@
 							step="5"
 							onchange="p_quality.value = this.value;" />
 						<label value="&shrunked-defaults.quality.better;" />
-					</hbox>
-				</tabpanel>
-				<tabpanel id="tp_sites" orient="vertical">
-					<listbox flex="1" id="lb_sites" onselect="enableForget();">
-						<listhead>
-							<listheader label="&shrunked-sites.sitelist.site;" />
-							<listheader label="&shrunked-sites.sitelist.settings;" />
-						</listhead>
-						<listcols>
-							<listcol flex="1" />
-							<listcol style="width: 12em" />
-						</listcols>
-					</listbox>
-					<hbox pack="end">
-						<button id="b_forget" label="&shrunked-sites.forget.label;" disabled="true" oncommand="forgetSite();" />
 					</hbox>
 				</tabpanel>
 				<tabpanel id="tp_advanced" orient="vertical">

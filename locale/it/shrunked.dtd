@@ -1,14 +1,9 @@
 <!ENTITY shrunked-config.title "Impostazioni di Shrunked Image Resizer">
-<!ENTITY shrunked-sites.label "Opzioni dei siti">
-<!ENTITY shrunked-sites.sitelist.site "Sito">
-<!ENTITY shrunked-sites.sitelist.settings "Dimensioni immagine">
-<!ENTITY shrunked-sites.forget.label "Elimina siti selezionati">
 <!ENTITY shrunked-defaults.label "Generali">
 <!ENTITY shrunked-defaults.quality.label "Qualità JPEG:">
 <!ENTITY shrunked-defaults.quality.smaller "Minima">
 <!ENTITY shrunked-defaults.quality.better "Massima">
 <!ENTITY shrunked-options.title "Ridimensionamento delle immagini di Shrunked Image Resizer">
-<!ENTITY shrunked-options.remembersite.label "Ricorda le dimensioni scelte per le immagini di questo sito web">
 <!ENTITY shrunked-options.savedefault.label "Salva come impostazioni predefinite">
 <!ENTITY shrunked-noresize.label "Originarie">
 <!ENTITY shrunked-small.label "500 pixel">

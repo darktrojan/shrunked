@@ -1,26 +1,12 @@
-/* jshint -W117 */
-/* jshint browser: false */
-/* globals Components, Services, Task, Shrunked */
-Components.utils.import('resource://gre/modules/Services.jsm');
-Components.utils.import('resource://gre/modules/Task.jsm');
-Components.utils.import('resource://shrunked/Shrunked.jsm');
-
-const IS_FIREFOX = Services.appinfo.name == 'Firefox';
-const IS_SEAMONKEY = Services.appinfo.name == 'SeaMonkey';
-const IS_THUNDERBIRD = Services.appinfo.name == 'Thunderbird';
-
+/* globals p_minsize, p_maxwidth, p_maxheight, p_quality, tb_minsize, rg_size, r_noresize,
+   r_small, r_medium, r_large, r_custom, l_width, tb_width, l_height, tb_height, s_quality,
+   cb_exif, cb_orient, cb_gps */
 for (let element of document.querySelectorAll('[id]')) {
 	window[element.id] = element;
 }
 
 /* exported load */
 function load() {
-	if (IS_FIREFOX) {
-		r_noresize.collapsed = true;
-	}
-	if (IS_FIREFOX || IS_SEAMONKEY) {
-		b_resizeonsend.collapsed = true;
-	}
 	tb_minsize.value = p_minsize.value;
 	let maxWidth = p_maxwidth.value;
 	let maxHeight = p_maxheight.value;
@@ -40,26 +26,6 @@ function load() {
 	setSize();
 
 	s_quality.value = p_quality.value;
-
-	if (IS_THUNDERBIRD) {
-		t_sites.hidden = true;
-	} else {
-		Task.spawn(function*() {
-			let data = new Map();
-			for (let name of ['disabled', 'maxWidth', 'maxHeight']) {
-				let prefs = yield Shrunked.getAllContentPrefs('extensions.shrunked.' + name);
-				for (let [domain, value] of prefs) {
-					let site = data.get(domain) || {};
-					site[name] = value;
-					data.set(domain, site);
-				}
-			}
-
-			handleData(data);
-		}).catch(function(error) {
-			Components.utils.reportError(error);
-		});
-	}
 
 	enableExif();
 }
@@ -89,53 +55,4 @@ function setSize() {
 /* exported enableExif */
 function enableExif() {
 	cb_orient.disabled = cb_gps.disabled = !cb_exif.checked;
-}
-
-/* exported handleData */
-function handleData(data) {
-	for (let [domain, prefs] of data) {
-		if (prefs.disabled) {
-			let item = document.createElement('listitem');
-			item.setAttribute('style', 'color: #666; font-style: italic');
-			let siteCell = document.createElement('listcell');
-			siteCell.setAttribute('label', domain);
-			item.appendChild(siteCell);
-			let disabledCell = document.createElement('listcell');
-			disabledCell.setAttribute('label', Shrunked.strings.GetStringFromName('disabled'));
-			disabledCell.setAttribute('style', 'text-align: center');
-			item.appendChild(disabledCell);
-			lb_sites.appendChild(item);
-		}
-		if (prefs.maxWidth && prefs.maxHeight) {
-			let item = document.createElement('listitem');
-			let siteCell = document.createElement('listcell');
-			siteCell.setAttribute('label', domain);
-			item.appendChild(siteCell);
-			let widthCell = document.createElement('listcell');
-			widthCell.setAttribute('label', Shrunked.strings.formatStringFromName('dimensions', [prefs.maxWidth, prefs.maxHeight], 2));
-			widthCell.setAttribute('style', 'text-align: center');
-			item.appendChild(widthCell);
-			lb_sites.appendChild(item);
-		}
-	}
-}
-
-/* exported enableForget */
-function enableForget() {
-	b_forget.disabled = lb_sites.selectedItem === null;
-}
-
-/* exported forgetSite */
-function forgetSite() {
-	let item = lb_sites.getSelectedItem(0);
-	if (item) {
-		let site = item.firstChild.getAttribute('label');
-		let uri = Services.io.newURI('http://' + site + '/', null, null);
-
-		Shrunked.contentPrefs2.removeByDomainAndName(uri.host, 'extensions.shrunked.maxHeight', null);
-		Shrunked.contentPrefs2.removeByDomainAndName(uri.host, 'extensions.shrunked.maxWidth', null);
-		Shrunked.contentPrefs2.removeByDomainAndName(uri.host, 'extensions.shrunked.disabled', null);
-
-		lb_sites.removeChild(item);
-	}
 }

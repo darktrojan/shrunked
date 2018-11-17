@@ -1,14 +1,9 @@
 <!ENTITY shrunked-config.title "Shrunked Afbeeldingsverkleiner-instellingen">
-<!ENTITY shrunked-sites.label "Website-instellingen">
-<!ENTITY shrunked-sites.sitelist.site "Website">
-<!ENTITY shrunked-sites.sitelist.settings "Instellingen">
-<!ENTITY shrunked-sites.forget.label "Geselecteerde vergeten">
 <!ENTITY shrunked-defaults.label "Standaarden">
 <!ENTITY shrunked-defaults.quality.label "JPEG-codeerderkwaliteit:">
 <!ENTITY shrunked-defaults.quality.smaller "Kleinere bestanden">
 <!ENTITY shrunked-defaults.quality.better "Betere kwaliteit">
 <!ENTITY shrunked-options.title "Shrunked Afbeeldingsverkleiner-voorkeuren">
-<!ENTITY shrunked-options.remembersite.label "Mijn antwoord voor deze website onthouden">
 <!ENTITY shrunked-options.savedefault.label "Opslaan als standaard instellingen">
 <!ENTITY shrunked-noresize.label "Origineel">
 <!ENTITY shrunked-small.label "500 px">

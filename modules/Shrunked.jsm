@@ -5,15 +5,15 @@ var ID = 'shrunked@darktrojan.net';
 var CHANGELOG_URL = 'https://addons.mozilla.org/addon/shrunked-image-resizer/versions/';
 var DONATE_URL = 'https://darktrojan.github.io/donate.html?shrunked';
 
-/* globals Components, Services, XPCOMUtils, dump */
-Components.utils.import('resource://gre/modules/Services.jsm');
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+/* globals Services, XPCOMUtils */
+ChromeUtils.import('resource://gre/modules/Services.jsm');
+ChromeUtils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 /* globals AddonManager, FileUtils, PluralForm, ShrunkedImage */
-XPCOMUtils.defineLazyModuleGetter(this, 'AddonManager', 'resource://gre/modules/AddonManager.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'PluralForm', 'resource://gre/modules/PluralForm.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'ShrunkedImage', 'resource://shrunked/ShrunkedImage.jsm');
+ChromeUtils.defineModuleGetter(this, 'AddonManager', 'resource://gre/modules/AddonManager.jsm');
+ChromeUtils.defineModuleGetter(this, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
+ChromeUtils.defineModuleGetter(this, 'PluralForm', 'resource://gre/modules/PluralForm.jsm');
+ChromeUtils.defineModuleGetter(this, 'ShrunkedImage', 'resource://shrunked/ShrunkedImage.jsm');
 
 /* globals idleService */
 XPCOMUtils.defineLazyServiceGetter(this, 'idleService', '@mozilla.org/widget/idleservice;1', 'nsIIdleService');
@@ -26,28 +26,28 @@ var Shrunked = {
 	get fileSizeMinimum() {
 		return Shrunked.prefs.getIntPref('fileSizeMinimum') * 1000;
 	},
-	fileLargerThanThreshold: function Shrunked_fileLargerThanThreshold(path) {
+	fileLargerThanThreshold(path) {
 		let file;
 		if (/^file:/.test(path)) {
 			let uri = Services.io.newURI(path, null, null);
-			file = uri.QueryInterface(Components.interfaces.nsIFileURL).file;
+			file = uri.QueryInterface(Ci.nsIFileURL).file;
 		} else {
 			file = new FileUtils.File(path);
 		}
 		return file.fileSize >= this.fileSizeMinimum;
 	},
-	imageIsJPEG: function Shrunked_imageIsJPEG(image) {
-		let request = image.getRequest(Components.interfaces.nsIImageLoadingContent.CURRENT_REQUEST);
+	imageIsJPEG(image) {
+		let request = image.getRequest(Ci.nsIImageLoadingContent.CURRENT_REQUEST);
 		return !!request && request.mimeType == 'image/jpeg';
 	},
-	resize: function Shrunked_resize(sourceFile, maxWidth, maxHeight, quality, name) {
+	resize(sourceFile, maxWidth, maxHeight, quality, name) {
 		let image = new ShrunkedImage(sourceFile, maxWidth, maxHeight, quality);
-		if (!!name) {
+		if (name) {
 			image.basename = name;
 		}
 		return image.resize();
 	},
-	getDataURLFromFile: function Shrunked_getDataURLFromFile(file) {
+	getDataURLFromFile(file) {
 		return new Promise(function(resolve) {
 			let reader = new FileReader();
 			reader.onloadend = function() {
@@ -58,7 +58,7 @@ var Shrunked = {
 			reader.readAsDataURL(file);
 		});
 	},
-	versionUpgrade: function Shrunked_versionUpgrade() {
+	versionUpgrade() {
 		function parseVersion(version) {
 			let match = /^\d+(\.\d+)?/.exec(version);
 			return match ? match[0] : version;
@@ -68,10 +68,10 @@ var Shrunked = {
 		let oldVersion = 0;
 		let shouldRemind = true;
 
-		if (Shrunked.prefs.getPrefType('version') == Components.interfaces.nsIPrefBranch.PREF_STRING) {
+		if (Shrunked.prefs.getPrefType('version') == Ci.nsIPrefBranch.PREF_STRING) {
 			oldVersion = parseVersion(Shrunked.prefs.getCharPref('version'));
 		}
-		if (Shrunked.prefs.getPrefType('donationreminder') == Components.interfaces.nsIPrefBranch.PREF_INT) {
+		if (Shrunked.prefs.getPrefType('donationreminder') == Ci.nsIPrefBranch.PREF_INT) {
 			let lastReminder = Shrunked.prefs.getIntPref('donationreminder') * 1000;
 			shouldRemind = Date.now() - lastReminder > 604800000;
 		}
@@ -85,7 +85,7 @@ var Shrunked = {
 			}
 
 			idleService.addIdleObserver({
-				observe: function(service, state) {
+				observe(service, state) {
 					if (state != 'idle') {
 						return;
 					}
@@ -96,44 +96,36 @@ var Shrunked = {
 			}, 10);
 		});
 	},
-	showNotification: function Shrunked_showNotification(currentVersion) {
+	showNotification(currentVersion) {
 		let callbackObject = {};
 		let label = Shrunked.strings.formatStringFromName('donate_notification', [currentVersion], 1);
 		let buttons = [{
 			label: Shrunked.strings.GetStringFromName('changelog_button_label'),
 			accessKey: Shrunked.strings.GetStringFromName('changelog_button_accesskey'),
-			callback: function() {
+			callback() {
 				callbackObject.resolve('changelog');
 			}
 		}, {
 			label: Shrunked.strings.GetStringFromName('donate_button_label'),
 			accessKey: Shrunked.strings.GetStringFromName('donate_button_accesskey'),
 			popup: null,
-			callback: function() {
+			callback() {
 				callbackObject.resolve('donate');
 			}
 		}];
 
-		let recentWindow = Services.wm.getMostRecentWindow('navigator:browser');
-		let shrunkedWindow;
-
-		if (recentWindow) {
-			shrunkedWindow = recentWindow.ShrunkedBrowser;
-		} else {
-			recentWindow = Services.wm.getMostRecentWindow('mail:3pane');
-			if (recentWindow) {
-				shrunkedWindow = recentWindow.ShrunkedMessenger;
-			} else {
-				return;
-			}
+		let recentWindow = Services.wm.getMostRecentWindow('mail:3pane');
+		if (!recentWindow) {
+			return;
 		}
-
+		let shrunkedWindow = recentWindow.ShrunkedMessenger;
 		shrunkedWindow.showNotificationBar(label, buttons, callbackObject).then(function(which) {
 			switch (which) {
-			case 'changelog':
+			case 'changelog': {
 				let version = Shrunked.prefs.getCharPref('version');
 				shrunkedWindow.notificationCallback(CHANGELOG_URL + version);
 				break;
+			}
 			case 'donate':
 				shrunkedWindow.notificationCallback(DONATE_URL);
 				break;
@@ -142,64 +134,27 @@ var Shrunked = {
 
 		Shrunked.prefs.setIntPref('donationreminder', Date.now() / 1000);
 	},
-	getContentPref: function Shrunked_getContentPref(uri, name, context) {
-		return new Promise((resolve, reject) => {
-			this.contentPrefs2.getByDomainAndName(uri.host, name, context, {
-				handleCompletion: function() {
-					// If we get here without calling handleError or handleResult, there is no pref.
-					resolve(null);
-				},
-				handleError: function(error) {
-					reject(error);
-				},
-				handleResult: function(pref) {
-					resolve(pref.value);
-				}
-			});
-		});
-	},
-	getAllContentPrefs: function Shrunked_getAllContentPrefs(name) {
-		return new Promise((resolve, reject) => {
-			let allPrefs = new Map();
-			this.contentPrefs2.getByName(name, null, {
-				handleCompletion: function() {
-					resolve(allPrefs);
-				},
-				handleError: function(error) {
-					reject(error);
-				},
-				handleResult: function(pref) {
-					allPrefs.set(pref.domain, pref.value);
-				}
-			});
-		});
-	},
-	log: function Shrunked_log(message) {
+	log(message) {
 		if (this.logEnabled) {
-			if ('infoFlag' in Components.interfaces.nsIScriptError) {
-				let frame = Components.stack.caller;
-				let filename = frame.filename ? frame.filename.split(' -> ').pop() : null;
-				let scriptError = Components.classes['@mozilla.org/scripterror;1'].createInstance(Components.interfaces.nsIScriptError);
-				scriptError.init(
-					message, filename, null, frame.lineNumber, frame.columnNumber,
-					Components.interfaces.nsIScriptError.infoFlag, 'component javascript'
-				);
-				Services.console.logMessage(scriptError);
-			} else {
-				Services.console.logStringMessage(message);
-			}
+			let frame = Components.stack.caller;
+			let filename = frame.filename ? frame.filename.split(' -> ').pop() : null;
+			let scriptError = Cc['@mozilla.org/scripterror;1'].createInstance(Ci.nsIScriptError);
+			scriptError.init(
+				message, filename, null, frame.lineNumber, frame.columnNumber,
+				Ci.nsIScriptError.infoFlag, 'component javascript'
+			);
+			Services.console.logMessage(scriptError);
 			dump(message + '\n');
 		}
 	},
-	warn: function Shrunked_log(message) {
+	warn(message) {
 		if (this.logEnabled) {
 			let caller = Components.stack.caller;
 			let filename = caller.filename ? caller.filename.split(' -> ').pop() : null;
-			let scriptError = Components.classes['@mozilla.org/scripterror;1']
-				.createInstance(Components.interfaces.nsIScriptError);
+			let scriptError = Cc['@mozilla.org/scripterror;1'] .createInstance(Ci.nsIScriptError);
 			scriptError.init(
 				message, filename, null, caller.lineNumber, caller.columnNumber,
-				Components.interfaces.nsIScriptError.warningFlag, 'component javascript'
+				Ci.nsIScriptError.warningFlag, 'component javascript'
 			);
 			Services.console.logMessage(scriptError);
 		}
@@ -225,12 +180,9 @@ var Shrunked = {
 XPCOMUtils.defineLazyGetter(Shrunked, 'prefs', function() {
 	return Services.prefs.getBranch('extensions.shrunked.');
 });
-XPCOMUtils.defineLazyGetter(Shrunked, 'contentPrefs2', function() {
-	return Services.contentPrefs.QueryInterface(Components.interfaces.nsIContentPrefService2);
-});
 XPCOMUtils.defineLazyGetter(Shrunked, 'logEnabled', function() {
 	this.prefs.addObserver('log.enabled', {
-		observe: function() {
+		observe() {
 			Shrunked.logEnabled = Shrunked.prefs.getBoolPref('log.enabled');
 		}
 	}, false);
@@ -241,26 +193,8 @@ XPCOMUtils.defineLazyGetter(Shrunked, 'strings', function() {
 });
 XPCOMUtils.defineLazyGetter(Shrunked, 'getPluralForm', function() {
 	let pluralForm = Shrunked.strings.GetStringFromName('question_pluralform');
-	let [getPlural, ] = PluralForm.makeGetter(pluralForm);
+	let [getPlural] = PluralForm.makeGetter(pluralForm);
 	return getPlural;
 });
 
-if (Services.appinfo.processType == Services.appinfo.PROCESS_TYPE_DEFAULT) {
-	var observer = {
-		observe: function(subject, topic) {
-			switch (topic) {
-				case 'quit-application-granted':
-					Services.obs.removeObserver(this, 'last-pb-context-exited');
-					Services.obs.removeObserver(this, 'quit-application-granted');
-					Services.obs.removeObserver(this, 'browser:purge-session-history');
-					return;
-			}
-		}
-	};
-
-	Shrunked.versionUpgrade();
-
-	Services.obs.addObserver(observer, 'last-pb-context-exited', false);
-	Services.obs.addObserver(observer, 'quit-application-granted', false);
-	Services.obs.addObserver(observer, 'browser:purge-session-history', false);
-}
+Shrunked.versionUpgrade();

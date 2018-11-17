@@ -88,9 +88,6 @@
 			</vbox>
 		</hbox>
 		<checkbox
-			id="cb_remembersite"
-			label="&shrunked-options.remembersite.label;" />
-		<checkbox
 			id="cb_savedefault"
 			label="&shrunked-options.savedefault.label;" />
 	</vbox>

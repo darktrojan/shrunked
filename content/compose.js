@@ -1,6 +1,7 @@
-/* globals -name, -parent */
-/* globals Components, Services, XPCOMUtils, Shrunked, Task */
-/* globals fixIterator, gAttachmentsSize, updateAttachmentPane, UpdateAttachmentBucket, gMessenger */
+/* globals Shrunked */
+ChromeUtils.defineModuleGetter(window, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
+
+/* globals fixIterator, updateAttachmentPane, UpdateAttachmentBucket, gMessenger */
 var ShrunkedCompose = {
 	OPTIONS_DIALOG: 'chrome://shrunked/content/options.xul',
 	POPUP_ARGS: 'chrome,centerscreen,modal',
@@ -9,8 +10,8 @@ var ShrunkedCompose = {
 	inlineImages: [],
 	timeout: null,
 
-	init: function ShrunkedCompose_init() {
-		if (Services.appinfo.name == 'SeaMonkey' || Shrunked.prefs.getBoolPref('resizeAttachmentsOnSend')) {
+	init() {
+		if (Shrunked.prefs.getBoolPref('resizeAttachmentsOnSend')) {
 			this.oldGenericSendMessage = window.GenericSendMessage;
 			window.GenericSendMessage = this.newGenericSendMessage.bind(this);
 		} else {
@@ -95,7 +96,7 @@ var ShrunkedCompose = {
 			}
 		});
 	},
-	maybeResizeInline: function ShrunkedCompose_maybeResizeInline(target) {
+	maybeResizeInline(target) {
 		if (target.nodeName == 'IMG') {
 			try {
 				Shrunked.log('<IMG> found, source is ' + target.src.substring(0, 100) + (target.src.length <= 100 ? '' : '\u2026'));
@@ -176,16 +177,16 @@ var ShrunkedCompose = {
 
 					this.showNotification({
 						images: this.inlineImages,
-						onResize: function(image, dataURL) {
+						onResize(image, dataURL) {
 							image.src = dataURL;
 							image.removeAttribute('width');
 							image.removeAttribute('height');
 							image.setAttribute('shrunked:resized', 'true');
 						},
-						onResizeComplete: function() {
+						onResizeComplete() {
 							ShrunkedCompose.inlineImages = [];
 						},
-						onResizeCancelled: function() {
+						onResizeCancelled() {
 							for (let img of ShrunkedCompose.inlineImages) {
 								img.setAttribute('shrunked:resized', 'false');
 							}
@@ -194,7 +195,7 @@ var ShrunkedCompose = {
 					});
 				}, 500);
 			} catch (e) {
-				Components.utils.reportError(e);
+				Cu.reportError(e);
 			}
 		} else if (target.nodeType == Node.ELEMENT_NODE) {
 			Shrunked.log('<' + target.nodeName + '> found, checking children');
@@ -203,14 +204,14 @@ var ShrunkedCompose = {
 			}
 		}
 	},
-	attachmentsAdded: function ShrunkedCompose_attachmentsAdded(event) {
+	attachmentsAdded(event) {
 		let bucket = document.getElementById('attachmentBucket');
 		let images = [];
-		for (let attachment of fixIterator(event.detail, Components.interfaces.nsIMsgAttachment)) {
+		for (let attachment of fixIterator(event.detail, Ci.nsIMsgAttachment)) {
 			if (/\.jpe?g$/i.test(attachment.url) && attachment.size >= Shrunked.fileSizeMinimum) {
 				Shrunked.log('JPEG attachment detected');
 				images.push({
-					attachment: attachment,
+					attachment,
 					src: attachment.url
 				});
 			}
@@ -218,12 +219,12 @@ var ShrunkedCompose = {
 
 		if (images.length) {
 			ShrunkedCompose.showNotification({
-				images: images,
-				onResize: function(imageData, dataURL, size) {
+				images,
+				onResize(imageData, dataURL, size) {
 					let attachment = imageData.attachment;
 					attachment.contentLocation = attachment.url;
 					attachment.url = dataURL;
-					gAttachmentsSize += size - attachment.size; // jshint ignore:line
+					window.gAttachmentsSize += size - attachment.size;
 					attachment.size = size;
 
 					if ('updateAttachmentPane' in window) {
@@ -238,27 +239,27 @@ var ShrunkedCompose = {
 						}
 					}
 				},
-				onResizeComplete: function() {
+				onResizeComplete() {
 				},
-				onResizeCancelled: function() {
+				onResizeCancelled() {
 				}
 			});
 		}
 	},
-	onContentContextMenuCommand: function() {
+	onContentContextMenuCommand() {
 		this.showOptionsDialog({
 			images: [document.popupNode],
-			onResize: function(image, dataURL) {
+			onResize(image, dataURL) {
 				image.src = dataURL;
 				image.removeAttribute('width');
 				image.removeAttribute('height');
 				image.setAttribute('shrunked:resized', 'true');
 			},
-			onResizeComplete: function() {},
-			onResizeCancelled: function() {}
+			onResizeComplete() {},
+			onResizeCancelled() {}
 		});
 	},
-	onAttachmentContextMenuCommand: function() {
+	onAttachmentContextMenuCommand() {
 		let items = document.getElementById('attachmentBucket').selectedItems;
 		let images = [];
 		for (let i = 0; i < items.length; i++) {
@@ -266,29 +267,29 @@ var ShrunkedCompose = {
 			if ((attachment.url.startsWith('data:image/jpeg;') || /\.jpe?g$/i.test(attachment.url)) &&
 					attachment.size >= Shrunked.fileSizeMinimum) {
 				images.push({
-					attachment: attachment,
+					attachment,
 					item: items[i],
 					src: attachment.url
 				});
 			}
 		}
 		this.showOptionsDialog({
-			images: images,
-			onResize: function(imageData, dataURL, size) {
+			images,
+			onResize(imageData, dataURL, size) {
 				let attachment = imageData.attachment;
 				attachment.contentLocation = attachment.url;
 				attachment.url = dataURL;
-				gAttachmentsSize += size - attachment.size; // jshint ignore:line
+				window.gAttachmentsSize += size - attachment.size;
 				attachment.size = size;
 
 				UpdateAttachmentBucket(true);
 				imageData.item.setAttribute('size', gMessenger.formatFileSize(attachment.size));
 			},
-			onResizeComplete: function() {},
-			onResizeCancelled: function() {}
+			onResizeComplete() {},
+			onResizeCancelled() {}
 		});
 	},
-	showNotification: function(callbackObject) {
+	showNotification(callbackObject) {
 		Shrunked.log('Showing resize notification');
 		let notifyBox = document.getElementById('shrunked-notification-box');
 		if (notifyBox.childElementCount > 0) {
@@ -305,7 +306,7 @@ var ShrunkedCompose = {
 			label: Shrunked.strings.GetStringFromName('yes_label')
 		}, {
 			accessKey: Shrunked.strings.GetStringFromName('no_accesskey'),
-			callback: function() {
+			callback() {
 				Shrunked.log('Resizing cancelled');
 				callbackObject.onResizeCancelled();
 			},
@@ -319,7 +320,7 @@ var ShrunkedCompose = {
 			question, 'shrunked-notification', Shrunked.icon16, notifyBox.PRIORITY_INFO_HIGH, buttons
 		);
 	},
-	showOptionsDialog: function ShrunkedCompose_showOptionsDialog(callbackObject) {
+	async showOptionsDialog(callbackObject) {
 		let returnValues = { cancelDialog: true };
 		if (callbackObject.isAttachment) {
 			returnValues.isAttachment = true;
@@ -349,7 +350,7 @@ var ShrunkedCompose = {
 			return;
 		}
 
-		Task.spawn((function*() {
+		try {
 			let {maxWidth, maxHeight} = returnValues;
 			let quality = Shrunked.prefs.getIntPref('default.quality');
 			Shrunked.log('Resizing to ' + maxWidth + ' \u00D7 ' + maxHeight + ', ' + quality + ' quality');
@@ -357,25 +358,25 @@ var ShrunkedCompose = {
 			this.setStatus(callbackObject.images.length);
 			for (let image of callbackObject.images) {
 				try {
-					let destFile = yield Shrunked.resize(image.src, maxWidth, maxHeight, quality, image.maybesrc);
-					let dataURL = yield Shrunked.getDataURLFromFile(destFile);
+					let destFile = await Shrunked.resize(image.src, maxWidth, maxHeight, quality, image.maybesrc);
+					let dataURL = await Shrunked.getDataURLFromFile(destFile);
 					callbackObject.onResize(image, dataURL, destFile.size);
 					Shrunked.log('Successfully resized ' + destFile.name);
 					this.setStatusCount(++count);
 				} catch (ex) {
-					Components.utils.reportError(ex);
+					Cu.reportError(ex);
 				}
 			}
 			this.clearStatus();
 			Shrunked.log('Resizing complete');
 			callbackObject.onResizeComplete();
-		}).bind(this)).catch(function(error) {
-			Components.utils.reportError(error);
-		});
+		} catch (ex) {
+			Cu.reportError(ex);
+		}
 	},
-	newGenericSendMessage: function ShrunkedCompose_newGenericSendMessage(msgType) {
-		let doResize = msgType == Components.interfaces.nsIMsgCompDeliverMode.Now ||
-				msgType == Components.interfaces.nsIMsgCompDeliverMode.Later;
+	newGenericSendMessage(msgType) {
+		let doResize = msgType == Ci.nsIMsgCompDeliverMode.Now ||
+				msgType == Ci.nsIMsgCompDeliverMode.Later;
 		let images = [];
 
 		try {
@@ -386,7 +387,7 @@ var ShrunkedCompose = {
 					if (/\.jpe?g$/i.test(attachment.url) && attachment.size >= Shrunked.fileSizeMinimum) {
 						Shrunked.log('JPEG attachment detected');
 						images.push({
-							attachment: attachment,
+							attachment,
 							src: attachment.url
 						});
 					}
@@ -395,12 +396,12 @@ var ShrunkedCompose = {
 				if (images.length) {
 					ShrunkedCompose.showOptionsDialog({
 						isAttachment: true,
-						images: images,
-						onResize: function(imageData, dataURL, size) {
+						images,
+						onResize(imageData, dataURL, size) {
 							let attachment = imageData.attachment;
 							attachment.contentLocation = attachment.url;
 							attachment.url = dataURL;
-							gAttachmentsSize += size - attachment.size; // jshint ignore:line
+							window.gAttachmentsSize += size - attachment.size;
 							attachment.size = size;
 
 							UpdateAttachmentBucket(true);
@@ -411,10 +412,10 @@ var ShrunkedCompose = {
 								}
 							}
 						},
-						onResizeComplete: function() {
+						onResizeComplete() {
 							finish();
 						},
-						onResizeCancelled: function() {
+						onResizeCancelled() {
 							finish();
 						}
 					});
@@ -424,7 +425,7 @@ var ShrunkedCompose = {
 
 			finish();
 		} catch (e) {
-			Components.utils.reportError(e);
+			Cu.reportError(e);
 		}
 
 		function finish() {
@@ -443,7 +444,7 @@ var ShrunkedCompose = {
 			}
 		}
 	},
-	setStatus: function ShrunkedCompose_setStatus(total) {
+	setStatus(total) {
 		let statusText = document.getElementById('statusText');
 		let meter = document.getElementById('compose-progressmeter');
 		let statuses = Shrunked.strings.GetStringFromName('status_resizing');
@@ -456,12 +457,12 @@ var ShrunkedCompose = {
 		meter.setAttribute('max', total);
 		meter.parentNode.collapsed = false;
 	},
-	setStatusCount: function ShrunkedCompose_setStatusCount(count) {
+	setStatusCount(count) {
 		let meter = document.getElementById('compose-progressmeter');
 
 		meter.setAttribute('value', count);
 	},
-	clearStatus: function ShrunkedCompose_clearStatus() {
+	clearStatus() {
 		let statusText = document.getElementById('statusText');
 		let meter = document.getElementById('compose-progressmeter');
 
@@ -472,10 +473,5 @@ var ShrunkedCompose = {
 		meter.parentNode.collapsed = true;
 	}
 };
-
-Components.utils.import('resource://gre/modules/Services.jsm');
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-XPCOMUtils.defineLazyModuleGetter(window, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
-XPCOMUtils.defineLazyModuleGetter(window, 'Task', 'resource://gre/modules/Task.jsm');
 
 window.addEventListener('load', ShrunkedCompose.init.bind(ShrunkedCompose));

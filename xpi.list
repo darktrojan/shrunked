@@ -1,9 +1,6 @@
 chrome.manifest
 content
 content/arrow.svg
-content/browser-content.js
-content/browser.js
-content/browser.xul
 content/compose.js
 content/compose.xul
 content/config.css

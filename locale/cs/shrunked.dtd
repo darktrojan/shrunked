@@ -1,14 +1,9 @@
 <!ENTITY shrunked-config.title "Shrunked Image Resizer Konfigurace">
-<!ENTITY shrunked-sites.label "Nastavení">
-<!ENTITY shrunked-sites.sitelist.site "Stránky">
-<!ENTITY shrunked-sites.sitelist.settings "Nastavení">
-<!ENTITY shrunked-sites.forget.label "Vybraná složka">
 <!ENTITY shrunked-defaults.label "Výchozí">
 <!ENTITY shrunked-defaults.quality.label "Kvalita komprese JPEG:">
 <!ENTITY shrunked-defaults.quality.smaller "Menší soubory">
 <!ENTITY shrunked-defaults.quality.better "Lepší kvalita">
 <!ENTITY shrunked-options.title "Shrunked Image Resizer  - Volby">
-<!ENTITY shrunked-options.remembersite.label "Zapamatovat volbu pro tento web">
 <!ENTITY shrunked-options.savedefault.label "Uložit jako výchozí nastavení">
 <!ENTITY shrunked-noresize.label "Originál">
 <!ENTITY shrunked-small.label "500 px">

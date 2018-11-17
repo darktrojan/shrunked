@@ -1,14 +1,9 @@
 <!ENTITY shrunked-config.title "Shrunked Image Resizer 配置">
-<!ENTITY shrunked-sites.label "站点设置">
-<!ENTITY shrunked-sites.sitelist.site "站点">
-<!ENTITY shrunked-sites.sitelist.settings "设置">
-<!ENTITY shrunked-sites.forget.label "忘记选择">
 <!ENTITY shrunked-defaults.label "默认">
 <!ENTITY shrunked-defaults.quality.label "JPEG 编码器质量：">
 <!ENTITY shrunked-defaults.quality.smaller "较小文件">
 <!ENTITY shrunked-defaults.quality.better "较好质量">
 <!ENTITY shrunked-options.title "Shrunked Image Resizer 选项">
-<!ENTITY shrunked-options.remembersite.label "对此网站记住我的选择">
 <!ENTITY shrunked-options.savedefault.label "保存为默认设置">
 <!ENTITY shrunked-noresize.label "原版">
 <!ENTITY shrunked-small.label "500 px">

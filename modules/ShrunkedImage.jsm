@@ -1,17 +1,15 @@
 /* exported EXPORTED_SYMBOLS, ShrunkedImage */
 var EXPORTED_SYMBOLS = ['ShrunkedImage'];
 
-/* globals Components, Services, Task, XPCOMUtils, ChromeWorker, File */
-Components.utils.import('resource://gre/modules/Services.jsm');
-Components.utils.import('resource://gre/modules/Task.jsm');
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-Components.utils.importGlobalProperties(['File']);
+/* globals Services, fetch, File */
+ChromeUtils.import('resource://gre/modules/Services.jsm');
+Cu.importGlobalProperties(['fetch', 'File']);
 
 /* globals ExifData, NetUtil, OS, Shrunked */
-XPCOMUtils.defineLazyModuleGetter(this, 'ExifData', 'resource://shrunked/ExifData.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'NetUtil', 'resource://gre/modules/NetUtil.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'OS', 'resource://gre/modules/osfile.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
+ChromeUtils.defineModuleGetter(this, 'ExifData', 'resource://shrunked/ExifData.jsm');
+ChromeUtils.defineModuleGetter(this, 'NetUtil', 'resource://gre/modules/NetUtil.jsm');
+ChromeUtils.defineModuleGetter(this, 'OS', 'resource://gre/modules/osfile.jsm');
+ChromeUtils.defineModuleGetter(this, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
 
 var XHTMLNS = 'http://www.w3.org/1999/xhtml';
 
@@ -23,7 +21,7 @@ function ShrunkedImage(source, maxWidth, maxHeight, quality) {
 	if (typeof source == 'string') {
 		this.sourceURI = Services.io.newURI(source, null, null);
 		if (this.sourceURI.schemeIs('file')) {
-			let file = this.sourceURI.QueryInterface(Components.interfaces.nsIFileURL).file;
+			let file = this.sourceURI.QueryInterface(Ci.nsIFileURL).file;
 			this.path = file.path;
 			this.basename = file.leafName;
 		} else if (this.sourceURI.schemeIs('data')) {
@@ -34,16 +32,17 @@ function ShrunkedImage(source, maxWidth, maxHeight, quality) {
 				}
 			}
 		} else {
-			let match;
-			/* jshint -W084 */
-			if (match = /[?&]filename=([\w.-]+)/.exec(this.sourceURI.spec)) {
+			let match = /[?&]filename=([\w.-]+)/.exec(this.sourceURI.spec);
+			if (match) {
 				this.basename = match[1];
-			} else if (match = /\/([\w.-]+\.jpg)$/i.exec(this.sourceURI.spec)) {
-				this.basename = match[1];
+			} else {
+				match = /\/([\w.-]+\.jpg)$/i.exec(this.sourceURI.spec);
+				if (match) {
+					this.basename = match[1];
+				}
 			}
-			/* jshint +W084 */
 		}
-	} else if (source instanceof Components.interfaces.nsIFile) {
+	} else if (source instanceof Ci.nsIFile) {
 		this.sourceURI = Services.io.newFileURI(source);
 		this.path = source.path;
 		this.basename = source.leafName;
@@ -54,54 +53,48 @@ function ShrunkedImage(source, maxWidth, maxHeight, quality) {
 	}
 }
 ShrunkedImage.prototype = {
-	resize: function ShrunkedImage_resize() {
-		return Task.spawn((function*() {
-			let orientation = 0;
-			if (Shrunked.options.exif) {
-				yield this.readExifData();
-				if (Shrunked.options.orientation && this.exifData) {
-					orientation = this.exifData.orientation;
-				}
+	async resize() {
+		let orientation = 0;
+		if (Shrunked.options.exif) {
+			await this.readExifData();
+			if (Shrunked.options.orientation && this.exifData) {
+				orientation = this.exifData.orientation;
 			}
-			let image = yield this.loadImage();
-			let canvas = yield this.drawOnCanvas(image, orientation);
+		}
+		let image = await this.loadImage();
+		let canvas = await this.drawOnCanvas(image, orientation);
 
-			/* jshint -W069 */
-			if (this.exifData && this.exifData.exif2 && this.exifData.exif2['a002']) {
-				this.exifData.exif2['a002'].value = canvas.width;
-				this.exifData.exif2['a003'].value = canvas.height;
-			}
-			/* jshint +W069 */
+		if (this.exifData && this.exifData.exif2 && this.exifData.exif2['a002']) {
+			this.exifData.exif2['a002'].value = canvas.width;
+			this.exifData.exif2['a003'].value = canvas.height;
+		}
 
-			let blob = yield this.getBytes(canvas);
-			return new File([blob], this.basename, {type:'image/jpeg'});
-		}).bind(this));
+		let blob = await this.getBytes(canvas);
+		return new File([blob], this.basename, {type:'image/jpeg'});
 	},
-	readExifData: function ShrunkedImage_readExifData() {
-		return Task.spawn((function*() {
-			try {
-				let readable;
-				if (this.sourceURI.schemeIs('file')) {
-					readable = yield OS.File.open(this.path, { read: true });
-				} else {
-					readable = yield Readable(this.sourceURI.spec);
-				}
-
-				this.exifData = new ExifData();
-				yield this.exifData.read(readable);
-			} catch (ex) {
-				Shrunked.warn(ex);
-				delete this.exifData;
+	async readExifData() {
+		try {
+			let readable;
+			if (this.sourceURI.schemeIs('file')) {
+				readable = await OS.File.open(this.path, { read: true });
+			} else {
+				readable = await Readable(this.sourceURI.spec);
 			}
-		}).bind(this));
+
+			this.exifData = new ExifData();
+			await this.exifData.read(readable);
+		} catch (ex) {
+			Shrunked.warn(ex);
+			delete this.exifData;
+		}
 	},
-	loadImage: function ShrunkedImage_load() {
+	loadImage() {
 		return new Promise((resolve, reject) => {
 			let image = getWindow().document.createElementNS(XHTMLNS, 'img');
 			image.onload = function() {
 				// https://bugzilla.mozilla.org/show_bug.cgi?id=574330#c54
 				if (!image.complete) {
-					image.src = image.src;
+					image.src = image.src; // eslint-disable-line no-self-assign
 					return;
 				}
 				resolve(image);
@@ -110,7 +103,7 @@ ShrunkedImage.prototype = {
 			image.src = this.sourceURI.spec;
 		});
 	},
-	drawOnCanvas: function ShrunkedImage_drawOnCanvas(image, orientation, resample = true) {
+	drawOnCanvas(image, orientation, resample = true) {
 		return new Promise((resolve) => {
 			let ratio = Math.max(1, image.width / this.maxWidth, image.height / this.maxHeight);
 			let resampleRatio = 1;
@@ -157,8 +150,8 @@ ShrunkedImage.prototype = {
 					resolve(canvas);
 				};
 				worker.postMessage({
-					oldData: oldData,
-					newData: newData,
+					oldData,
+					newData,
 					func: (resampleRatio == 3 ? 'nineResample' : (resampleRatio == 2 ? 'fourResample' : 'floatResample')),
 					ratio: resampleRatio // only for floatResample
 				});
@@ -167,7 +160,7 @@ ShrunkedImage.prototype = {
 			}
 		});
 	},
-	getBytes: function ShrunkedImage_getBytes(canvas) {
+	getBytes(canvas) {
 		return new Promise((resolve, reject) => {
 			canvas.toBlob(function(blob) {
 				try {
@@ -178,7 +171,7 @@ ShrunkedImage.prototype = {
 			}, 'image/jpeg', 'quality=' + this.quality);
 		});
 	},
-	estimateSize: function() {
+	estimateSize() {
 		return this.loadImage()
 			.then(image => this.drawOnCanvas(image, 0, false))
 			.then(canvas => this.getBytes(canvas))
@@ -186,44 +179,33 @@ ShrunkedImage.prototype = {
 	}
 };
 
-function Readable(url) {
-	return new Promise(function(resolve, reject) {
-		NetUtil.asyncFetch(url, function(stream) {
-			try {
-				let binaryStream = Components.classes['@mozilla.org/binaryinputstream;1'].createInstance(Components.interfaces.nsIBinaryInputStream);
-				binaryStream.setInputStream(stream);
-				let bytes = binaryStream.readByteArray(stream.available());
-				binaryStream.close();
-				stream.close();
+async function Readable(url) {
+	let response = await fetch(url);
+	let bytes = await response.arrayBuffer();
 
-				resolve({
-					data: new Uint8Array(bytes),
-					pointer: 0,
-					read: function(count) {
-						let result;
-						if (count) {
-							result = this.data.subarray(this.pointer, this.pointer + count);
-							this.pointer += count;
-						} else {
-							result = this.data.subarray(this.pointer);
-							this.pointer = this.data.length;
-						}
-						return result;
-					},
-					setPosition: function(position) {
-						this.pointer = position;
-					},
-					close: function() {
-						delete this.data;
-					}
-				});
-			} catch (ex) {
-				reject(ex);
+	return {
+		data: new Uint8Array(bytes),
+		pointer: 0,
+		read(count) {
+			let result;
+			if (count) {
+				result = this.data.subarray(this.pointer, this.pointer + count);
+				this.pointer += count;
+			} else {
+				result = this.data.subarray(this.pointer);
+				this.pointer = this.data.length;
 			}
-		});
-	});
+			return result;
+		},
+		setPosition(position) {
+			this.pointer = position;
+		},
+		close() {
+			delete this.data;
+		}
+	};
 }
 
 function getWindow() {
-	return Services.wm.getMostRecentWindow('mail:3pane') || Services.wm.getMostRecentWindow('navigator:browser');
+	return Services.wm.getMostRecentWindow('mail:3pane');
 }

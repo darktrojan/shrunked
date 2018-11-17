@@ -1,9 +1,9 @@
-/* globals Components, Shrunked, openLinkExternally */
-Components.utils.import('resource://shrunked/Shrunked.jsm');
+/* globals Shrunked, openLinkExternally */
+ChromeUtils.import('resource://shrunked/Shrunked.jsm');
 
 /* exported ShrunkedMessenger */
 var ShrunkedMessenger = {
-	showNotificationBar: function(text, buttons, callbackObject) {
+	showNotificationBar(text, buttons, callbackObject) {
 		return new Promise(function(resolve) {
 			callbackObject.resolve = resolve;
 
@@ -14,7 +14,7 @@ var ShrunkedMessenger = {
 			);
 		});
 	},
-	notificationCallback: function(url) {
+	notificationCallback(url) {
 		openLinkExternally(url);
 	}
 };

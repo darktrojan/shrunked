@@ -1,8 +1,7 @@
-/* jshint -W117 */
-/* globals Components, Shrunked, ShrunkedImage, Services */
-Components.utils.import('resource://shrunked/Shrunked.jsm');
-Components.utils.import('resource://shrunked/ShrunkedImage.jsm');
-Components.utils.import('resource://gre/modules/Services.jsm');
+/* globals Shrunked, ShrunkedImage, Services */
+ChromeUtils.import('resource://shrunked/Shrunked.jsm');
+ChromeUtils.import('resource://shrunked/ShrunkedImage.jsm');
+ChromeUtils.import('resource://gre/modules/Services.jsm');
 
 var returnValues = window.arguments[0];
 var imageURLs = window.arguments[1];
@@ -11,6 +10,9 @@ var imageData = [];
 var imageIndex = 0;
 var maxWidth, maxHeight;
 
+/* globals rg_size, r_noresize, r_custom, l_width, tb_width, l_height, tb_height,
+   b_previewarrows, l_previewarrows, i_previewthumb, l_previewfilename, l_previeworiginalsize,
+   l_previeworiginalfilesize, l_previewresized, l_previewresizedfilesize, cb_savedefault */
 for (let element of document.querySelectorAll('[id]')) {
 	window[element.id] = element;
 }
@@ -34,7 +36,6 @@ function load() {
 		tb_height.value = maxHeight;
 	}
 
-	cb_remembersite.checked = Shrunked.prefs.getBoolPref('default.rememberSite');
 	cb_savedefault.checked = Shrunked.prefs.getBoolPref('default.saveDefault');
 
 	if (!returnValues.isAttachment) {
@@ -42,10 +43,6 @@ function load() {
 		if (r_noresize.selected) {
 			rg_size.selectedIndex = 1;
 		}
-	}
-
-	if (!returnValues.canRemember) {
-		cb_remembersite.collapsed = true;
 	}
 
 	setSize();
@@ -124,7 +121,7 @@ function imageLoad() {
 		if (data.originalSize === undefined) {
 			let uri = Services.io.newURI(src, null, null);
 			if (uri.schemeIs('file')) {
-				let file = uri.QueryInterface(Components.interfaces.nsIFileURL).file;
+				let file = uri.QueryInterface(Ci.nsIFileURL).file;
 				data.filename = file.leafName;
 				data.originalSize = humanSize(file.fileSize);
 			} else if (uri.schemeIs('data')) {
@@ -139,7 +136,7 @@ function imageLoad() {
 			}
 		}
 		if (data.filename === undefined) {
-			if (!!imageNames[imageIndex]) {
+			if (imageNames[imageIndex]) {
 				data.filename = imageNames[imageIndex];
 			} else {
 				let i = src.indexOf('filename=');
@@ -198,13 +195,10 @@ function accept() {
 
 	returnValues.maxWidth = maxWidth;
 	returnValues.maxHeight = maxHeight;
-	returnValues.rememberSite = !cb_remembersite.disabled && cb_remembersite.checked;
 
 	if (cb_savedefault.checked) {
 		Shrunked.prefs.setIntPref('default.maxWidth', returnValues.maxWidth);
 		Shrunked.prefs.setIntPref('default.maxHeight', returnValues.maxHeight);
-		if (!cb_remembersite.disabled)
-			Shrunked.prefs.setBoolPref('default.rememberSite', returnValues.rememberSite);
 	}
 	Shrunked.prefs.setBoolPref('default.saveDefault', cb_savedefault.checked);
 }

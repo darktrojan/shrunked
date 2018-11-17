@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-
-<overlay id="shrunked-browser-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-
-	<script src="chrome://shrunked/content/browser.js" type="application/javascript" />
-
-</overlay>

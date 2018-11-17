@@ -1,14 +1,9 @@
 <!ENTITY shrunked-config.title "Configuración del redimensionador de imágenes Shrunked">
-<!ENTITY shrunked-sites.label "Ajustes del sitio">
-<!ENTITY shrunked-sites.sitelist.site "Sitio">
-<!ENTITY shrunked-sites.sitelist.settings "Ajustes">
-<!ENTITY shrunked-sites.forget.label "Olvidar la selección">
 <!ENTITY shrunked-defaults.label "Opciones por defecto">
 <!ENTITY shrunked-defaults.quality.label "Calidad del condificador JPEG">
 <!ENTITY shrunked-defaults.quality.smaller "Archivos más pequeños">
 <!ENTITY shrunked-defaults.quality.better "Mayor calidad">
 <!ENTITY shrunked-options.title "Opciones del redimensionador de imágenes Shrunked">
-<!ENTITY shrunked-options.remembersite.label "Recordar my respuesta para este sitio web">
 <!ENTITY shrunked-options.savedefault.label "Guardar como ajustes por defecto">
 <!ENTITY shrunked-noresize.label "Original">
 <!ENTITY shrunked-small.label "500 px">
