@@ -76,7 +76,7 @@ var Shrunked = {
 			shouldRemind = Date.now() - lastReminder > 604800000;
 		}
 
-		AddonManager.getAddonByID(ID, function(addon) {
+		AddonManager.getAddonByID(ID).then(addon => {
 			currentVersion = parseVersion(addon.version);
 			Shrunked.prefs.setCharPref('version', addon.version);
 
