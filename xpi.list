@@ -7,6 +7,8 @@ content/config.css
 content/config.js
 content/config.xul
 content/icon16.png
+content/icon32.png
+content/icon64.png
 content/messenger.js
 content/messenger.xul
 content/options.css
@@ -17,10 +19,9 @@ content/unknownContentType.xul
 defaults
 defaults/preferences
 defaults/preferences/prefs.js
-icon.png
-icon64.png
-install.rdf
 locale/*
+_locales/*
+manifest.json
 modules
 modules/ExifData.jsm
 modules/Shrunked.jsm

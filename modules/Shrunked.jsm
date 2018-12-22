@@ -2,7 +2,7 @@
 var EXPORTED_SYMBOLS = ['Shrunked'];
 
 var ID = 'shrunked@darktrojan.net';
-var CHANGELOG_URL = 'https://addons.mozilla.org/addon/shrunked-image-resizer/versions/';
+var CHANGELOG_URL = 'https://addons.thunderbird.net/addon/shrunked-image-resizer/versions/';
 var DONATE_URL = 'https://darktrojan.github.io/donate.html?shrunked';
 
 /* globals Services, XPCOMUtils */
@@ -151,7 +151,7 @@ var Shrunked = {
 		if (this.logEnabled) {
 			let caller = Components.stack.caller;
 			let filename = caller.filename ? caller.filename.split(' -> ').pop() : null;
-			let scriptError = Cc['@mozilla.org/scripterror;1'] .createInstance(Ci.nsIScriptError);
+			let scriptError = Cc['@mozilla.org/scripterror;1'].createInstance(Ci.nsIScriptError);
 			scriptError.init(
 				message, filename, null, caller.lineNumber, caller.columnNumber,
 				Ci.nsIScriptError.warningFlag, 'component javascript'
