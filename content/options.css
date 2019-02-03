@@ -8,6 +8,10 @@ html|input[type="number"]::-moz-number-wrapper {
 	width: 10ch !important;
 }
 
+#d_options {
+	width: 35em;
+}
+
 #l_previewheader {
 	margin-top: 1em;
 }
