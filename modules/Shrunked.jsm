@@ -1,19 +1,15 @@
-/* exported EXPORTED_SYMBOLS, Shrunked */
 var EXPORTED_SYMBOLS = ['Shrunked'];
 
 var ID = 'shrunked@darktrojan.net';
 var CHANGELOG_URL = 'https://addons.thunderbird.net/addon/shrunked-image-resizer/versions/';
 var DONATE_URL = 'https://darktrojan.github.io/donate.html?shrunked';
 
-/* globals Services, XPCOMUtils */
-ChromeUtils.import('resource://gre/modules/Services.jsm');
-ChromeUtils.import('resource://gre/modules/XPCOMUtils.jsm');
-
-/* globals AddonManager, FileUtils, PluralForm, ShrunkedImage */
-ChromeUtils.defineModuleGetter(this, 'AddonManager', 'resource://gre/modules/AddonManager.jsm');
-ChromeUtils.defineModuleGetter(this, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
-ChromeUtils.defineModuleGetter(this, 'PluralForm', 'resource://gre/modules/PluralForm.jsm');
-ChromeUtils.defineModuleGetter(this, 'ShrunkedImage', 'resource://shrunked/ShrunkedImage.jsm');
+const { AddonManager } = ChromeUtils.import('resource://gre/modules/AddonManager.jsm');
+const { FileUtils } = ChromeUtils.import('resource://gre/modules/FileUtils.jsm');
+const { PluralForm } = ChromeUtils.import('resource://gre/modules/PluralForm.jsm');
+const { Services } = ChromeUtils.import('resource://gre/modules/Services.jsm');
+const { ShrunkedImage } = ChromeUtils.import('resource://shrunked/ShrunkedImage.jsm');
+const { XPCOMUtils } = ChromeUtils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 /* globals idleService */
 XPCOMUtils.defineLazyServiceGetter(this, 'idleService', '@mozilla.org/widget/idleservice;1', 'nsIIdleService');

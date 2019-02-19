@@ -1,5 +1,4 @@
-/* globals Shrunked */
-ChromeUtils.defineModuleGetter(window, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
+var { Shrunked } = ChromeUtils.import('resource://shrunked/Shrunked.jsm');
 
 /* globals fixIterator, updateAttachmentPane, UpdateAttachmentBucket, gMessenger */
 var ShrunkedCompose = {

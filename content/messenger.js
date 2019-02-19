@@ -1,5 +1,5 @@
-/* globals Shrunked, openLinkExternally */
-ChromeUtils.import('resource://shrunked/Shrunked.jsm');
+/* globals openLinkExternally */
+var { Shrunked } = ChromeUtils.import('resource://shrunked/Shrunked.jsm');
 
 /* exported ShrunkedMessenger */
 var ShrunkedMessenger = {

@@ -1,7 +1,6 @@
-/* globals Shrunked, ShrunkedImage, Services */
-ChromeUtils.import('resource://shrunked/Shrunked.jsm');
-ChromeUtils.import('resource://shrunked/ShrunkedImage.jsm');
-ChromeUtils.import('resource://gre/modules/Services.jsm');
+var { Services } = ChromeUtils.import('resource://gre/modules/Services.jsm');
+var { Shrunked } = ChromeUtils.import('resource://shrunked/Shrunked.jsm');
+var { ShrunkedImage } = ChromeUtils.import('resource://shrunked/ShrunkedImage.jsm');
 
 var returnValues = window.arguments[0];
 var imageURLs = window.arguments[1];
