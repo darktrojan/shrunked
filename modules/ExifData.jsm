@@ -1,6 +1,7 @@
 var EXPORTED_SYMBOLS = ['ExifData'];
 
-var { Shrunked } = ChromeUtils.import('resource://shrunked/Shrunked.jsm');
+/* globals Shrunked */
+ChromeUtils.defineModuleGetter(this, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
 
 function ExifData() {
 }

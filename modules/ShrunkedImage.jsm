@@ -1,10 +1,11 @@
 /* globals fetch */
 var EXPORTED_SYMBOLS = ['ShrunkedImage'];
 
-const { ExifData } = ChromeUtils.import('resource://shrunked/ExifData.jsm');
-const { OS } = ChromeUtils.import('resource://gre/modules/osfile.jsm');
-const { Services } = ChromeUtils.import('resource://gre/modules/Services.jsm');
-const { Shrunked } = ChromeUtils.import('resource://shrunked/Shrunked.jsm');
+/* globals ExifData, OS, Services, Shrunked */
+ChromeUtils.defineModuleGetter(this, 'ExifData', 'resource://shrunked/ExifData.jsm');
+ChromeUtils.defineModuleGetter(this, 'OS', 'resource://gre/modules/osfile.jsm');
+ChromeUtils.defineModuleGetter(this, 'Services', 'resource://gre/modules/Services.jsm');
+ChromeUtils.defineModuleGetter(this, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
 
 var XHTMLNS = 'http://www.w3.org/1999/xhtml';
 
