@@ -188,8 +188,7 @@ function imageLoad() {
 	img.src = i_previewthumb.src;
 }
 
-/* exported accept */
-function accept() {
+document.addEventListener('dialogaccept', function() {
 	returnValues.cancelDialog = false;
 
 	returnValues.maxWidth = maxWidth;
@@ -200,12 +199,11 @@ function accept() {
 		Shrunked.prefs.setIntPref('default.maxHeight', returnValues.maxHeight);
 	}
 	Shrunked.prefs.setBoolPref('default.saveDefault', cb_savedefault.checked);
-}
+});
 
-/* exported cancel */
-function cancel() {
+document.addEventListener('dialogcancel', function() {
 	returnValues.cancelDialog = true;
-}
+});
 
 function setValue(element, value) {
 	element.setAttribute('value', value);
