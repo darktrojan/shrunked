@@ -3,8 +3,8 @@
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/preferences/preferences.css"?>
 <?xml-stylesheet type="text/css" href="config.css"?>
 
-<!DOCTYPE prefwindow SYSTEM "chrome://shrunked/locale/shrunked.dtd">
-<prefwindow
+<!DOCTYPE dialog SYSTEM "chrome://shrunked/locale/shrunked.dtd">
+<dialog
 	id="pw_shrunked"
 	title="&shrunked-config.title;"
 	orient="vertical"
@@ -13,18 +13,6 @@
 	xmlns:html="http://www.w3.org/1999/xhtml">
 
 	<prefpane>
-		<preferences>
-			<preference id="p_minsize" name="extensions.shrunked.fileSizeMinimum" type="int" />
-			<preference id="p_maxwidth" name="extensions.shrunked.default.maxWidth" type="int" />
-			<preference id="p_maxheight" name="extensions.shrunked.default.maxHeight" type="int" />
-			<preference id="p_quality" name="extensions.shrunked.default.quality" type="int" />
-			<preference id="p_resample" name="extensions.shrunked.options.resample" type="bool" />
-			<preference id="p_exif" name="extensions.shrunked.options.exif" type="bool" />
-			<preference id="p_orient" name="extensions.shrunked.options.orientation" type="bool" />
-			<preference id="p_gps" name="extensions.shrunked.options.gps" type="bool" />
-			<preference id="p_logenabled" name="extensions.shrunked.log.enabled" type="bool" />
-			<preference id="p_resizeonsend" name="extensions.shrunked.resizeAttachmentsOnSend" type="bool" />
-		</preferences>
 		<tabbox>
 			<tabs>
 				<tab id="t_defaults" label="&shrunked-defaults.label;" />
@@ -115,29 +103,29 @@
 					<checkbox
 						id="cb_resample"
 						label="&shrunked-advanced.resample.label;"
-						preference="p_resample" />
+						preference="extensions.shrunked.options.resample" />
 					<checkbox
 						id="cb_exif"
 						label="&shrunked-advanced.exif.label;"
-						preference="p_exif"
+						preference="extensions.shrunked.options.exif"
 						oncommand="enableExif();" />
 					<vbox class="indent">
 						<checkbox
 							id="cb_orient"
 							label="&shrunked-advanced.orient.label;"
-							preference="p_orient" />
+							preference="extensions.shrunked.options.orientation" />
 						<checkbox
 							id="cb_gps"
 							label="&shrunked-advanced.gps.label;"
-							preference="p_gps" />
+							preference="extensions.shrunked.options.gps" />
 					</vbox>
 					<checkbox
 						id="cb_logenabled"
 						label="&shrunked-advanced.logenabled.label;"
-						preference="p_logenabled" />
+						preference="extensions.shrunked.log.enabled" />
 					<hbox id="b_resizeonsend" align="baseline">
 						<label value="&shrunked-advanced.resizeonsend.label;" />
-						<menulist preference="p_resizeonsend">
+						<menulist preference="extensions.shrunked.resizeAttachmentsOnSend">
 							<menupopup>
 								<menuitem value="false" label="&shrunked-advanced.resizeonsend.false;" />
 								<menuitem value="true" label="&shrunked-advanced.resizeonsend.true;" />
@@ -149,5 +137,6 @@
 		</tabbox>
 	</prefpane>
 
+	<script src="chrome://global/content/preferencesBindings.js" type="application/javascript"/>
 	<script src="chrome://shrunked/content/config.js" type="application/javascript"></script>
-</prefwindow>
+</dialog>

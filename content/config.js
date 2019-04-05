@@ -1,4 +1,23 @@
-/* globals p_minsize, p_maxwidth, p_maxheight, p_quality, tb_minsize, rg_size, r_noresize,
+/* globals Preferences */
+Preferences.addAll([
+	{ id: "extensions.shrunked.fileSizeMinimum", type: "int" },
+	{ id: "extensions.shrunked.default.maxWidth", type: "int" },
+	{ id: "extensions.shrunked.default.maxHeight", type: "int" },
+	{ id: "extensions.shrunked.default.quality", type: "int" },
+	{ id: "extensions.shrunked.options.resample", type: "bool" },
+	{ id: "extensions.shrunked.options.exif", type: "bool" },
+	{ id: "extensions.shrunked.options.orientation", type: "bool" },
+	{ id: "extensions.shrunked.options.gps", type: "bool" },
+	{ id: "extensions.shrunked.log.enabled", type: "bool" },
+	{ id: "extensions.shrunked.resizeAttachmentsOnSend", type: "bool" },
+]);
+
+var p_minsize = Preferences.get("extensions.shrunked.fileSizeMinimum");
+var p_maxwidth = Preferences.get("extensions.shrunked.default.maxWidth");
+var p_maxheight = Preferences.get("extensions.shrunked.default.maxHeight");
+var p_quality = Preferences.get("extensions.shrunked.default.quality");
+
+/* globals tb_minsize, rg_size, r_noresize,
    r_small, r_medium, r_large, r_custom, l_width, tb_width, l_height, tb_height, s_quality,
    cb_exif, cb_orient, cb_gps */
 for (let element of document.querySelectorAll('[id]')) {
