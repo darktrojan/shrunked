@@ -6,6 +6,7 @@
 <!DOCTYPE dialog SYSTEM "chrome://shrunked/locale/shrunked.dtd">
 <dialog
 	id="pw_shrunked"
+	type="child"
 	title="&shrunked-config.title;"
 	orient="vertical"
 	onload="load();"
