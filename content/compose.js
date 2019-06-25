@@ -1,6 +1,6 @@
 var { Shrunked } = ChromeUtils.import('resource://shrunked/Shrunked.jsm');
 
-/* globals fixIterator, updateAttachmentPane, UpdateAttachmentBucket, gMessenger */
+/* globals fixIterator, updateAttachmentPane, UpdateAttachmentBucket, gMessenger, gNotification */
 var ShrunkedCompose = {
 	OPTIONS_DIALOG: 'chrome://shrunked/content/options.xul',
 	POPUP_ARGS: 'chrome,centerscreen,modal',
@@ -226,17 +226,19 @@ var ShrunkedCompose = {
 					window.gAttachmentsSize += size - attachment.size;
 					attachment.size = size;
 
-					if ('updateAttachmentPane' in window) {
-						updateAttachmentPane();
-					} else {
-						UpdateAttachmentBucket(true);
-					}
-					for (let index = 0; index < bucket.getRowCount(); index++) {
-						let item = bucket.getItemAtIndex(index);
-						if (item.attachment == attachment) {
-							item.setAttribute('size', gMessenger.formatFileSize(attachment.size));
+					updateAttachmentPane(true);
+
+					setTimeout(() => {
+						for (let index = 0; index < bucket.getRowCount(); index++) {
+							let item = bucket.getItemAtIndex(index);
+							if (item.attachment == attachment) {
+								let sizeLabel = item.querySelector('.attachmentcell-size');
+								let sizeString = gMessenger.formatFileSize(attachment.size);
+								item.setAttribute('size', sizeString);
+								sizeLabel.setAttribute('value', sizeString);
+							}
 						}
-					}
+					});
 				},
 				onResizeComplete() {
 				},
@@ -281,8 +283,12 @@ var ShrunkedCompose = {
 				window.gAttachmentsSize += size - attachment.size;
 				attachment.size = size;
 
-				UpdateAttachmentBucket(true);
-				imageData.item.setAttribute('size', gMessenger.formatFileSize(attachment.size));
+				updateAttachmentPane(true);
+
+				let sizeLabel = imageData.item.querySelector('.attachmentcell-size');
+				let sizeString = gMessenger.formatFileSize(attachment.size);
+				imageData.item.setAttribute('size', sizeString);
+				sizeLabel.setAttribute('value', sizeString);
 			},
 			onResizeComplete() {},
 			onResizeCancelled() {}
@@ -290,8 +296,9 @@ var ShrunkedCompose = {
 	},
 	showNotification(callbackObject) {
 		Shrunked.log('Showing resize notification');
-		let notifyBox = document.getElementById('shrunked-notification-box');
-		if (notifyBox.childElementCount > 0) {
+		let notifyBox = gNotification.notificationbox;
+		let notification = notifyBox.getNotificationWithValue('shrunked-notification');
+		if (notification) {
 			Shrunked.log('Notification already visible');
 			return;
 		}

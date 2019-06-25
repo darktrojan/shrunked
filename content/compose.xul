@@ -23,10 +23,6 @@
 			oncommand="ShrunkedCompose.onAttachmentContextMenuCommand();" />
 	</menupopup>
 
-	<hbox insertbefore="status-bar">
-		<notificationbox id="shrunked-notification-box" flex="1" />
-	</hbox>
-
 	<script src="chrome://shrunked/content/compose.js" type="application/javascript" />
 
 </overlay>
