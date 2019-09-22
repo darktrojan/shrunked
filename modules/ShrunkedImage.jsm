@@ -1,4 +1,4 @@
-/* globals fetch */
+/* globals ChromeWorker, fetch, File */
 var EXPORTED_SYMBOLS = ['ShrunkedImage'];
 
 /* globals ExifData, OS, Services, Shrunked */
