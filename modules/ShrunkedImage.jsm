@@ -164,7 +164,7 @@ ShrunkedImage.prototype = {
 				} catch (ex) {
 					reject(ex);
 				}
-			}, 'image/jpeg', 'quality=' + this.quality);
+			}, 'image/jpeg', this.quality/100);
 		});
 	},
 	estimateSize() {
