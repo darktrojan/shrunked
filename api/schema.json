@@ -1,0 +1,37 @@
+[
+  {
+    "namespace": "shrunked",
+    "functions": [
+      {
+        "name": "resize",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "src",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "fileSizeMinimum",
+        "type": "function",
+        "async": true,
+        "parameters": []
+      },
+      {
+        "name": "imageIsJPEG",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "image",
+            "type": "object",
+            "isInstanceOf": "HTMLImageElement",
+            "additionalProperties": true
+          }
+        ]
+      }
+    ]
+  }
+]

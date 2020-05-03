@@ -2,12 +2,11 @@
 	"manifest_version": 2,
 	"name": "__MSG_extensionName__",
 	"description": "__MSG_extensionDescription__",
-	"version": "4.5.5",
+	"version": "4.5.6",
 	"applications": {
 		"gecko": {
 			"id": "shrunked@darktrojan.net",
-			"strict_min_version": "68.0a1",
-			"strict_max_version": "73.*"
+			"strict_min_version": "77.0a1"
 		}
 	},
 	"author": "Geoff Lankow",
@@ -18,9 +17,22 @@
 		"64": "content/icon64.png"
 	},
 	"default_locale": "en",
-	"legacy": {
-		"options": {
-			"page": "chrome://shrunked/content/config.xul"
+	"background": {
+		"scripts": [
+			"background.js"
+		]
+	},
+	"permissions": [
+		"compose"
+	],
+	"experiment_apis": {
+		"shrunked": {
+			"schema": "api/schema.json",
+			"parent": {
+				"scopes": ["addon_parent"],
+				"paths": [["shrunked"]],
+				"script": "api/implementation.js"
+			}
 		}
 	}
 }

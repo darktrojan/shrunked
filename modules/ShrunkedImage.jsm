@@ -15,7 +15,7 @@ function ShrunkedImage(source, maxWidth, maxHeight, quality) {
 	this.quality = quality;
 
 	if (typeof source == 'string') {
-		this.sourceURI = Services.io.newURI(source, null, null);
+		this.sourceURI = Services.io.newURI(source);
 		if (this.sourceURI.schemeIs('file')) {
 			let file = this.sourceURI.QueryInterface(Ci.nsIFileURL).file;
 			this.path = file.path;
@@ -60,13 +60,13 @@ ShrunkedImage.prototype = {
 		let image = await this.loadImage();
 		let canvas = await this.drawOnCanvas(image, orientation);
 
-		if (this.exifData && this.exifData.exif2 && this.exifData.exif2['a002']) {
-			this.exifData.exif2['a002'].value = canvas.width;
-			this.exifData.exif2['a003'].value = canvas.height;
+		if (this.exifData && this.exifData.exif2 && this.exifData.exif2.a002) {
+			this.exifData.exif2.a002.value = canvas.width;
+			this.exifData.exif2.a003.value = canvas.height;
 		}
 
 		let blob = await this.getBytes(canvas);
-		return new File([blob], this.basename, {type:'image/jpeg'});
+		return new File([blob], this.basename, { type: 'image/jpeg' });
 	},
 	async readExifData() {
 		try {
@@ -164,7 +164,7 @@ ShrunkedImage.prototype = {
 				} catch (ex) {
 					reject(ex);
 				}
-			}, 'image/jpeg', this.quality/100);
+			}, 'image/jpeg', this.quality / 100);
 		});
 	},
 	estimateSize() {

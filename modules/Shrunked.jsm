@@ -23,16 +23,16 @@ Services.obs.addObserver(function() {
 	for (let path of temporaryFiles) {
 		OS.File.remove(path, { ignoreAbsent: true });
 	}
-}, "quit-application");
+}, 'quit-application');
 
 var Shrunked = {
 	get fileSizeMinimum() {
-		return Shrunked.prefs.getIntPref('fileSizeMinimum') * 1000;
+		return Shrunked.prefs.getIntPref('fileSizeMinimum', 100) * 1000;
 	},
 	fileLargerThanThreshold(path) {
 		let file;
 		if (/^file:/.test(path)) {
-			let uri = Services.io.newURI(path, null, null);
+			let uri = Services.io.newURI(path);
 			file = uri.QueryInterface(Ci.nsIFileURL).file;
 		} else {
 			file = new FileUtils.File(path);
@@ -50,7 +50,7 @@ var Shrunked = {
 		}
 		return image.resize();
 	},
-	async getURLFromFile(file, forceDataURL=false) {
+	async getURLFromFile(file, forceDataURL = false) {
 		// If the total URL length is going to be less than 1MB, return a data URL.
 		if (file.size < 768000 || forceDataURL) {
 			return new Promise(function(resolve) {
@@ -190,16 +190,16 @@ var Shrunked = {
 	},
 	options: {
 		get exif() {
-			return Shrunked.prefs.getBoolPref('options.exif');
+			return Shrunked.prefs.getBoolPref('options.exif', true);
 		},
 		get orientation() {
-			return Shrunked.prefs.getBoolPref('options.orientation');
+			return Shrunked.prefs.getBoolPref('options.orientation', true);
 		},
 		get gps() {
-			return Shrunked.prefs.getBoolPref('options.gps');
+			return Shrunked.prefs.getBoolPref('options.gps', true);
 		},
 		get resample() {
-			return Shrunked.prefs.getBoolPref('options.resample');
+			return Shrunked.prefs.getBoolPref('options.resample', true);
 		}
 	},
 	get icon16() {
@@ -212,10 +212,10 @@ XPCOMUtils.defineLazyGetter(Shrunked, 'prefs', function() {
 XPCOMUtils.defineLazyGetter(Shrunked, 'logEnabled', function() {
 	this.prefs.addObserver('log.enabled', {
 		observe() {
-			Shrunked.logEnabled = Shrunked.prefs.getBoolPref('log.enabled');
+			Shrunked.logEnabled = Shrunked.prefs.getBoolPref('log.enabled', false);
 		}
-	}, false);
-	return this.prefs.getBoolPref('log.enabled');
+	});
+	return this.prefs.getBoolPref('log.enabled', false);
 });
 XPCOMUtils.defineLazyGetter(Shrunked, 'strings', function() {
 	return Services.strings.createBundle('chrome://shrunked/locale/shrunked.properties');
