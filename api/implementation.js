@@ -10,8 +10,29 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
     let { Shrunked } = ChromeUtils.import('resource://shrunked/Shrunked.jsm');
     context.callOnClose(this);
 
+    let { tabManager } = context.extension;
+
     return {
       shrunked: {
+        async resize(src) {
+          let destFile = await Shrunked.resize(src, 500, 500, 85, 'test.jpg');
+          return Shrunked.getURLFromFile(destFile, true);
+        },
+        async handleSend(tab) {
+          let { nativeTab } = tabManager.get(tab.id);
+          let { attachments } = nativeTab.gMsgCompose.compFields;
+
+          for (let attachment of attachments) {
+            if (attachment.sendViaCloud) {
+              continue;
+            }
+
+            if (attachment.url.toLowerCase().endsWith('.jpg')) {
+              let destFile = await Shrunked.resize(attachment.url, 500, 500, 85, 'test.jpg');
+              attachment.url = await Shrunked.getURLFromFile(destFile, true);
+            }
+          }
+        },
         async fileSizeMinimum() {
           console.log('fileSizeMinimum called');
           return Shrunked.fileSizeMinimum;
@@ -21,10 +42,6 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
           let src = image.src.toLowerCase();
           return src.startsWith('data:image/jpeg') || src.endsWith('.jpg');
         },
-        async resize(src) {
-          let destFile = await Shrunked.resize(src, 500, 500, 85, 'test.jpg');
-          return Shrunked.getURLFromFile(destFile, true);
-        }
       },
     };
   }
