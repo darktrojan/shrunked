@@ -6,10 +6,16 @@ browser.composeScripts.register({
 	],
 });
 
-// browser.shrunked.fileSizeMinimum().then(console.log);
+browser.compose.onAttachmentAdded.addListener(async (tab, attachment) => {
+  if (attachment.name.toLowerCase().endsWith('.jpg')) {
+    let sourceFile = await attachment.getFile();
+    let destFile = await browser.shrunked.resizeFile(sourceFile);
+    await browser.compose.updateAttachment(tab.id, attachment.id, { file: destFile });
+  }
+});
+
 browser.runtime.onMessage.addListener((message, sender, callback) => {
-	// console.log(message);
-	return browser.shrunked.resize(message);
+	return browser.shrunked.resizeURL(message);
 });
 
 browser.compose.onBeforeSend.addListener((tab, details) => {

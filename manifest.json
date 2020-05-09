@@ -27,11 +27,11 @@
 	],
 	"experiment_apis": {
 		"shrunked": {
-			"schema": "api/schema.json",
+			"schema": "api/shrunked.json",
 			"parent": {
 				"scopes": ["addon_parent"],
 				"paths": [["shrunked"]],
-				"script": "api/implementation.js"
+				"script": "api/shrunked.js"
 			}
 		}
 	}

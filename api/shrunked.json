@@ -3,13 +3,25 @@
     "namespace": "shrunked",
     "functions": [
       {
-        "name": "resize",
+        "name": "resizeURL",
         "type": "function",
         "async": true,
         "parameters": [
           {
-            "name": "src",
+            "name": "url",
             "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "resizeFile",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "type": "object",
+            "isInstanceOf": "File",
+            "additionalProperties": true
           }
         ]
       },

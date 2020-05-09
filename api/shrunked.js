@@ -14,9 +14,15 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 
     return {
       shrunked: {
-        async resize(src) {
-          let destFile = await Shrunked.resize(src, 500, 500, 85, 'test.jpg');
+        async resizeURL(url) {
+          let destFile = await Shrunked.resize(url, 500, 500, 85, 'test.jpg');
           return Shrunked.getURLFromFile(destFile, true);
+        },
+        async resizeFile(file) {
+          let sourceFile = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
+          sourceFile.initWithPath(file.mozFullPath);
+          let destFile = await Shrunked.resize(sourceFile, 500, 500, 85, sourceFile.leafName);
+          return destFile;
         },
         async handleSend(tab) {
           let { nativeTab } = tabManager.get(tab.id);
