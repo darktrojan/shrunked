@@ -11,8 +11,6 @@ let observer = new MutationObserver(function(mutations) {
 });
 observer.observe(document.body, config);
 
-let inlineImages = [];
-let timeout = null;
 async function maybeResizeInline(target) {
   if (target.nodeName == 'IMG') {
     try {
@@ -72,40 +70,10 @@ async function maybeResizeInline(target) {
       }
 
       let dest = await browser.runtime.sendMessage(src);
-      // console.log(dest);
       target.setAttribute('src', dest);
       target.removeAttribute('width');
       target.removeAttribute('height');
       target.setAttribute('shrunked:resized', 'true');
-
-      // inlineImages.push(target);
-      // if (timeout) {
-      //   clearTimeout(timeout);
-      // }
-
-      // timeout = setTimeout(() => {
-      //   timeout = null;
-
-      //   console.log({
-      //     images: inlineImages,
-      //     forceDataURL: true,
-      //     onResize(image, destURL) {
-      //       image.src = destURL;
-      //       image.removeAttribute('width');
-      //       image.removeAttribute('height');
-      //       image.setAttribute('shrunked:resized', 'true');
-      //     },
-      //     onResizeComplete() {
-      //       inlineImages.length = 0;
-      //     },
-      //     onResizeCancelled() {
-      //       for (let img of inlineImages) {
-      //         img.setAttribute('shrunked:resized', 'false');
-      //       }
-      //       inlineImages.length = 0;
-      //     }
-      //   });
-      // }, 500);
     } catch (ex) {
       console.error(ex);
     }

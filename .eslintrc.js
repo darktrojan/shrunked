@@ -81,7 +81,7 @@ module.exports = {
 		"getter-return": "off",
 
 		// Two space indent
-		"indent": ["off", 2, { "SwitchCase": 1 }],
+		"indent": ["error", "tab", { "SwitchCase": 1 }],
 
 		// Space after colon not before in property declarations
 		"key-spacing": ["error", {

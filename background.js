@@ -7,17 +7,17 @@ browser.composeScripts.register({
 });
 
 browser.compose.onAttachmentAdded.addListener(async (tab, attachment) => {
-  if (attachment.name.toLowerCase().endsWith('.jpg')) {
-    let sourceFile = await attachment.getFile();
-    let destFile = await browser.shrunked.resizeFile(sourceFile);
-    await browser.compose.updateAttachment(tab.id, attachment.id, { file: destFile });
-  }
+	if (attachment.name.toLowerCase().endsWith('.jpg')) {
+		let sourceFile = await attachment.getFile();
+		let destFile = await browser.shrunked.resizeFile(tab, sourceFile);
+		await browser.compose.updateAttachment(tab.id, attachment.id, { file: destFile });
+	}
 });
 
 browser.runtime.onMessage.addListener((message, sender, callback) => {
-	return browser.shrunked.resizeURL(message);
+	return browser.shrunked.resizeURL(sender.tab, message);
 });
 
 browser.compose.onBeforeSend.addListener((tab, details) => {
-  return browser.shrunked.handleSend(tab);
+	return browser.shrunked.handleSend(tab);
 });
