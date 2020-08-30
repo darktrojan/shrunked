@@ -1,97 +1,117 @@
-var { Services } = ChromeUtils.import('resource://gre/modules/Services.jsm');
-var { Shrunked } = ChromeUtils.import('resource://shrunked/Shrunked.jsm');
-var { ShrunkedImage } = ChromeUtils.import('resource://shrunked/ShrunkedImage.jsm');
-
-var returnValues = window.arguments[0];
-var imageURLs = window.arguments[1];
-var imageNames = window.arguments[2] || [];
+// var returnValues = window.arguments[0];
+// var imageURLs = window.arguments[1];
+// var imageNames = window.arguments[2] || [];
 var imageData = [];
 var imageIndex = 0;
 var maxWidth, maxHeight;
 
+var promise = null;
+
 /* globals rg_size, r_noresize, r_custom, l_width, tb_width, l_height, tb_height, l_measure
    b_previewarrows, l_previewarrows, i_previewthumb, l_previewfilename, l_previeworiginalsize,
-   l_previeworiginalfilesize, l_previewresized, l_previewresizedfilesize, cb_savedefault */
+   l_previeworiginalfilesize, l_previewresized, l_previewresizedfilesize, cb_savedefault,
+   b_ok */
 for (let element of document.querySelectorAll('[id]')) {
 	window[element.id] = element;
 }
+for (let element of document.querySelectorAll('[data-l10n-content]')) {
+	element.textContent = browser.i18n.getMessage(element.getAttribute("data-l10n-content"));
+}
+for (let element of document.querySelectorAll('[data-l10n-title]')) {
+	element.title = browser.i18n.getMessage(element.getAttribute("data-l10n-title"));
+}
 
 /* exported load */
-function load() {
-	let width = l_measure.getBoundingClientRect().right;
-	let element = l_measure;
-	do {
-		let style = getComputedStyle(element);
-		width += parseInt(style.paddingRight, 10);
-		width += parseInt(style.borderRightWidth, 10);
-		width += parseInt(style.marginRight, 10);
-		element = element.parentNode;
-	} while (element && element != document);
-	document.documentElement.style.minWidth = `${width}px`;
+addEventListener('load', () => {
+	// let width = l_measure.getBoundingClientRect().right;
+	// let element = l_measure;
+	// do {
+	// 	let style = getComputedStyle(element);
+	// 	width += parseInt(style.paddingRight, 10);
+	// 	width += parseInt(style.borderRightWidth, 10);
+	// 	width += parseInt(style.marginRight, 10);
+	// 	element = element.parentNode;
+	// } while (element && element != document);
+	// document.documentElement.style.minWidth = `${width}px`;
 
-	maxWidth = Shrunked.prefs.getIntPref('default.maxWidth');
-	maxHeight = Shrunked.prefs.getIntPref('default.maxHeight');
+	maxWidth = 500// Shrunked.prefs.getIntPref('default.maxWidth');
+	maxHeight = 500 //Shrunked.prefs.getIntPref('default.maxHeight');
 
 	if (maxWidth == -1 && maxHeight == -1) {
-		rg_size.selectedIndex = 0;
+		r_noresize.checked = true;
 	} else if (maxWidth == 500 && maxHeight == 500) {
-		rg_size.selectedIndex = 1;
+		r_small.checked = true;
 	} else if (maxWidth == 800 && maxHeight == 800) {
-		rg_size.selectedIndex = 2;
+		r_medium.checked = true;
 	} else if (maxWidth == 1200 && maxHeight == 1200) {
-		rg_size.selectedIndex = 3;
+		r_large.checked = true;
 	} else {
-		rg_size.selectedIndex = 4;
+		r_custom.checked = true;
 		tb_width.value = maxWidth;
 		tb_height.value = maxHeight;
 	}
 
-	cb_savedefault.checked = Shrunked.prefs.getBoolPref('default.saveDefault');
+	cb_savedefault.checked = true //Shrunked.prefs.getBoolPref('default.saveDefault');
 
-	if (!returnValues.isAttachment) {
-		r_noresize.collapsed = true;
-		if (r_noresize.selected) {
-			rg_size.selectedIndex = 1;
-		}
-	}
+	// if (!returnValues.isAttachment) {
+	// 	r_noresize.collapsed = true;
+	// 	if (r_noresize.selected) {
+	// 		rg_size.selectedIndex = 1;
+	// 	}
+	// }
 
 	setSize();
+});
 
-	i_previewthumb.src = imageURLs[0];
-	if (imageURLs.length < 2) {
-		b_previewarrows.setAttribute('hidden', 'true');
-	} else {
-		l_previewarrows.setAttribute('value', '1/' + imageURLs.length);
-	}
+r_noresize.addEventListener("change", setSize);
+r_small.addEventListener("change", setSize);
+r_medium.addEventListener("change", setSize);
+r_large.addEventListener("change", setSize);
+r_custom.addEventListener("change", setSize);
+tb_height.addEventListener("change", setSize);
+tb_width.addEventListener("change", setSize);
+
+function setImageURLs(imageURLs) {
+	// i_previewthumb.src = imageURLs[0];
+	// if (imageURLs.length < 2) {
+	// 	b_previewarrows.setAttribute('hidden', 'true');
+	// } else {
+	// 	l_previewarrows.setAttribute('value', '1/' + imageURLs.length);
+	// }
+
+	return new Promise((resolve, reject) => {
+		promise = { resolve, reject };
+	});
 }
 
 /* exported setSize */
 function setSize() {
-	switch (rg_size.selectedIndex) {
-	case 0:
+	let checked = rg_size.querySelector("input:checked");
+	switch (checked) {
+	case r_noresize:
 		maxWidth = -1;
 		maxHeight = -1;
 		break;
-	case 1:
+	case r_small:
 		maxWidth = 500;
 		maxHeight = 500;
 		break;
-	case 2:
+	case r_medium:
 		maxWidth = 800;
 		maxHeight = 800;
 		break;
-	case 3:
+	case r_large:
 		maxWidth = 1200;
 		maxHeight = 1200;
 		break;
-	case 4:
-		maxWidth = tb_width.value;
-		maxHeight = tb_height.value;
+	case r_custom:
+		maxWidth = parseInt(tb_width.value, 10);
+		maxHeight = parseInt(tb_height.value, 10);
 		break;
 	}
 
 	l_width.disabled = tb_width.disabled =
-		l_height.disabled = tb_height.disabled = !r_custom.selected;
+		l_height.disabled = tb_height.disabled = checked != r_custom;
 
 	imageLoad();
 }
@@ -199,17 +219,21 @@ function imageLoad() {
 	img.src = i_previewthumb.src;
 }
 
-document.addEventListener('dialogaccept', function() {
-	returnValues.cancelDialog = false;
+b_ok.addEventListener('click', function() {
+	let returnValues = {
+		maxWidth,
+		maxHeight,
+	};
 
-	returnValues.maxWidth = maxWidth;
-	returnValues.maxHeight = maxHeight;
+	// if (cb_savedefault.checked) {
+	// 	Shrunked.prefs.setIntPref('default.maxWidth', returnValues.maxWidth);
+	// 	Shrunked.prefs.setIntPref('default.maxHeight', returnValues.maxHeight);
+	// }
+	// Shrunked.prefs.setBoolPref('default.saveDefault', cb_savedefault.checked);
 
-	if (cb_savedefault.checked) {
-		Shrunked.prefs.setIntPref('default.maxWidth', returnValues.maxWidth);
-		Shrunked.prefs.setIntPref('default.maxHeight', returnValues.maxHeight);
-	}
-	Shrunked.prefs.setBoolPref('default.saveDefault', cb_savedefault.checked);
+	promise.resolve(returnValues);
+
+	window.close();
 });
 
 document.addEventListener('dialogcancel', function() {

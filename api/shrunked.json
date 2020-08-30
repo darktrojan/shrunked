@@ -3,6 +3,17 @@
     "namespace": "shrunked",
     "functions": [
       {
+        "name": "showNotification",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "tab",
+            "$ref": "tabs.Tab"
+          }
+        ]
+      },
+      {
         "name": "resizeURL",
         "type": "function",
         "async": true,
@@ -13,6 +24,12 @@
           {
             "name": "url",
             "type": "string"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "integer"
           }
         ]
       },
@@ -28,6 +45,12 @@
             "type": "object",
             "isInstanceOf": "File",
             "additionalProperties": true
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "integer"
           }
         ]
       },
