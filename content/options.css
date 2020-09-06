@@ -20,6 +20,11 @@ html|input[type="number"]::-moz-number-wrapper {
 	box-shadow: 0 0 5px rgba(0, 0, 0, 0.5) inset;
 }
 
+#i_previewthumb {
+	max-width: 110px;
+	max-height: 110px;
+}
+
 #b_previewarrows {
 	min-width: 3em;
 }

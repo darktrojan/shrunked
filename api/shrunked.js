@@ -65,11 +65,11 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 						notification._promises = [{ resolve, reject }];
 					});
 				},
-				async resizeURL(tab, url, maxWidth, maxHeight) {
+				async resizeURL(url, maxWidth, maxHeight) {
 					let destFile = await Shrunked.resize(url, maxWidth, maxHeight, 85, 'test.jpg');
 					return Shrunked.getURLFromFile(destFile, true);
 				},
-				async resizeFile(tab, file, maxWidth, maxHeight) {
+				async resizeFile(file, maxWidth, maxHeight) {
 					let sourceFile = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
 					sourceFile.initWithPath(file.mozFullPath);
 					let destFile = await Shrunked.resize(sourceFile, maxWidth, maxHeight, 85, sourceFile.leafName);

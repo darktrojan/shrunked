@@ -19,9 +19,6 @@
         "async": true,
         "parameters": [
           {
-            "$ref": "tabs.Tab"
-          },
-          {
             "name": "url",
             "type": "string"
           },
@@ -38,9 +35,6 @@
         "type": "function",
         "async": true,
         "parameters": [
-          {
-            "$ref": "tabs.Tab"
-          },
           {
             "type": "object",
             "isInstanceOf": "File",

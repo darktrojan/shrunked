@@ -81,7 +81,7 @@ module.exports = {
 		"getter-return": "off",
 
 		// Two space indent
-		"indent": ["error", "tab", { "SwitchCase": 1 }],
+		"indent": ["off", "tab", { "SwitchCase": 1 }],
 
 		// Space after colon not before in property declarations
 		"key-spacing": ["error", {
@@ -175,7 +175,7 @@ module.exports = {
 		// Disallow the use of the __iterator__ property
 		"no-iterator": "error",
 
-		 // No labels
+		// No labels
 		"no-labels": "error",
 
 		// Disallow unnecessary nested blocks
@@ -266,7 +266,7 @@ module.exports = {
 
 		// Require double-quotes everywhere, except where quotes are escaped
 		// or template literals are used.
-		"quotes": ["error", "single", {
+		"quotes": ["off", "single", {
 			"allowTemplateLiterals": true,
 			"avoidEscape": true,
 		}],

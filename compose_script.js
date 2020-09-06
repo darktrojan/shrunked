@@ -69,7 +69,7 @@ async function maybeResizeInline(target) {
         }
       }
 
-      let dest = await browser.runtime.sendMessage(src);
+      let dest = await browser.runtime.sendMessage({ type: "resizeURL", src});
       target.setAttribute('src', dest);
       target.removeAttribute('width');
       target.removeAttribute('height');
