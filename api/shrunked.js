@@ -10,13 +10,14 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 		resProto.setSubstitution('shrunkedcontent', Services.io.newURI('content/', null, this.extension.rootURI));
 
 		let { Shrunked } = ChromeUtils.import('resource://shrunked/Shrunked.jsm');
-		context.callOnClose(this);
+		let { ShrunkedImage } = ChromeUtils.import('resource://shrunked/ShrunkedImage.jsm');
+		// context.callOnClose(this);
 
 		let { tabManager } = context.extension;
 
 		return {
 			shrunked: {
-				showNotification(tab) {
+				showNotification(tab, imageCount) {
 					return new Promise((resolve, reject) => {
 						console.log(context);
 						console.log('Showing resize notification');
@@ -57,7 +58,7 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 
 						// let questions = Shrunked.strings.GetStringFromName('questions');
 						// let question = Shrunked.getPluralForm(callbackObject.images.length, questions);
-						let question = 'wanna resize this shit?';
+						let question = imageCount == 1 ? 'wanna resize this shit?' : 'wanna resize these shits?';
 
 						notification = notifyBox.appendNotification(
 							question, 'shrunked-notification', null, notifyBox.PRIORITY_INFO_HIGH, buttons
@@ -75,6 +76,10 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 					let destFile = await Shrunked.resize(sourceFile, maxWidth, maxHeight, 85, sourceFile.leafName);
 					return destFile;
 				},
+				async estimateSize(file, maxWidth, maxHeight) {
+					return new ShrunkedImage(file, maxWidth, maxHeight, 85).estimateSize();
+				},
+
 				async handleSend(tab) {
 					let { nativeTab } = tabManager.get(tab.id);
 					let { attachments } = nativeTab.gMsgCompose.compFields;
@@ -103,9 +108,10 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 		};
 	}
 
-	close() {
-		Cu.unload('resource://shrunked/Shrunked.jsm');
-		resProto.setSubstitution('shrunked', null);
-		resProto.setSubstitution('shrunkedcontent', null);
-	}
+	// close() {
+	// 	console.log(Components.stack.formattedStack)
+	// 	Cu.unload('resource://shrunked/Shrunked.jsm');
+	// 	resProto.setSubstitution('shrunked', null);
+	// 	resProto.setSubstitution('shrunkedcontent', null);
+	// }
 };

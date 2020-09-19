@@ -10,6 +10,9 @@
           {
             "name": "tab",
             "$ref": "tabs.Tab"
+          },
+          {
+            "type": "integer"
           }
         ]
       },
@@ -32,6 +35,24 @@
       },
       {
         "name": "resizeFile",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "type": "object",
+            "isInstanceOf": "File",
+            "additionalProperties": true
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "integer"
+          }
+        ]
+      },
+      {
+        "name": "estimateSize",
         "type": "function",
         "async": true,
         "parameters": [

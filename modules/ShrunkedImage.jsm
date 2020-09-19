@@ -1,4 +1,4 @@
-/* globals ChromeWorker, fetch, File */
+/* globals ChromeWorker, fetch, File, URL */
 var EXPORTED_SYMBOLS = ['ShrunkedImage'];
 
 /* globals ExifData, OS, Services, Shrunked */
@@ -42,6 +42,9 @@ function ShrunkedImage(source, maxWidth, maxHeight, quality) {
 		this.sourceURI = Services.io.newFileURI(source);
 		this.path = source.path;
 		this.basename = source.leafName;
+	} else if (source instanceof File) {
+		this.sourceURI = Services.io.newURI(URL.createObjectURL(source));
+		this.basename = source.name;
 	}
 
 	if (!this.sourceURI) {

@@ -1,3 +1,5 @@
+/* eslint-env webextensions */
+
 // var returnValues = window.arguments[0];
 var imageIndex = 0;
 var maxWidth, maxHeight;
@@ -5,7 +7,7 @@ var maxWidth, maxHeight;
 var promise = null;
 
 /* globals rg_size, r_noresize, r_small, r_medium, r_large, r_custom, l_width, tb_width, l_height, tb_height, l_measure
-   b_previewarrows, l_previewarrows, i_previewthumb, l_previewfilename, l_previeworiginalsize,
+   b_previewarrows, b_previous, b_next, l_previewarrows, i_previewthumb, l_previewfilename, l_previeworiginalsize,
    l_previeworiginalfilesize, l_previewresized, l_previewresizedfilesize, cb_savedefault,
    b_ok, b_cancel */
 for (let element of document.querySelectorAll('[id]')) {
@@ -90,7 +92,6 @@ function getResponse() {
 	});
 }
 
-/* exported setSize */
 function setSize() {
 	let checked = rg_size.querySelector("input:checked");
 	switch (checked) {
@@ -118,13 +119,8 @@ function setSize() {
 
 	l_width.disabled = tb_width.disabled =
 		l_height.disabled = tb_height.disabled = checked != r_custom;
-}
 
-/* exported advancePreview */
-function advancePreview(delta) {
-	imageIndex = (imageIndex + delta + imageURLs.length) % imageURLs.length;
-	l_previewarrows.setAttribute('value', (imageIndex + 1) + '/' + imageURLs.length);
-	i_previewthumb.src = imageURLs[imageIndex];
+	updateEstimate();
 }
 
 function humanSize(size) {
@@ -140,10 +136,19 @@ function humanSize(size) {
 	return size.toFixed(size >= 9.95 ? 0 : 1) + '\u2006' + unit; // Shrunked.strings.GetStringFromName('unit_' + unit);
 }
 
+let keys = new URL(location.href).searchParams.get("keys").split(",").map(k => parseInt(k, 10));
 let images = [];
+let currentIndex = 0;
 async function loadImage(index) {
+	if (index < 0) {
+		index += keys.length;
+	} else if (index >= keys.length) {
+		index -= keys.length;
+	}
+	currentIndex = index;
+	l_previewarrows.textContent = `${index + 1} / ${keys.length}`;
+
 	if (!images[index]) {
-		let keys = new URL(location.href).searchParams.getAll("keys").map(k => parseInt(k, 10));
 		let file = await browser.runtime.sendMessage({ type: "fetchFile", key: keys[index] });
 
 		images[index] = { file, url: URL.createObjectURL(file) };
@@ -154,34 +159,39 @@ async function loadImage(index) {
 	l_previeworiginalfilesize.textContent = humanSize(images[index].file.size);
 }
 
-i_previewthumb.addEventListener("load", function() {
-	l_previeworiginalsize.textContent = `${this.naturalWidth}px \xD7 ${this.naturalHeight}px`;
+i_previewthumb.addEventListener("load", updateEstimate);
+
+async function updateEstimate() {
+	l_previeworiginalsize.textContent = `${i_previewthumb.naturalWidth}px \xD7 ${i_previewthumb.naturalHeight}px`;
 
 	let scale = 1;
 	if (maxWidth > 0 && maxHeight > 0) {
-		scale = Math.min(1, Math.min(maxWidth / this.naturalWidth, maxHeight / this.naturalHeight));
+		scale = Math.min(1, Math.min(maxWidth / i_previewthumb.naturalWidth, maxHeight / i_previewthumb.naturalHeight));
 	}
 	if (scale == 1) {
 		l_previewresized.textContent = "preview_notresized";
 		l_previewresizedfilesize.textContent = '';
 	} else {
-		let newWidth = Math.floor(this.naturalWidth * scale);
-		let newHeight = Math.floor(this.naturalHeight * scale);
-		let quality = 75; // Shrunked.prefs.getIntPref('default.quality');
+		let newWidth = Math.floor(i_previewthumb.naturalWidth * scale);
+		let newHeight = Math.floor(i_previewthumb.naturalHeight * scale);
+		// let quality = 75; // Shrunked.prefs.getIntPref('default.quality');
 		// let cacheKey = newWidth + 'x' + newHeight + 'x' + quality;
 
 		l_previewresized.textContent = `resized to: ${newWidth} \xD7 ${newHeight}`;
 		// if (data[cacheKey] === undefined) {
-		// 	setValueFromString(l_previewresizedfilesize, 'preview_resizedfilesize_estimating');
-		// 	new ShrunkedImage(src, newWidth, newHeight, quality).estimateSize().then(size => {
+			l_previewresizedfilesize.textContent = 'preview_resizedfilesize_estimating';
+			let estimate = await browser.shrunked.estimateSize(images[currentIndex].file, maxWidth, maxHeight);
+			l_previewresizedfilesize.textContent = humanSize(estimate); // , 'preview_resizedfilesize', data[cacheKey]);
 		// 		data[cacheKey] = humanSize(size);
-		// 		setValueFromString(l_previewresizedfilesize, 'preview_resizedfilesize', data[cacheKey]);
 		// 	});
 		// } else {
 		// 	setValueFromString(l_previewresizedfilesize, 'preview_resizedfilesize', data[cacheKey]);
 		// }
 	}
-});
+}
+
+b_previous.addEventListener("click", () => loadImage(currentIndex - 1));
+b_next.addEventListener("click", () => loadImage(currentIndex + 1));
 
 b_ok.addEventListener('click', function() {
 	let returnValues = {

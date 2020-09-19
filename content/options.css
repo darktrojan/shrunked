@@ -1,11 +1,35 @@
 @namespace html url(http://www.w3.org/1999/xhtml);
 
-html|input[type="number"] {
-	width: 3em !important;
-	box-shadow: none;
+html {
+	height: 100%;
 }
-html|input[type="number"]::-moz-number-wrapper {
-	width: 10ch !important;
+
+body {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	margin: 0;
+	padding: 1em;
+	box-sizing: border-box;
+	background-color: #f0f0f0;
+}
+
+#rg_size {
+	flex: 1;
+	margin-bottom: 1em;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+h1 {
+	font-size: 1em;
+	margin: 0;
+}
+
+html|input[type="number"] {
+	width: 5em;
+	box-shadow: none;
 }
 
 #l_previewheader {
@@ -14,32 +38,56 @@ html|input[type="number"]::-moz-number-wrapper {
 
 #b_previewbox {
 	height: 130px;
-	margin: 0 5px 1em;
+	margin: 1em 0;
 	padding: 10px 5px;
 	background-color: rgba(0, 0, 0, 0.1);
 	box-shadow: 0 0 5px rgba(0, 0, 0, 0.5) inset;
+	display: flex;
 }
 
+
+#b_previewarrows {
+	min-width: 3em;
+	align-items: center;
+	justify-content: space-evenly;
+	display: flex;
+	flex-direction: column;
+}
+#b_previewarrows > button {
+	appearance: none;
+	border: none;
+	background: transparent url("arrow.svg") center center / cover no-repeat;
+	width: 24px;
+	height: 24px;
+}
+#b_previewarrows > button:first-child {
+	transform: rotate(90deg);
+}
+#b_previewarrows > button:last-child {
+	transform: rotate(-90deg);
+}
+
+#d_preview {
+	display: flex;
+	width: 130px;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+}
+#d_preview > :first-child {
+	display: flex; flex-direction: column;
+}
 #i_previewthumb {
 	max-width: 110px;
 	max-height: 110px;
 }
 
-#b_previewarrows {
-	min-width: 3em;
+#d_info {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	justify-content: center;
 }
-#b_previewarrows > toolbarbutton {
-	-moz-appearance: none;
-	border: none;
-	list-style-image: url("chrome://shrunked/content/arrow.svg");
-}
-#b_previewarrows > toolbarbutton:first-child > .toolbarbutton-icon {
-	transform: rotate(90deg);
-}
-#b_previewarrows > toolbarbutton:last-child > .toolbarbutton-icon {
-	transform: rotate(-90deg);
-}
-
 #l_previeworiginalsize,
 #l_previewresized {
 	margin-top: 0.25em;
@@ -48,4 +96,8 @@ html|input[type="number"]::-moz-number-wrapper {
 #l_previeworiginalfilesize[value=""],
 #l_previewresizedfilesize[value=""] {
 	display: none;
+}
+
+#d_buttons {
+	text-align: end;
 }

@@ -2,68 +2,65 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta	charset="utf-8"/>
+		<title>Shrunked Options</title>
 		<link rel="stylesheet" href="options.css" type="text/css"/>
+		<script src="options.js" defer=""></script>
 	</head>
-	<body style="display: flex; flex-direction: column;">
-		<h1 data-l10n-content="shrunked-maxsize.label"></h1>
-		<div id="rg_size" class="indent" style="display: flex; flex-direction: column;">
-			<label><input type="radio" name="rg_size" id="r_noresize" /><span data-l10n-content="shrunked-noresize.label"></span></label>
-			<label><input type="radio" name="rg_size" id="r_small" /><span data-l10n-content="shrunked-small.label"></span></label>
-			<label><input type="radio" name="rg_size" id="r_medium" /><span data-l10n-content="shrunked-medium.label"></span></label>
-			<label><input type="radio" name="rg_size" id="r_large" /><span data-l10n-content="shrunked-large.label"></span></label>
-			<div style="display: flex;">
-				<label><input type="radio" name="rg_size" id="r_custom" /><span data-l10n-content="shrunked-custom.label"></span></label>
-				<label id="l_width" control="customvalue1" disabled="true"><span data-l10n-content="shrunked-width.label"></span>
-					<input
-						id="tb_width"
-						type="number"
-						value="1500"
-						step="50"
-						min="100"
-						max="2500"
-						disabled="true" />
-					<label data-l10n-content="shrunked-custom.pixels"></label>
-				</label>
-				<label id="l_height" control="customvalue2" disabled="true"><span data-l10n-content="shrunked-height.label"></span>
-					<input
-						id="tb_height"
-						type="number"
-						value="1500"
-						step="50"
-						min="100"
-						max="2500"
-						disabled="true" />
-					<label id="l_measure" data-l10n-content="shrunked-custom.pixels"></label>
-				</label>
-			</div>
-		</div>
-		<h1 id="l_previewheader" data-l10n-content="shrunked-preview.label" hidden=""></h1>
-		<div id="b_previewbox" flex="1" minwidth="400" style="display: flex">
-			<div id="b_previewarrows" pack="center" align="center" style="display: flex; flex-direction: column;">
-				<button tabindex="0" data-l10n-title="shrunked-preview.previous.tooltip"></button>
-				<label id="l_previewarrows" />
-				<button tabindex="0" data-l10n-title="shrunked-preview.next.tooltip"></button>
-			</div>
-			<div width="110" pack="center" style="display: flex;">
-				<div pack="center" style="display: flex; flex-direction: column;">
-					<img id="i_previewthumb" maxwidth="110" maxheight="110"/>
+	<body>
+		<div id="rg_size">
+			<h1 data-l10n-content="shrunked-maxsize.label"></h1>
+				<label><input type="radio" name="rg_size" id="r_noresize" /><span data-l10n-content="shrunked-noresize.label"></span></label>
+				<label><input type="radio" name="rg_size" id="r_small" /><span data-l10n-content="shrunked-small.label"></span></label>
+				<label><input type="radio" name="rg_size" id="r_medium" /><span data-l10n-content="shrunked-medium.label"></span></label>
+				<label><input type="radio" name="rg_size" id="r_large" /><span data-l10n-content="shrunked-large.label"></span></label>
+				<div>
+					<label><input type="radio" name="rg_size" id="r_custom" /><span data-l10n-content="shrunked-custom.label"></span></label>
+					<label id="l_width" control="customvalue1" disabled="true"><span data-l10n-content="shrunked-width.label"></span>
+						<input
+							id="tb_width"
+							type="number"
+							value="1500"
+							step="50"
+							min="100"
+							max="2500"
+							disabled="true" />
+						<label data-l10n-content="shrunked-custom.pixels"></label>
+					</label>
+					<label id="l_height" control="customvalue2" disabled="true"><span data-l10n-content="shrunked-height.label"></span>
+						<input
+							id="tb_height"
+							type="number"
+							value="1500"
+							step="50"
+							min="100"
+							max="2500"
+							disabled="true" />
+						<label id="l_measure" data-l10n-content="shrunked-custom.pixels"></label>
+					</label>
+				</div>
+			<h1 id="l_previewheader" data-l10n-content="shrunked-preview.label" hidden=""></h1>
+			<div id="b_previewbox">
+				<div id="b_previewarrows">
+					<button id="b_previous" tabindex="0" data-l10n-title="shrunked-preview.previous.tooltip"></button>
+					<label id="l_previewarrows" />
+					<button id="b_next" tabindex="0" data-l10n-title="shrunked-preview.next.tooltip"></button>
+				</div>
+				<div id="d_preview">
+					<img id="i_previewthumb"/>
+				</div>
+				<div id="d_info">
+					<label id="l_previewfilename" class="header" crop="end" />
+					<label id="l_previeworiginalsize" crop="end" />
+					<label id="l_previeworiginalfilesize" crop="end" />
+					<label id="l_previewresized" crop="end" />
+					<label id="l_previewresizedfilesize" crop="end" />
 				</div>
 			</div>
-			<div pack="center" flex="1" style="display: flex; flex-direction: column;">
-				<label id="l_previewfilename" class="header" crop="end" />
-				<label id="l_previeworiginalsize" crop="end" />
-				<label id="l_previeworiginalfilesize" crop="end" />
-				<label id="l_previewresized" crop="end" />
-				<label id="l_previewresizedfilesize" crop="end" />
-			</div>
+			<label><input type="checkbox" id="cb_savedefault" /><span data-l10n-content="shrunked-options.savedefault.label"></span></label>
 		</div>
-		<label><input type="checkbox" id="cb_savedefault" /><span data-l10n-content="shrunked-options.savedefault.label"></span></label>
-
-		<div>
+		<div id="d_buttons">
 			<button id="b_ok" type="button">OK</button>
 			<button id="b_cancel" type="button">Cancel</button>
 		</div>
-
-		<script src="options.js"></script>
 	</body>
 </html>

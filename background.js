@@ -9,12 +9,16 @@ browser.composeScripts.register({
 var fileStore = new Map();
 var nextStoreKey = 1;
 
-async function showOptionsDialog(sourceFile) {
-	let storeKey = nextStoreKey++;
-	fileStore.set(storeKey, sourceFile);
+async function showOptionsDialog(sourceFiles) {
+	let storeKeys = [];
+	for (let sf of sourceFiles) {
+		let storeKey = nextStoreKey++;
+		fileStore.set(storeKey, sf);
+		storeKeys.push(storeKey);
+	}
 
 	let { tabs: [tab1] } = await browser.windows.create({
-		url: `content/options.xhtml?keys=${storeKey}`,
+		url: `content/options.xhtml?keys=${storeKeys.join(",")}`,
 		type: 'popup',
 		width: 800,
 		height: 500
@@ -22,22 +26,31 @@ async function showOptionsDialog(sourceFile) {
 	await new Promise(r => setTimeout(r, 500));
 
 	let returnValues = await browser.tabs.executeScript(tab1.id, { code: `getResponse()` });
-	fileStore.delete(storeKey);
+	for (let sk of storeKeys) {
+		fileStore.delete(sk);
+	}
 	return returnValues[0];
 }
 
 // Attachment added to message. Just update the attachment.
 browser.compose.onAttachmentAdded.addListener(async (tab, attachment) => {
-	// if (attachment.name.toLowerCase().endsWith('.jpg')) {
-	// }
+	let attachments = await browser.compose.listAttachments(tab.id);
+	attachments = attachments.filter(a => a.name.toLowerCase().endsWith(".jpg"));
 
-	await browser.shrunked.showNotification(tab);
-	let sourceFile = await attachment.getFile();
+	let sourceFiles = new Map();
+	for (let a of attachments) {
+		let sourceFile = await a.getFile();
+		sourceFiles.set(a, sourceFile);
+	}
 
-	let { maxWidth, maxHeight } = await showOptionsDialog(sourceFile);
+	await browser.shrunked.showNotification(tab, attachments.length);
 
-	let destFile = await browser.shrunked.resizeFile(sourceFile, maxWidth, maxHeight);
-	await browser.compose.updateAttachment(tab.id, attachment.id, { file: destFile });
+	let { maxWidth, maxHeight } = await showOptionsDialog(sourceFiles.values());
+
+	for (let [attachment, sourceFile] of sourceFiles) {
+		let destFile = await browser.shrunked.resizeFile(sourceFile, maxWidth, maxHeight);
+		await browser.compose.updateAttachment(tab.id, attachment.id, { file: destFile });
+	}
 });
 
 // Image added to body of message. Return a promise to the sender.
@@ -57,7 +70,7 @@ async function resizeURL(tab, src) {
 	let response = await fetch(src);
 	let sourceFile = await response.blob();
 
-	let { maxWidth, maxHeight } = await showOptionsDialog(sourceFile);
+	let { maxWidth, maxHeight } = await showOptionsDialog([sourceFile]);
 
 	return browser.shrunked.resizeURL(src, maxWidth, maxHeight);
 }
