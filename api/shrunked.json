@@ -99,6 +99,28 @@
           }
         ]
       }
+    ],
+    "events": [
+      {
+        "name": "onNotificationAccepted",
+        "type": "function",
+        "parameters": [
+          {
+            "name": "tab",
+            "$ref": "tabs.Tab"
+          }
+        ]
+      },
+      {
+        "name": "onNotificationCancelled",
+        "type": "function",
+        "parameters": [
+          {
+            "name": "tab",
+            "$ref": "tabs.Tab"
+          }
+        ]
+      }
     ]
   }
 ]

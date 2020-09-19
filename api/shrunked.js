@@ -17,10 +17,41 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 
 		return {
 			shrunked: {
+				onNotificationAccepted: new ExtensionCommon.EventManager({
+					context,
+					name: "myapi.onNotificationAccepted",
+					register(fire) {
+						function callback(event, tab) {
+							return fire.async(tab);
+						}
+
+						context.extension.on('shrunked-accepted', callback);
+						return function() {
+							context.extension.off('shrunked-accepted', callback);
+						};
+					},
+				}).api(),
+				onNotificationCancelled: new ExtensionCommon.EventManager({
+					context,
+					name: "myapi.onNotificationCancelled",
+					register(fire) {
+						function callback(event, tab) {
+							return fire.async(tab);
+						}
+
+						context.extension.on('shrunked-cancelled', callback);
+						return function() {
+							context.extension.off('shrunked-cancelled', callback);
+						};
+					},
+				}).api(),
 				showNotification(tab, imageCount) {
 					return new Promise((resolve, reject) => {
-						console.log(context);
 						console.log('Showing resize notification');
+
+						// let questions = Shrunked.strings.GetStringFromName('questions');
+						// let question = Shrunked.getPluralForm(callbackObject.images.length, questions);
+						let question = imageCount == 1 ? 'wanna resize this shit?' : 'wanna resize these shits?';
 
 						let nativeTab = tabManager.get(tab.id).nativeTab;
 						let notifyBox = nativeTab.gNotification.notificationbox;
@@ -28,6 +59,7 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 						if (notification) {
 							console.log('Notification already visible');
 							notification._promises.push({ resolve, reject });
+							notification.label = question;
 							return;
 						}
 
@@ -36,9 +68,10 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 							accessKey: 'Y',
 							callback: () => {
 								console.log('Resizing started');
-								for (let promise of notification._promises) {
-									promise.resolve();
-								}
+								// for (let promise of notification._promises) {
+								// 	promise.resolve();
+								// }
+								context.extension.emit('shrunked-accepted', tab);
 							},
 							// label: Shrunked.strings.GetStringFromName('yes_label')
 							label: 'Yeah',
@@ -47,18 +80,15 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 							accessKey: 'N',
 							callback() {
 								console.log('Resizing cancelled');
-								for (let promise of notification._promises) {
-									promise.reject();
-								}
+								// for (let promise of notification._promises) {
+								// 	promise.reject();
+								// }
 								// callbackObject.onResizeCancelled();
+								context.extension.emit('shrunked-cancelled', tab);
 							},
 							// label: Shrunked.strings.GetStringFromName('no_label')
 							label: 'Nah',
 						}];
-
-						// let questions = Shrunked.strings.GetStringFromName('questions');
-						// let question = Shrunked.getPluralForm(callbackObject.images.length, questions);
-						let question = imageCount == 1 ? 'wanna resize this shit?' : 'wanna resize these shits?';
 
 						notification = notifyBox.appendNotification(
 							question, 'shrunked-notification', null, notifyBox.PRIORITY_INFO_HIGH, buttons

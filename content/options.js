@@ -1,15 +1,18 @@
 /* eslint-env webextensions */
 
-// var returnValues = window.arguments[0];
-var imageIndex = 0;
-var maxWidth, maxHeight;
-
-var promise = null;
-
 /* globals rg_size, r_noresize, r_small, r_medium, r_large, r_custom, l_width, tb_width, l_height, tb_height, l_measure
    b_previewarrows, b_previous, b_next, l_previewarrows, i_previewthumb, l_previewfilename, l_previeworiginalsize,
    l_previeworiginalfilesize, l_previewresized, l_previewresizedfilesize, cb_savedefault,
    b_ok, b_cancel */
+
+var params = new URL(location.href).searchParams;
+var tabId = parseInt(params.get("tabId"), 10);
+var count = parseInt(params.get("count"), 10);
+
+var images = [];
+var currentIndex = 0;
+var maxWidth, maxHeight;
+
 for (let element of document.querySelectorAll('[id]')) {
 	window[element.id] = element;
 }
@@ -63,12 +66,6 @@ addEventListener('load', async () => {
 	loadImage(0);
 });
 
-addEventListener('unload', () => {
-	if (promise) {
-		promise.reject();
-	}
-});
-
 r_noresize.addEventListener("change", setSize);
 r_small.addEventListener("change", setSize);
 r_medium.addEventListener("change", setSize);
@@ -76,21 +73,6 @@ r_large.addEventListener("change", setSize);
 r_custom.addEventListener("change", setSize);
 tb_height.addEventListener("change", setSize);
 tb_width.addEventListener("change", setSize);
-
-function setImageURLs(imageURLs) {
-	i_previewthumb.src = imageURLs[0];
-	// if (imageURLs.length < 2) {
-	// 	b_previewarrows.setAttribute('hidden', 'true');
-	// } else {
-	// 	l_previewarrows.setAttribute('value', '1/' + imageURLs.length);
-	// }
-}
-
-function getResponse() {
-	return new Promise((resolve, reject) => {
-		promise = { resolve, reject };
-	});
-}
 
 function setSize() {
 	let checked = rg_size.querySelector("input:checked");
@@ -136,20 +118,17 @@ function humanSize(size) {
 	return size.toFixed(size >= 9.95 ? 0 : 1) + '\u2006' + unit; // Shrunked.strings.GetStringFromName('unit_' + unit);
 }
 
-let keys = new URL(location.href).searchParams.get("keys").split(",").map(k => parseInt(k, 10));
-let images = [];
-let currentIndex = 0;
 async function loadImage(index) {
 	if (index < 0) {
-		index += keys.length;
-	} else if (index >= keys.length) {
-		index -= keys.length;
+		index += count;
+	} else if (index >= count) {
+		index -= count;
 	}
 	currentIndex = index;
-	l_previewarrows.textContent = `${index + 1} / ${keys.length}`;
+	l_previewarrows.textContent = `${index + 1} / ${count}`;
 
 	if (!images[index]) {
-		let file = await browser.runtime.sendMessage({ type: "fetchFile", key: keys[index] });
+		let file = await browser.runtime.sendMessage({ type: "fetchFile", tabId, index });
 
 		images[index] = { file, url: URL.createObjectURL(file) };
 	}
@@ -193,21 +172,14 @@ async function updateEstimate() {
 b_previous.addEventListener("click", () => loadImage(currentIndex - 1));
 b_next.addEventListener("click", () => loadImage(currentIndex + 1));
 
-b_ok.addEventListener('click', function() {
-	let returnValues = {
-		maxWidth,
-		maxHeight,
-	};
-
+b_ok.addEventListener('click', async () => {
 	// if (cb_savedefault.checked) {
 	// 	Shrunked.prefs.setIntPref('default.maxWidth', returnValues.maxWidth);
 	// 	Shrunked.prefs.setIntPref('default.maxHeight', returnValues.maxHeight);
 	// }
 	// Shrunked.prefs.setBoolPref('default.saveDefault', cb_savedefault.checked);
 
-	promise.resolve(returnValues);
-	promise = null;
-
+	await browser.runtime.sendMessage({ type: "doResize", tabId, maxWidth, maxHeight });
 	window.close();
 });
 
