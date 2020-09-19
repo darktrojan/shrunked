@@ -69,8 +69,22 @@ async function maybeResizeInline(target) {
         }
       }
 
-      let dest = await browser.runtime.sendMessage({ type: "resizeURL", src});
-      target.setAttribute('src', dest);
+      let response = await fetch(src);
+      let srcBlob = await response.blob();
+      let srcFile = new File([srcBlob], "test.jpg");
+
+      let destFile = await browser.runtime.sendMessage({ type: "resizeFile", file: srcFile });
+      let destURL = await new Promise(resolve => {
+        let reader = new FileReader();
+        reader.onloadend = function() {
+          let dataURL = reader.result;
+          dataURL = 'data:image/jpeg;filename=' + encodeURIComponent(destFile.name) + dataURL.substring(15);
+          resolve(dataURL);
+        };
+        reader.readAsDataURL(destFile);
+      });
+
+      target.setAttribute('src', destURL);
       target.removeAttribute('width');
       target.removeAttribute('height');
       target.setAttribute('shrunked:resized', 'true');
