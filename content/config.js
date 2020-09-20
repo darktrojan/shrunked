@@ -1,5 +1,3 @@
-// TODO update prefs on change
-
 /* globals tp_defaults, tb_minsize, r_noresize, r_small, r_medium, r_large, r_custom, l_width,
    tb_width, l_height, tb_height, l_measure, s_quality, tp_advanced, cb_resample, cb_exif,
    cb_orient, cb_gps, cb_logenabled, b_resizeonsend, s_resizeonsend */
@@ -17,19 +15,23 @@ for (let element of document.querySelectorAll('[data-l10n-label]')) {
 	element.label = browser.i18n.getMessage(element.getAttribute("data-l10n-label"));
 }
 
-browser.storage.local.get({
-	'default.maxWidth': 500,
-	'default.maxHeight': 500,
-	'default.quality': 75,
-	'default.saveDefault': true,
-	'fileSizeMinimum': 100,
-	'log.enabled': false,
-	'options.exif': true,
-	'options.orientation': true,
-	'options.gps': true,
-	'options.resample': true,
-	'resizeAttachmentsOnSend': false,
-}).then(prefs => {
+var settingFromThisPage = false;
+
+async function getAll() {
+	let prefs = await browser.storage.local.get({
+		'default.maxWidth': 500,
+		'default.maxHeight': 500,
+		'default.quality': 75,
+		'default.saveDefault': true,
+		'fileSizeMinimum': 100,
+		'log.enabled': false,
+		'options.exif': true,
+		'options.orientation': true,
+		'options.gps': true,
+		'options.resample': true,
+		'resizeAttachmentsOnSend': false,
+	});
+
 	tb_minsize.value = prefs.fileSizeMinimum;
 	if (prefs["default.maxWidth"] == prefs["default.maxHeight"]) {
 		switch (prefs["default.maxWidth"]) {
@@ -66,7 +68,9 @@ browser.storage.local.get({
 
 	l_width.disabled = tb_width.disabled = l_height.disabled = tb_height.disabled = !r_custom.checked;
 	cb_orient.disabled = cb_gps.disabled = !cb_exif.checked;
+}
 
+getAll().then(() => {
 	r_noresize.addEventListener("change", setSize);
 	r_small.addEventListener("change", setSize);
 	r_medium.addEventListener("change", setSize);
@@ -75,52 +79,77 @@ browser.storage.local.get({
 	tb_height.addEventListener("change", setSize);
 	tb_width.addEventListener("change", setSize);
 
-	s_quality.addEventListener("change", () => browser.storage.local.set({ "default.quality": parseInt(s_quality.value, 10) }));
+	s_quality.addEventListener("change", setQuality);
 
 	cb_resample.addEventListener("change", setCheckbox);
 	cb_exif.addEventListener("change", event => {
-		setCheckbox(event);
 		cb_orient.disabled = cb_gps.disabled = !cb_exif.checked;
+		setCheckbox(event);
 	});
 	cb_orient.addEventListener("change", setCheckbox);
 	cb_gps.addEventListener("change", setCheckbox);
 	cb_logenabled.addEventListener("change", setCheckbox);
 
-	s_resizeonsend.addEventListener("change", () => browser.storage.local.set({ resizeAttachmentsOnSend: s_resizeonsend.value == "true" }));
+	s_resizeonsend.addEventListener("change", setSendOption);
+
+	browser.storage.onChanged.addListener((...args) => {
+		console.log(...args)
+		if (!settingFromThisPage) {
+			getAll();
+		}
+	});
 });
 
-function setSize() {
+browser.storage.onChanged.addListener(console.log)
+
+async function setSize() {
 	let maxWidth, maxHeight;
 	let checked = document.querySelector(`input[name="rg_size"]:checked`);
 	switch (checked) {
-	case r_noresize:
-		maxWidth = -1;
-		maxHeight = -1;
-		break;
-	case r_small:
-		maxWidth = 500;
-		maxHeight = 500;
-		break;
-	case r_medium:
-		maxWidth = 800;
-		maxHeight = 800;
-		break;
-	case r_large:
-		maxWidth = 1200;
-		maxHeight = 1200;
-		break;
-	case r_custom:
-		maxWidth = parseInt(tb_width.value, 10);
-		maxHeight = parseInt(tb_height.value, 10);
-		break;
+		case r_noresize:
+			maxWidth = -1;
+			maxHeight = -1;
+			break;
+		case r_small:
+			maxWidth = 500;
+			maxHeight = 500;
+			break;
+		case r_medium:
+			maxWidth = 800;
+			maxHeight = 800;
+			break;
+		case r_large:
+			maxWidth = 1200;
+			maxHeight = 1200;
+			break;
+		case r_custom:
+			maxWidth = parseInt(tb_width.value, 10);
+			maxHeight = parseInt(tb_height.value, 10);
+			break;
 	}
 
 	l_width.disabled = tb_width.disabled =
 		l_height.disabled = tb_height.disabled = checked != r_custom;
 
-	browser.storage.local.set({ "default.maxWidth": maxWidth, "default.maxHeight": maxHeight });
+	settingFromThisPage = true;
+	await browser.storage.local.set({ "default.maxWidth": maxWidth, "default.maxHeight": maxHeight });
+	settingFromThisPage = false;
 }
 
-function setCheckbox({ target }) {
-	browser.storage.local.set({ [target.name]: target.checked });
+async function setQuality() {
+	settingFromThisPage = true;
+	await browser.storage.local.set({ "default.quality": parseInt(s_quality.value, 10) });
+	settingFromThisPage = false;
+}
+
+async function setCheckbox({ target }) {
+	settingFromThisPage = true;
+	await browser.storage.local.set({ [target.name]: target.checked });
+	settingFromThisPage = false;
+}
+
+async function setSendOption() {
+	settingFromThisPage = true;
+	await browser.storage.local.set({ resizeAttachmentsOnSend: s_resizeonsend.value == "true" });
+	settingFromThisPage = false;
 }
