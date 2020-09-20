@@ -8,10 +8,17 @@ body {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
+}
+
+body#options {
 	margin: 0;
 	padding: 1em;
 	box-sizing: border-box;
 	background-color: #f0f0f0;
+}
+
+input[type="range"]::-moz-range-track {
+	background-color: rebeccapurple;
 }
 
 .indent {

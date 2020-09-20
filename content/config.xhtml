@@ -6,7 +6,7 @@
 		<link rel="stylesheet" href="options.css" type="text/css"/>
 		<script src="config.js" defer=""></script>
 	</head>
-	<body>
+	<body id="config">
 		<div id="tp_defaults" style="display: flex; flex-direction: column;">
 			<div>
 				<label data-l10n-content="shrunked-minsize.label" />
@@ -14,17 +14,16 @@
 					id="tb_minsize"
 					type="number"
 					step="10"
-					min="0"
-					onchange="p_minsize.value = this.value" />
+					min="0" />
 				<label data-l10n-content="shrunked-unit.kilobytes" />
 			</div>
 
 			<label data-l10n-content="shrunked-maxsize.label" />
-			<label><input type="radio" name="rg_size" id="r_noresize" /><span data-l10n-content="shrunked-noresize.label"></span></label>
-			<label><input type="radio" name="rg_size" id="r_small" /><span data-l10n-content="shrunked-small.label"></span></label>
-			<label><input type="radio" name="rg_size" id="r_medium" /><span data-l10n-content="shrunked-medium.label"></span></label>
-			<label><input type="radio" name="rg_size" id="r_large" /><span data-l10n-content="shrunked-large.label"></span></label>
-			<div>
+			<label class="indent"><input type="radio" name="rg_size" id="r_noresize" /><span data-l10n-content="shrunked-noresize.label"></span></label>
+			<label class="indent"><input type="radio" name="rg_size" id="r_small" /><span data-l10n-content="shrunked-small.label"></span></label>
+			<label class="indent"><input type="radio" name="rg_size" id="r_medium" /><span data-l10n-content="shrunked-medium.label"></span></label>
+			<label class="indent"><input type="radio" name="rg_size" id="r_large" /><span data-l10n-content="shrunked-large.label"></span></label>
+			<div class="indent">
 				<label><input type="radio" name="rg_size" id="r_custom" /><span data-l10n-content="shrunked-custom.label"></span></label>
 				<label id="l_width" control="customvalue1" disabled="true"><span data-l10n-content="shrunked-width.label"></span>
 					<input
@@ -58,19 +57,18 @@
 					type="range"
 					min="30"
 					max="100"
-					step="5"
-					onchange="p_quality.value = this.value" />
+					step="5" />
 				<label data-l10n-content="shrunked-defaults.quality.better" />
 			</div>
 		</div>
 		<div id="tp_advanced" style="display: flex; flex-direction: column;">
-			<label><input type="checkbox" id="cb_resample" /><span data-l10n-content="shrunked-advanced.resample.label"></span></label>
-			<label><input type="checkbox" id="cb_exif" oncommand="enableExif()" /><span data-l10n-content="shrunked-advanced.exif.label"></span></label>
+			<label><input type="checkbox" id="cb_resample" name="options.resample" /><span data-l10n-content="shrunked-advanced.resample.label"></span></label>
+			<label><input type="checkbox" id="cb_exif" name="options.exif" oncommand="enableExif()" /><span data-l10n-content="shrunked-advanced.exif.label"></span></label>
 			<div style="display: flex; flex-direction: column;" class="indent">
-				<label><input type="checkbox" id="cb_orient" /><span data-l10n-content="shrunked-advanced.orient.label"></span></label>
-				<label><input type="checkbox" id="cb_gps" /><span data-l10n-content="shrunked-advanced.gps.label" ></span></label>
+				<label><input type="checkbox" id="cb_orient" name="options.orient" /><span data-l10n-content="shrunked-advanced.orient.label"></span></label>
+				<label><input type="checkbox" id="cb_gps" name="options.gps" /><span data-l10n-content="shrunked-advanced.gps.label" ></span></label>
 			</div>
-			<label><input type="checkbox" id="cb_logenabled" /><span data-l10n-content="shrunked-advanced.logenabled.label"></span></label>
+			<label><input type="checkbox" id="cb_logenabled" name="log.enabled" /><span data-l10n-content="shrunked-advanced.logenabled.label"></span></label>
 			<div id="b_resizeonsend">
 				<label data-l10n-content="shrunked-advanced.resizeonsend.label" />
 				<select id="s_resizeonsend">

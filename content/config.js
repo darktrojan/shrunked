@@ -1,6 +1,8 @@
-/* globals tb_minsize, rg_size, r_noresize,
-   r_small, r_medium, r_large, r_custom, l_width, tb_width, l_height, tb_height, l_measure, s_quality,
-   cb_exif, cb_orient, cb_gps */
+// TODO update prefs on change
+
+/* globals tp_defaults, tb_minsize, r_noresize, r_small, r_medium, r_large, r_custom, l_width,
+   tb_width, l_height, tb_height, l_measure, s_quality, tp_advanced, cb_resample, cb_exif,
+   cb_orient, cb_gps, cb_logenabled, b_resizeonsend, s_resizeonsend */
 
 for (let element of document.querySelectorAll('[id]')) {
 	window[element.id] = element;
@@ -61,15 +63,31 @@ browser.storage.local.get({
 	cb_gps.checked = prefs["options.gps"];
 	cb_logenabled.checked = prefs["log.enabled"];
 	s_resizeonsend.value = prefs.resizeAttachmentsOnSend;
-});
 
-r_noresize.addEventListener("change", setSize);
-r_small.addEventListener("change", setSize);
-r_medium.addEventListener("change", setSize);
-r_large.addEventListener("change", setSize);
-r_custom.addEventListener("change", setSize);
-tb_height.addEventListener("change", setSize);
-tb_width.addEventListener("change", setSize);
+	l_width.disabled = tb_width.disabled = l_height.disabled = tb_height.disabled = !r_custom.checked;
+	cb_orient.disabled = cb_gps.disabled = !cb_exif.checked;
+
+	r_noresize.addEventListener("change", setSize);
+	r_small.addEventListener("change", setSize);
+	r_medium.addEventListener("change", setSize);
+	r_large.addEventListener("change", setSize);
+	r_custom.addEventListener("change", setSize);
+	tb_height.addEventListener("change", setSize);
+	tb_width.addEventListener("change", setSize);
+
+	s_quality.addEventListener("change", () => browser.storage.local.set({ "default.quality": parseInt(s_quality.value, 10) }));
+
+	cb_resample.addEventListener("change", setCheckbox);
+	cb_exif.addEventListener("change", event => {
+		setCheckbox(event);
+		cb_orient.disabled = cb_gps.disabled = !cb_exif.checked;
+	});
+	cb_orient.addEventListener("change", setCheckbox);
+	cb_gps.addEventListener("change", setCheckbox);
+	cb_logenabled.addEventListener("change", setCheckbox);
+
+	s_resizeonsend.addEventListener("change", () => browser.storage.local.set({ resizeAttachmentsOnSend: s_resizeonsend.value == "true" }));
+});
 
 function setSize() {
 	let maxWidth, maxHeight;
@@ -101,4 +119,8 @@ function setSize() {
 		l_height.disabled = tb_height.disabled = checked != r_custom;
 
 	browser.storage.local.set({ "default.maxWidth": maxWidth, "default.maxHeight": maxHeight });
+}
+
+function setCheckbox({ target }) {
+	browser.storage.local.set({ [target.name]: target.checked });
 }

@@ -33,6 +33,10 @@ browser.runtime.onMessage.addListener(async (message, sender, callback) => {
 
 // Attachment added to message. Just update the attachment.
 browser.compose.onAttachmentAdded.addListener(async (tab, attachment) => {
+	let { resizeAttachmentsOnSend } = await browser.storage.local.get({ "resizeAttachmentsOnSend": false });
+	if (resizeAttachmentsOnSend) {
+		return;
+	}
 	if (!attachment.name.toLowerCase().endsWith(".jpg")) {
 		return;
 	}
@@ -44,10 +48,37 @@ browser.compose.onAttachmentAdded.addListener(async (tab, attachment) => {
 
 // Message sending.
 browser.compose.onBeforeSend.addListener(async (tab, details) => {
-	// await browser.shrunked.showNotification(tab);
+	let { resizeAttachmentsOnSend } = await browser.storage.local.get({ "resizeAttachmentsOnSend": false });
+	if (!resizeAttachmentsOnSend) {
+		return;
+	}
 
-	// return browser.shrunked.handleSend(tab);
+	let promises = [];
+	let attachments = await browser.compose.listAttachments(tab.id);
+	for (let a of attachments) {
+		let file = await a.getFile();
+		let promise = beginResize(tab, file, false)
+			.then((destFile) => browser.compose.updateAttachment(tab.id, a.id, { file: destFile }));
+		promises.push(promise);
+	}
+
+	showOptionsDialog(tab);
+	await Promise.all(promises);
 });
+
+// Get a promise that resolves when resizing is complete.
+function beginResize(tab, file, show = true) {
+	return new Promise((resolve, reject) => {
+		if (!tabMap.has(tab.id)) {
+			tabMap.set(tab.id, []);
+		}
+		let sourceFiles = tabMap.get(tab.id);
+		sourceFiles.push({ promise: { resolve, reject }, file });
+		if (show) {
+			browser.shrunked.showNotification(tab, sourceFiles.length);
+		}
+	});
+}
 
 // Notification response.
 browser.shrunked.onNotificationAccepted.addListener(tab => showOptionsDialog(tab));
@@ -61,18 +92,6 @@ function showOptionsDialog(tab) {
 		type: 'popup',
 		width: 800,
 		height: 500
-	});
-}
-
-// Called by options dialog OK button.
-function beginResize(tab, file) {
-	return new Promise((resolve, reject) => {
-		if (!tabMap.has(tab.id)) {
-			tabMap.set(tab.id, []);
-		}
-		let sourceFiles = tabMap.get(tab.id);
-		sourceFiles.push({ promise: { resolve, reject }, file });
-		browser.shrunked.showNotification(tab, sourceFiles.length);
 	});
 }
 
