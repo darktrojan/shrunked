@@ -23,8 +23,12 @@
 		]
 	},
 	"permissions": [
-		"compose"
+		"compose",
+		"storage"
 	],
+	"options_ui": {
+		"page": "content/config.xhtml"
+	},
 	"experiment_apis": {
 		"shrunked": {
 			"schema": "api/shrunked.json",

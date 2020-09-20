@@ -9,10 +9,17 @@ ChromeUtils.defineModuleGetter(this, 'Shrunked', 'resource://shrunked/Shrunked.j
 
 var XHTMLNS = 'http://www.w3.org/1999/xhtml';
 
-function ShrunkedImage(source, maxWidth, maxHeight, quality) {
+function ShrunkedImage(source, maxWidth, maxHeight, quality, options) {
 	this.maxWidth = maxWidth;
 	this.maxHeight = maxHeight;
 	this.quality = quality;
+	this.options = {
+		exif: true,
+		orientation: true,
+		gps: true,
+		resample: true,
+		...options
+	};
 
 	if (typeof source == 'string') {
 		this.sourceURI = Services.io.newURI(source);
@@ -54,9 +61,9 @@ function ShrunkedImage(source, maxWidth, maxHeight, quality) {
 ShrunkedImage.prototype = {
 	async resize() {
 		let orientation = 0;
-		if (Shrunked.options.exif) {
+		if (this.options.exif) {
 			await this.readExifData();
-			if (Shrunked.options.orientation && this.exifData) {
+			if (this.options.orientation && this.exifData) {
 				orientation = this.exifData.orientation;
 			}
 		}
@@ -106,7 +113,7 @@ ShrunkedImage.prototype = {
 		return new Promise((resolve) => {
 			let ratio = Math.max(1, image.width / this.maxWidth, image.height / this.maxHeight);
 			let resampleRatio = 1;
-			if (resample && Shrunked.options.resample) {
+			if (resample && this.options.resample) {
 				resampleRatio = Math.min(ratio, 3);
 				if (resampleRatio > 2 && resampleRatio < 3) {
 					resampleRatio = 2;

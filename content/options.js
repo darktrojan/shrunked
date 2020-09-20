@@ -36,8 +36,14 @@ addEventListener('load', async () => {
 	// } while (element && element != document);
 	// document.documentElement.style.minWidth = `${width}px`;
 
-	maxWidth = 500; // Shrunked.prefs.getIntPref('default.maxWidth');
-	maxHeight = 500; // Shrunked.prefs.getIntPref('default.maxHeight');
+	let prefs = await browser.storage.local.get({
+		"default.maxWidth": 500,
+		"default.maxHeight": 500,
+		"default.saveDefault": true,
+	});
+
+	maxWidth = prefs["default.maxWidth"];
+	maxHeight = prefs["default.maxHeight"];
 
 	if (maxWidth == -1 && maxHeight == -1) {
 		r_noresize.checked = true;
@@ -53,7 +59,7 @@ addEventListener('load', async () => {
 		tb_height.value = maxHeight;
 	}
 
-	cb_savedefault.checked = true; // Shrunked.prefs.getBoolPref('default.saveDefault');
+	cb_savedefault.checked = prefs["default.saveDefault"];
 
 	// if (!returnValues.isAttachment) {
 	// 	r_noresize.collapsed = true;
@@ -153,13 +159,13 @@ async function updateEstimate() {
 	} else {
 		let newWidth = Math.floor(i_previewthumb.naturalWidth * scale);
 		let newHeight = Math.floor(i_previewthumb.naturalHeight * scale);
-		// let quality = 75; // Shrunked.prefs.getIntPref('default.quality');
+		let { "default.quality": quality } = await browser.storage.local.get({ "default.quality": 75 });
 		// let cacheKey = newWidth + 'x' + newHeight + 'x' + quality;
 
 		l_previewresized.textContent = `resized to: ${newWidth} \xD7 ${newHeight}`;
 		// if (data[cacheKey] === undefined) {
 			l_previewresizedfilesize.textContent = 'preview_resizedfilesize_estimating';
-			let estimate = await browser.shrunked.estimateSize(images[currentIndex].file, maxWidth, maxHeight);
+			let estimate = await browser.shrunked.estimateSize(images[currentIndex].file, maxWidth, maxHeight, quality);
 			l_previewresizedfilesize.textContent = humanSize(estimate); // , 'preview_resizedfilesize', data[cacheKey]);
 		// 		data[cacheKey] = humanSize(size);
 		// 	});
@@ -173,13 +179,16 @@ b_previous.addEventListener("click", () => loadImage(currentIndex - 1));
 b_next.addEventListener("click", () => loadImage(currentIndex + 1));
 
 b_ok.addEventListener('click', async () => {
-	// if (cb_savedefault.checked) {
-	// 	Shrunked.prefs.setIntPref('default.maxWidth', returnValues.maxWidth);
-	// 	Shrunked.prefs.setIntPref('default.maxHeight', returnValues.maxHeight);
-	// }
-	// Shrunked.prefs.setBoolPref('default.saveDefault', cb_savedefault.checked);
+	let prefsToStore = {};
+	if (cb_savedefault.checked) {
+		prefsToStore['default.maxWidth'] = maxWidth;
+		prefsToStore['default.maxHeight'] = maxHeight;
+	}
+	prefsToStore['default.saveDefault'] = cb_savedefault.checked;
+	await browser.storage.local.set(prefsToStore);
 
-	await browser.runtime.sendMessage({ type: "doResize", tabId, maxWidth, maxHeight });
+	let { "default.quality": quality } = await browser.storage.local.get({ "default.quality": 75 });
+	await browser.runtime.sendMessage({ type: "doResize", tabId, maxWidth, maxHeight, quality });
 	window.close();
 });
 

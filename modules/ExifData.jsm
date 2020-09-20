@@ -90,8 +90,7 @@ ExifData.prototype = {
 				this.gps = await this._readSection();
 			}
 
-			let blacklist = JSON.parse(Shrunked.prefs.getCharPref('exif.blacklist'));
-			for (let key of blacklist) {
+			for (let key of ["112", "11a", "11b", "128", "213", "927c", "9286", "a005", "a210"]) {
 				delete this.exif1[key];
 				if (this.exif2) {
 					delete this.exif2[key];

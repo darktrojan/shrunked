@@ -3,6 +3,12 @@
     "namespace": "shrunked",
     "functions": [
       {
+        "name": "migrateSettings",
+        "type": "function",
+        "async": true,
+        "parameters": []
+      },
+      {
         "name": "showNotification",
         "type": "function",
         "async": true,
@@ -10,23 +16,6 @@
           {
             "name": "tab",
             "$ref": "tabs.Tab"
-          },
-          {
-            "type": "integer"
-          }
-        ]
-      },
-      {
-        "name": "resizeURL",
-        "type": "function",
-        "async": true,
-        "parameters": [
-          {
-            "name": "url",
-            "type": "string"
-          },
-          {
-            "type": "integer"
           },
           {
             "type": "integer"
@@ -44,10 +33,39 @@
             "additionalProperties": true
           },
           {
+            "name": "maxWidth",
             "type": "integer"
           },
           {
+            "name": "maxHeight",
             "type": "integer"
+          },
+          {
+            "name": "quality",
+            "type": "integer"
+          },
+          {
+            "name": "options",
+            "type": "object",
+            "properties": {
+              "exif": {
+                "type": "boolean",
+                "optional": true
+              },
+              "orientation": {
+                "type": "boolean",
+                "optional": true
+              },
+              "gps": {
+                "type": "boolean",
+                "optional": true
+              },
+              "resample": {
+                "type": "boolean",
+                "optional": true
+              }
+            },
+            "optional": true
           }
         ]
       },
@@ -62,9 +80,15 @@
             "additionalProperties": true
           },
           {
+            "name": "maxWidth",
             "type": "integer"
           },
           {
+            "name": "maxHeight",
+            "type": "integer"
+          },
+          {
+            "name": "quality",
             "type": "integer"
           }
         ]

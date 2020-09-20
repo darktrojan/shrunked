@@ -43,12 +43,8 @@ var Shrunked = {
 		let request = image.getRequest(Ci.nsIImageLoadingContent.CURRENT_REQUEST);
 		return !!request && request.mimeType == 'image/jpeg';
 	},
-	resize(sourceFile, maxWidth, maxHeight, quality, name) {
-		let image = new ShrunkedImage(sourceFile, maxWidth, maxHeight, quality);
-		if (name) {
-			image.basename = name;
-		}
-		return image.resize();
+	resize(sourceFile, maxWidth, maxHeight, quality, options) {
+		return new ShrunkedImage(sourceFile, maxWidth, maxHeight, quality, options).resize();
 	},
 	async getURLFromFile(file, forceDataURL = false) {
 		// If the total URL length is going to be less than 1MB, return a data URL.
@@ -86,82 +82,6 @@ var Shrunked = {
 			};
 			reader.readAsArrayBuffer(file);
 		});
-	},
-	versionUpgrade() {
-		function parseVersion(version) {
-			let match = /^\d+(\.\d+)?/.exec(version);
-			return match ? match[0] : version;
-		}
-
-		let currentVersion = 0;
-		let oldVersion = 0;
-		let shouldRemind = true;
-
-		if (Shrunked.prefs.getPrefType('version') == Ci.nsIPrefBranch.PREF_STRING) {
-			oldVersion = parseVersion(Shrunked.prefs.getCharPref('version'));
-		}
-		if (Shrunked.prefs.getPrefType('donationreminder') == Ci.nsIPrefBranch.PREF_INT) {
-			let lastReminder = Shrunked.prefs.getIntPref('donationreminder') * 1000;
-			shouldRemind = Date.now() - lastReminder > 604800000;
-		}
-
-		AddonManager.getAddonByID(ID).then(addon => {
-			currentVersion = parseVersion(addon.version);
-			Shrunked.prefs.setCharPref('version', addon.version);
-
-			if (!shouldRemind || oldVersion === 0 || Services.vc.compare(oldVersion, currentVersion) >= 0) {
-				return;
-			}
-
-			idleService.addIdleObserver({
-				observe(service, state) {
-					if (state != 'idle') {
-						return;
-					}
-
-					idleService.removeIdleObserver(this, 10);
-					Shrunked.showNotification(currentVersion);
-				}
-			}, 10);
-		});
-	},
-	showNotification(currentVersion) {
-		let callbackObject = {};
-		let label = Shrunked.strings.formatStringFromName('donate_notification', [currentVersion], 1);
-		let buttons = [{
-			label: Shrunked.strings.GetStringFromName('changelog_button_label'),
-			accessKey: Shrunked.strings.GetStringFromName('changelog_button_accesskey'),
-			callback() {
-				callbackObject.resolve('changelog');
-			}
-		}, {
-			label: Shrunked.strings.GetStringFromName('donate_button_label'),
-			accessKey: Shrunked.strings.GetStringFromName('donate_button_accesskey'),
-			popup: null,
-			callback() {
-				callbackObject.resolve('donate');
-			}
-		}];
-
-		let recentWindow = Services.wm.getMostRecentWindow('mail:3pane');
-		if (!recentWindow) {
-			return;
-		}
-		let shrunkedWindow = recentWindow.ShrunkedMessenger;
-		shrunkedWindow.showNotificationBar(label, buttons, callbackObject).then(function(which) {
-			switch (which) {
-			case 'changelog': {
-				let version = Shrunked.prefs.getCharPref('version');
-				shrunkedWindow.notificationCallback(CHANGELOG_URL + version);
-				break;
-			}
-			case 'donate':
-				shrunkedWindow.notificationCallback(DONATE_URL);
-				break;
-			}
-		});
-
-		Shrunked.prefs.setIntPref('donationreminder', Date.now() / 1000);
 	},
 	log(message) {
 		if (this.logEnabled) {
@@ -206,24 +126,3 @@ var Shrunked = {
 		return 'chrome://shrunked/content/icon16.png';
 	}
 };
-XPCOMUtils.defineLazyGetter(Shrunked, 'prefs', function() {
-	return Services.prefs.getBranch('extensions.shrunked.');
-});
-XPCOMUtils.defineLazyGetter(Shrunked, 'logEnabled', function() {
-	this.prefs.addObserver('log.enabled', {
-		observe() {
-			Shrunked.logEnabled = Shrunked.prefs.getBoolPref('log.enabled', false);
-		}
-	});
-	return this.prefs.getBoolPref('log.enabled', false);
-});
-XPCOMUtils.defineLazyGetter(Shrunked, 'strings', function() {
-	return Services.strings.createBundle('chrome://shrunked/locale/shrunked.properties');
-});
-XPCOMUtils.defineLazyGetter(Shrunked, 'getPluralForm', function() {
-	let pluralForm = Shrunked.strings.GetStringFromName('question_pluralform');
-	let [getPlural] = PluralForm.makeGetter(pluralForm);
-	return getPlural;
-});
-
-Shrunked.versionUpgrade();

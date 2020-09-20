@@ -45,6 +45,50 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 						};
 					},
 				}).api(),
+
+				migrateSettings() {
+					let prefsToStore = { version: context.extension.version };
+					let branch = Services.prefs.getBranch("extensions.shrunked.");
+
+					if (Services.vc.compare(branch.getCharPref("version", "5"), "5") >= 0) {
+						return prefsToStore;
+					}
+
+					let defaultPrefs = {
+						'default.maxWidth': 500,
+						'default.maxHeight': 500,
+						'default.quality': 75,
+						'default.saveDefault': true,
+						'fileSizeMinimum': 100,
+						'log.enabled': false,
+						'options.exif': true,
+						'options.orientation': true,
+						'options.gps': true,
+						'options.resample': true,
+						'resizeAttachmentsOnSend': false,
+					};
+
+					for (let [key, defaultValue] of Object.entries(defaultPrefs)) {
+						if (!branch.prefHasUserValue(key)) {
+							continue;
+						}
+
+						let value;
+						if (typeof defaultValue == "boolean") {
+							value = branch.getBoolPref(key);
+						} else if (typeof defaultValue == "number") {
+							value = branch.getIntPref(key);
+						} else {
+							value = branch.getCharPref(key);
+						}
+						if (value != defaultValue) {
+							prefsToStore[key] = value;
+						}
+					}
+
+					branch.setCharPref("version", context.extension.version);
+					return prefsToStore;
+				},
 				showNotification(tab, imageCount) {
 					return new Promise((resolve, reject) => {
 						console.log('Showing resize notification');
@@ -96,19 +140,11 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 						notification._promises = [{ resolve, reject }];
 					});
 				},
-				async resizeURL(url, maxWidth, maxHeight) {
-					let destFile = await Shrunked.resize(url, maxWidth, maxHeight, 85, 'test.jpg');
-					return Shrunked.getURLFromFile(destFile, true);
+				async resizeFile(file, maxWidth, maxHeight, quality, options) {
+					return Shrunked.resize(file, maxWidth, maxHeight, quality, options);
 				},
-				async resizeFile(file, maxWidth, maxHeight) {
-					return Shrunked.resize(file, maxWidth, maxHeight, 85, 'test.jpg');
-
-					// let sourceFile = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
-					// sourceFile.initWithPath(file.mozFullPath);
-					// return Shrunked.resize(sourceFile, maxWidth, maxHeight, 85, sourceFile.leafName);
-				},
-				async estimateSize(file, maxWidth, maxHeight) {
-					return new ShrunkedImage(file, maxWidth, maxHeight, 85).estimateSize();
+				async estimateSize(file, maxWidth, maxHeight, quality) {
+					return new ShrunkedImage(file, maxWidth, maxHeight, quality).estimateSize();
 				},
 
 				async handleSend(tab) {
@@ -121,7 +157,7 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 						}
 
 						if (attachment.url.toLowerCase().endsWith('.jpg')) {
-							let destFile = await Shrunked.resize(attachment.url, 500, 500, 85, 'test.jpg');
+							let destFile = await Shrunked.resize(attachment.url, 500, 500, 85);
 							attachment.url = await Shrunked.getURLFromFile(destFile, true);
 						}
 					}

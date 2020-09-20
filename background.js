@@ -1,3 +1,9 @@
+browser.shrunked.migrateSettings().then(prefsToStore => {
+	if (prefsToStore) {
+		browser.storage.local.set(prefsToStore);
+	}
+});
+
 browser.composeScripts.register({
 	js: [
 		{
@@ -20,7 +26,7 @@ browser.runtime.onMessage.addListener(async (message, sender, callback) => {
 	}
 	// Options window starting resize.
 	if (message.type == "doResize") {
-		doResize(message.tabId, message.maxWidth, message.maxHeight);
+		doResize(message.tabId, message.maxWidth, message.maxHeight, message.quality);
 	}
 	return undefined;
 });
@@ -71,9 +77,22 @@ function beginResize(tab, file) {
 }
 
 // Actual resize operation.
-async function doResize(tabId, maxWidth, maxHeight) {
+async function doResize(tabId, maxWidth, maxHeight, quality) {
+	let options = await browser.storage.local.get({
+		'options.exif': true,
+		'options.orientation': true,
+		'options.gps': true,
+		'options.resample': true,
+	});
+	options = {
+		exif: options.exif,
+		orientation: options.orientation,
+		gps: options.gps,
+		resample: options.resample,
+	};
+
 	for (let source of tabMap.get(tabId)) {
-		let destFile = await browser.shrunked.resizeFile(source.file, maxWidth, maxHeight);
+		let destFile = await browser.shrunked.resizeFile(source.file, maxWidth, maxHeight, quality, options);
 		source.promise.resolve(destFile);
 	}
 	tabMap.delete(tabId);
