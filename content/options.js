@@ -121,7 +121,7 @@ function humanSize(size) {
 		unit = 'kilobytes';
 	}
 
-	return size.toFixed(size >= 9.95 ? 0 : 1) + '\u2006' + unit; // Shrunked.strings.GetStringFromName('unit_' + unit);
+	return size.toFixed(size >= 9.95 ? 0 : 1) + '\u2006' + browser.i18n.getMessage(`unit.${unit}`);
 }
 
 async function loadImage(index) {
@@ -147,14 +147,14 @@ async function loadImage(index) {
 i_previewthumb.addEventListener("load", updateEstimate);
 
 async function updateEstimate() {
-	l_previeworiginalsize.textContent = `${i_previewthumb.naturalWidth}px \xD7 ${i_previewthumb.naturalHeight}px`;
+	l_previeworiginalsize.textContent = browser.i18n.getMessage("preview.originalsize", [i_previewthumb.naturalWidth, i_previewthumb.naturalHeight]);
 
 	let scale = 1;
 	if (maxWidth > 0 && maxHeight > 0) {
 		scale = Math.min(1, Math.min(maxWidth / i_previewthumb.naturalWidth, maxHeight / i_previewthumb.naturalHeight));
 	}
 	if (scale == 1) {
-		l_previewresized.textContent = "preview_notresized";
+		l_previewresized.textContent = browser.i18n.getMessage("preview.notresized");
 		l_previewresizedfilesize.textContent = '';
 	} else {
 		let newWidth = Math.floor(i_previewthumb.naturalWidth * scale);
@@ -162,11 +162,11 @@ async function updateEstimate() {
 		let { "default.quality": quality } = await browser.storage.local.get({ "default.quality": 75 });
 		// let cacheKey = newWidth + 'x' + newHeight + 'x' + quality;
 
-		l_previewresized.textContent = `resized to: ${newWidth} \xD7 ${newHeight}`;
+		l_previewresized.textContent = browser.i18n.getMessage("preview.resized", [newWidth, newHeight]);
 		// if (data[cacheKey] === undefined) {
-			l_previewresizedfilesize.textContent = 'preview_resizedfilesize_estimating';
+			l_previewresizedfilesize.textContent = browser.i18n.getMessage('preview.resizedfilesize.estimating');
 			let estimate = await browser.shrunked.estimateSize(images[currentIndex].file, maxWidth, maxHeight, quality);
-			l_previewresizedfilesize.textContent = humanSize(estimate); // , 'preview_resizedfilesize', data[cacheKey]);
+			l_previewresizedfilesize.textContent = browser.i18n.getMessage("preview.resizedfilesize", [humanSize(estimate)]);
 		// 		data[cacheKey] = humanSize(size);
 		// 	});
 		// } else {

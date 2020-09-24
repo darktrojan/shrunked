@@ -13,7 +13,9 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 		let { ShrunkedImage } = ChromeUtils.import('resource://shrunked/ShrunkedImage.jsm');
 		// context.callOnClose(this);
 
-		let { tabManager } = context.extension;
+		console.log(context);
+		let { extension } = context;
+		let { localeData, tabManager } = extension;
 
 		return {
 			shrunked: {
@@ -93,9 +95,7 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 					return new Promise((resolve, reject) => {
 						console.log('Showing resize notification');
 
-						// let questions = Shrunked.strings.GetStringFromName('questions');
-						// let question = Shrunked.getPluralForm(callbackObject.images.length, questions);
-						let question = imageCount == 1 ? 'wanna resize this shit?' : 'wanna resize these shits?';
+						let question = localeData.localizeMessage(imageCount == 1 ? 'question.single' : 'question.plural');
 
 						let nativeTab = tabManager.get(tab.id).nativeTab;
 						let notifyBox = nativeTab.gNotification.notificationbox;
@@ -108,8 +108,7 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 						}
 
 						let buttons = [{
-							// accessKey: Shrunked.strings.GetStringFromName('yes_accesskey'),
-							accessKey: 'Y',
+							accessKey: localeData.localizeMessage('yes.accesskey'),
 							callback: () => {
 								console.log('Resizing started');
 								// for (let promise of notification._promises) {
@@ -117,11 +116,9 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 								// }
 								context.extension.emit('shrunked-accepted', tab);
 							},
-							// label: Shrunked.strings.GetStringFromName('yes_label')
-							label: 'Yeah',
+							label: localeData.localizeMessage('yes.label')
 						}, {
-							// accessKey: Shrunked.strings.GetStringFromName('no_accesskey'),
-							accessKey: 'N',
+							accessKey: localeData.localizeMessage('no.accesskey'),
 							callback() {
 								console.log('Resizing cancelled');
 								// for (let promise of notification._promises) {
@@ -130,8 +127,7 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 								// callbackObject.onResizeCancelled();
 								context.extension.emit('shrunked-cancelled', tab);
 							},
-							// label: Shrunked.strings.GetStringFromName('no_label')
-							label: 'Nah',
+							label: localeData.localizeMessage('no.label')
 						}];
 
 						notification = notifyBox.appendNotification(
