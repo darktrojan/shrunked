@@ -13,63 +13,63 @@ var images = [];
 var currentIndex = 0;
 var maxWidth, maxHeight;
 
-for (let element of document.querySelectorAll('[id]')) {
-	window[element.id] = element;
+for (let element of document.querySelectorAll("[id]")) {
+  window[element.id] = element;
 }
-for (let element of document.querySelectorAll('[data-l10n-content]')) {
-	element.textContent = browser.i18n.getMessage(element.getAttribute("data-l10n-content"));
+for (let element of document.querySelectorAll("[data-l10n-content]")) {
+  element.textContent = browser.i18n.getMessage(element.getAttribute("data-l10n-content"));
 }
-for (let element of document.querySelectorAll('[data-l10n-title]')) {
-	element.title = browser.i18n.getMessage(element.getAttribute("data-l10n-title"));
+for (let element of document.querySelectorAll("[data-l10n-title]")) {
+  element.title = browser.i18n.getMessage(element.getAttribute("data-l10n-title"));
 }
 
 /* exported load */
-addEventListener('load', async () => {
-	// let width = l_measure.getBoundingClientRect().right;
-	// let element = l_measure;
-	// do {
-	// 	let style = getComputedStyle(element);
-	// 	width += parseInt(style.paddingRight, 10);
-	// 	width += parseInt(style.borderRightWidth, 10);
-	// 	width += parseInt(style.marginRight, 10);
-	// 	element = element.parentNode;
-	// } while (element && element != document);
-	// document.documentElement.style.minWidth = `${width}px`;
+addEventListener("load", async () => {
+  // let width = l_measure.getBoundingClientRect().right;
+  // let element = l_measure;
+  // do {
+  // 	let style = getComputedStyle(element);
+  // 	width += parseInt(style.paddingRight, 10);
+  // 	width += parseInt(style.borderRightWidth, 10);
+  // 	width += parseInt(style.marginRight, 10);
+  // 	element = element.parentNode;
+  // } while (element && element != document);
+  // document.documentElement.style.minWidth = `${width}px`;
 
-	let prefs = await browser.storage.local.get({
-		"default.maxWidth": 500,
-		"default.maxHeight": 500,
-		"default.saveDefault": true,
-	});
+  let prefs = await browser.storage.local.get({
+    "default.maxWidth": 500,
+    "default.maxHeight": 500,
+    "default.saveDefault": true,
+  });
 
-	maxWidth = prefs["default.maxWidth"];
-	maxHeight = prefs["default.maxHeight"];
+  maxWidth = prefs["default.maxWidth"];
+  maxHeight = prefs["default.maxHeight"];
 
-	if (maxWidth == -1 && maxHeight == -1) {
-		r_noresize.checked = true;
-	} else if (maxWidth == 500 && maxHeight == 500) {
-		r_small.checked = true;
-	} else if (maxWidth == 800 && maxHeight == 800) {
-		r_medium.checked = true;
-	} else if (maxWidth == 1200 && maxHeight == 1200) {
-		r_large.checked = true;
-	} else {
-		r_custom.checked = true;
-		tb_width.value = maxWidth;
-		tb_height.value = maxHeight;
-	}
+  if (maxWidth == -1 && maxHeight == -1) {
+    r_noresize.checked = true;
+  } else if (maxWidth == 500 && maxHeight == 500) {
+    r_small.checked = true;
+  } else if (maxWidth == 800 && maxHeight == 800) {
+    r_medium.checked = true;
+  } else if (maxWidth == 1200 && maxHeight == 1200) {
+    r_large.checked = true;
+  } else {
+    r_custom.checked = true;
+    tb_width.value = maxWidth;
+    tb_height.value = maxHeight;
+  }
 
-	cb_savedefault.checked = prefs["default.saveDefault"];
+  cb_savedefault.checked = prefs["default.saveDefault"];
 
-	// if (!returnValues.isAttachment) {
-	// 	r_noresize.collapsed = true;
-	// 	if (r_noresize.selected) {
-	// 		rg_size.selectedIndex = 1;
-	// 	}
-	// }
+  // if (!returnValues.isAttachment) {
+  // 	r_noresize.collapsed = true;
+  // 	if (r_noresize.selected) {
+  // 		rg_size.selectedIndex = 1;
+  // 	}
+  // }
 
-	setSize();
-	loadImage(0);
+  setSize();
+  loadImage(0);
 });
 
 r_noresize.addEventListener("change", setSize);
@@ -81,117 +81,149 @@ tb_height.addEventListener("change", setSize);
 tb_width.addEventListener("change", setSize);
 
 function setSize() {
-	let checked = rg_size.querySelector("input:checked");
-	switch (checked) {
-	case r_noresize:
-		maxWidth = -1;
-		maxHeight = -1;
-		break;
-	case r_small:
-		maxWidth = 500;
-		maxHeight = 500;
-		break;
-	case r_medium:
-		maxWidth = 800;
-		maxHeight = 800;
-		break;
-	case r_large:
-		maxWidth = 1200;
-		maxHeight = 1200;
-		break;
-	case r_custom:
-		maxWidth = parseInt(tb_width.value, 10);
-		maxHeight = parseInt(tb_height.value, 10);
-		break;
-	}
+  let checked = rg_size.querySelector("input:checked");
+  switch (checked) {
+    case r_noresize:
+      maxWidth = -1;
+      maxHeight = -1;
+      break;
+    case r_small:
+      maxWidth = 500;
+      maxHeight = 500;
+      break;
+    case r_medium:
+      maxWidth = 800;
+      maxHeight = 800;
+      break;
+    case r_large:
+      maxWidth = 1200;
+      maxHeight = 1200;
+      break;
+    case r_custom:
+      maxWidth = parseInt(tb_width.value, 10);
+      maxHeight = parseInt(tb_height.value, 10);
+      break;
+  }
 
-	l_width.disabled = tb_width.disabled =
-		l_height.disabled = tb_height.disabled = checked != r_custom;
+  l_width.disabled = tb_width.disabled = l_height.disabled = tb_height.disabled =
+    checked != r_custom;
 
-	updateEstimate();
+  updateEstimate();
 }
 
 function humanSize(size) {
-	let unit = 'bytes';
-	if (size >= 1000000) {
-		size = size / 1000000;
-		unit = 'megabytes';
-	} else if (size >= 1000) {
-		size = size / 1000;
-		unit = 'kilobytes';
-	}
+  let unit = "bytes";
+  if (size >= 1000000) {
+    size = size / 1000000;
+    unit = "megabytes";
+  } else if (size >= 1000) {
+    size = size / 1000;
+    unit = "kilobytes";
+  }
 
-	return size.toFixed(size >= 9.95 ? 0 : 1) + '\u2006' + browser.i18n.getMessage(`unit.${unit}`);
+  return size.toFixed(size >= 9.95 ? 0 : 1) + "\u2006" + browser.i18n.getMessage(`unit.${unit}`);
 }
 
 async function loadImage(index) {
-	if (index < 0) {
-		index += count;
-	} else if (index >= count) {
-		index -= count;
-	}
-	currentIndex = index;
-	l_previewarrows.textContent = `${index + 1} / ${count}`;
+  if (index < 0) {
+    index += count;
+  } else if (index >= count) {
+    index -= count;
+  }
+  currentIndex = index;
+  l_previewarrows.textContent = `${index + 1} / ${count}`;
 
-	if (!images[index]) {
-		let file = await browser.runtime.sendMessage({ type: "fetchFile", tabId, index });
+  if (!images[index]) {
+    let file = await browser.runtime.sendMessage({
+      type: "fetchFile",
+      tabId,
+      index,
+    });
 
-		images[index] = { file, url: URL.createObjectURL(file) };
-	}
+    images[index] = { file, url: URL.createObjectURL(file) };
+  }
 
-	i_previewthumb.src = images[index].url;
-	l_previewfilename.textContent = images[index].file.name;
-	l_previeworiginalfilesize.textContent = humanSize(images[index].file.size);
+  i_previewthumb.src = images[index].url;
+  l_previewfilename.textContent = images[index].file.name;
+  l_previeworiginalfilesize.textContent = humanSize(images[index].file.size);
 }
 
 i_previewthumb.addEventListener("load", updateEstimate);
 
 async function updateEstimate() {
-	l_previeworiginalsize.textContent = browser.i18n.getMessage("preview.originalsize", [i_previewthumb.naturalWidth, i_previewthumb.naturalHeight]);
+  l_previeworiginalsize.textContent = browser.i18n.getMessage("preview.originalsize", [
+    i_previewthumb.naturalWidth,
+    i_previewthumb.naturalHeight,
+  ]);
 
-	let scale = 1;
-	if (maxWidth > 0 && maxHeight > 0) {
-		scale = Math.min(1, Math.min(maxWidth / i_previewthumb.naturalWidth, maxHeight / i_previewthumb.naturalHeight));
-	}
-	if (scale == 1) {
-		l_previewresized.textContent = browser.i18n.getMessage("preview.notresized");
-		l_previewresizedfilesize.textContent = '';
-	} else {
-		let newWidth = Math.floor(i_previewthumb.naturalWidth * scale);
-		let newHeight = Math.floor(i_previewthumb.naturalHeight * scale);
-		let { "default.quality": quality } = await browser.storage.local.get({ "default.quality": 75 });
-		// let cacheKey = newWidth + 'x' + newHeight + 'x' + quality;
+  let scale = 1;
+  if (maxWidth > 0 && maxHeight > 0) {
+    scale = Math.min(
+      1,
+      Math.min(maxWidth / i_previewthumb.naturalWidth, maxHeight / i_previewthumb.naturalHeight)
+    );
+  }
+  if (scale == 1) {
+    l_previewresized.textContent = browser.i18n.getMessage("preview.notresized");
+    l_previewresizedfilesize.textContent = "";
+  } else {
+    let newWidth = Math.floor(i_previewthumb.naturalWidth * scale);
+    let newHeight = Math.floor(i_previewthumb.naturalHeight * scale);
+    let { "default.quality": quality } = await browser.storage.local.get({
+      "default.quality": 75,
+    });
+    // let cacheKey = newWidth + 'x' + newHeight + 'x' + quality;
 
-		l_previewresized.textContent = browser.i18n.getMessage("preview.resized", [newWidth, newHeight]);
-		// if (data[cacheKey] === undefined) {
-			l_previewresizedfilesize.textContent = browser.i18n.getMessage('preview.resizedfilesize.estimating');
-			let estimate = await browser.shrunked.estimateSize(images[currentIndex].file, maxWidth, maxHeight, quality);
-			l_previewresizedfilesize.textContent = browser.i18n.getMessage("preview.resizedfilesize", [humanSize(estimate)]);
-		// 		data[cacheKey] = humanSize(size);
-		// 	});
-		// } else {
-		// 	setValueFromString(l_previewresizedfilesize, 'preview_resizedfilesize', data[cacheKey]);
-		// }
-	}
+    l_previewresized.textContent = browser.i18n.getMessage("preview.resized", [
+      newWidth,
+      newHeight,
+    ]);
+    // if (data[cacheKey] === undefined) {
+    l_previewresizedfilesize.textContent = browser.i18n.getMessage(
+      "preview.resizedfilesize.estimating"
+    );
+    let estimate = await browser.shrunked.estimateSize(
+      images[currentIndex].file,
+      maxWidth,
+      maxHeight,
+      quality
+    );
+    l_previewresizedfilesize.textContent = browser.i18n.getMessage("preview.resizedfilesize", [
+      humanSize(estimate),
+    ]);
+    // 		data[cacheKey] = humanSize(size);
+    // 	});
+    // } else {
+    // 	setValueFromString(l_previewresizedfilesize, 'preview_resizedfilesize', data[cacheKey]);
+    // }
+  }
 }
 
 b_previous.addEventListener("click", () => loadImage(currentIndex - 1));
 b_next.addEventListener("click", () => loadImage(currentIndex + 1));
 
-b_ok.addEventListener('click', async () => {
-	let prefsToStore = {};
-	if (cb_savedefault.checked) {
-		prefsToStore['default.maxWidth'] = maxWidth;
-		prefsToStore['default.maxHeight'] = maxHeight;
-	}
-	prefsToStore['default.saveDefault'] = cb_savedefault.checked;
-	await browser.storage.local.set(prefsToStore);
+b_ok.addEventListener("click", async () => {
+  let prefsToStore = {};
+  if (cb_savedefault.checked) {
+    prefsToStore["default.maxWidth"] = maxWidth;
+    prefsToStore["default.maxHeight"] = maxHeight;
+  }
+  prefsToStore["default.saveDefault"] = cb_savedefault.checked;
+  await browser.storage.local.set(prefsToStore);
 
-	let { "default.quality": quality } = await browser.storage.local.get({ "default.quality": 75 });
-	await browser.runtime.sendMessage({ type: "doResize", tabId, maxWidth, maxHeight, quality });
-	window.close();
+  let { "default.quality": quality } = await browser.storage.local.get({
+    "default.quality": 75,
+  });
+  await browser.runtime.sendMessage({
+    type: "doResize",
+    tabId,
+    maxWidth,
+    maxHeight,
+    quality,
+  });
+  window.close();
 });
 
-b_cancel.addEventListener('click', function() {
-	window.close();
+b_cancel.addEventListener("click", function() {
+  window.close();
 });
