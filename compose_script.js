@@ -63,7 +63,8 @@ async function maybeResizeInline(target) {
             srcSize--;
           }
         }
-        if (srcSize < fileSizeMinimum) {
+        let { fileSizeMinimum } = await browser.storage.local.get({ "fileSizeMinimum": 100 });
+        if (srcSize < fileSizeMinimum * 1024) {
           console.log('Not resizing - image file size is too small');
           return;
         }
@@ -99,7 +100,6 @@ async function maybeResizeInline(target) {
   }
 }
 
-const fileSizeMinimum = 100 * 1024;
 function imageIsJPEG(image) {
   let src = image.src.toLowerCase();
   return src.startsWith('data:image/jpeg') || src.endsWith('.jpg');

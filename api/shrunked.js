@@ -9,11 +9,10 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 		resProto.setSubstitution('shrunked', Services.io.newURI('modules/', null, this.extension.rootURI));
 		resProto.setSubstitution('shrunkedcontent', Services.io.newURI('content/', null, this.extension.rootURI));
 
-		let { Shrunked } = ChromeUtils.import('resource://shrunked/Shrunked.jsm');
 		let { ShrunkedImage } = ChromeUtils.import('resource://shrunked/ShrunkedImage.jsm');
 		// context.callOnClose(this);
 
-		console.log(context);
+		// console.log(context);
 		let { extension } = context;
 		let { localeData, tabManager } = extension;
 
@@ -137,35 +136,10 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
 					});
 				},
 				async resizeFile(file, maxWidth, maxHeight, quality, options) {
-					return Shrunked.resize(file, maxWidth, maxHeight, quality, options);
+					return new ShrunkedImage(file, maxWidth, maxHeight, quality, options).resize();
 				},
 				async estimateSize(file, maxWidth, maxHeight, quality) {
 					return new ShrunkedImage(file, maxWidth, maxHeight, quality).estimateSize();
-				},
-
-				async handleSend(tab) {
-					let { nativeTab } = tabManager.get(tab.id);
-					let { attachments } = nativeTab.gMsgCompose.compFields;
-
-					for (let attachment of attachments) {
-						if (attachment.sendViaCloud) {
-							continue;
-						}
-
-						if (attachment.url.toLowerCase().endsWith('.jpg')) {
-							let destFile = await Shrunked.resize(attachment.url, 500, 500, 85);
-							attachment.url = await Shrunked.getURLFromFile(destFile, true);
-						}
-					}
-				},
-				async fileSizeMinimum() {
-					console.log('fileSizeMinimum called');
-					return Shrunked.fileSizeMinimum;
-				},
-				async imageIsJPEG(image) {
-					console.log('imageIsJPEG called');
-					let src = image.src.toLowerCase();
-					return src.startsWith('data:image/jpeg') || src.endsWith('.jpg');
 				},
 			},
 		};

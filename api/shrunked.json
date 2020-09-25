@@ -92,36 +92,6 @@
             "type": "integer"
           }
         ]
-      },
-      {
-        "name": "handleSend",
-        "type": "function",
-        "async": true,
-        "parameters": [
-          {
-            "name": "tab",
-            "$ref": "tabs.Tab"
-          }
-        ]
-      },
-      {
-        "name": "fileSizeMinimum",
-        "type": "function",
-        "async": true,
-        "parameters": []
-      },
-      {
-        "name": "imageIsJPEG",
-        "type": "function",
-        "async": true,
-        "parameters": [
-          {
-            "name": "image",
-            "type": "object",
-            "isInstanceOf": "HTMLImageElement",
-            "additionalProperties": true
-          }
-        ]
       }
     ],
     "events": [

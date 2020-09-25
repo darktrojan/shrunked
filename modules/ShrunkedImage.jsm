@@ -1,11 +1,10 @@
 /* globals ChromeWorker, fetch, File, URL */
 var EXPORTED_SYMBOLS = ['ShrunkedImage'];
 
-/* globals ExifData, OS, Services, Shrunked */
+/* globals ExifData, OS, Services */
 ChromeUtils.defineModuleGetter(this, 'ExifData', 'resource://shrunked/ExifData.jsm');
 ChromeUtils.defineModuleGetter(this, 'OS', 'resource://gre/modules/osfile.jsm');
 ChromeUtils.defineModuleGetter(this, 'Services', 'resource://gre/modules/Services.jsm');
-ChromeUtils.defineModuleGetter(this, 'Shrunked', 'resource://shrunked/Shrunked.jsm');
 
 var XHTMLNS = 'http://www.w3.org/1999/xhtml';
 
@@ -90,7 +89,7 @@ ShrunkedImage.prototype = {
 			this.exifData = new ExifData();
 			await this.exifData.read(readable);
 		} catch (ex) {
-			Shrunked.warn(ex);
+			console.warn(ex);
 			delete this.exifData;
 		}
 	},
