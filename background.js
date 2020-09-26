@@ -97,8 +97,8 @@ function showOptionsDialog(tab) {
   browser.windows.create({
     url: `content/options.xhtml?tabId=${tab.id}&count=${sourceFiles.length}`,
     type: "popup",
-    width: 800,
-    height: 500,
+    width: 550,
+    height: 425,
   });
 }
 

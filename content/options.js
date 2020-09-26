@@ -23,6 +23,12 @@ for (let element of document.querySelectorAll("[data-l10n-title]")) {
   element.title = browser.i18n.getMessage(element.getAttribute("data-l10n-title"));
 }
 
+browser.runtime.getPlatformInfo().then(({ os }) => {
+  if (os != "win") {
+    b_ok.style.order = 1;
+  }
+});
+
 /* exported load */
 addEventListener("load", async () => {
   // let width = l_measure.getBoundingClientRect().right;

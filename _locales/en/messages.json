@@ -98,6 +98,12 @@
 
 
 
+  "ok": {
+    "message": "OK"
+  },
+  "cancel": {
+    "message": "Cancel"
+  },
   "dimensions": {
     "message": "$WIDTH$ px × $HEIGHT$ px",
     "placeholders": {
