@@ -70,7 +70,11 @@ async function getAll() {
   cb_orient.disabled = cb_gps.disabled = !cb_exif.checked;
 }
 
-getAll().then(() => {
+addEventListener("load", async () => {
+  window.browser = window.browser.extension.getBackgroundPage().browser;
+
+  await getAll();
+
   r_noresize.addEventListener("change", setSize);
   r_small.addEventListener("change", setSize);
   r_medium.addEventListener("change", setSize);
@@ -92,15 +96,12 @@ getAll().then(() => {
 
   s_resizeonsend.addEventListener("change", setSendOption);
 
-  browser.storage.onChanged.addListener((...args) => {
-    console.log(...args);
+  browser.storage.onChanged.addListener(() => {
     if (!settingFromThisPage) {
       getAll();
     }
   });
 });
-
-browser.storage.onChanged.addListener(console.log);
 
 async function setSize() {
   let maxWidth, maxHeight;

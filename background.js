@@ -1,3 +1,14 @@
+var tabMap = new Map();
+
+async function shouldResize(attachment) {
+  if (!attachment.name.toLowerCase().match(/\.jpe?g$/)) {
+    return false;
+  }
+  let { fileSizeMinimum } = await browser.storage.local.get({ fileSizeMinimum: 100 });
+  let file = await attachment.getFile();
+  return file.size >= fileSizeMinimum * 1024;
+}
+
 browser.shrunked.migrateSettings().then(prefsToStore => {
   if (prefsToStore) {
     browser.storage.local.set(prefsToStore);
@@ -11,8 +22,6 @@ browser.composeScripts.register({
     },
   ],
 });
-
-var tabMap = new Map();
 
 browser.runtime.onMessage.addListener(async (message, sender, callback) => {
   console.log(message);
@@ -39,7 +48,7 @@ browser.compose.onAttachmentAdded.addListener(async (tab, attachment) => {
   if (resizeAttachmentsOnSend) {
     return;
   }
-  if (!attachment.name.toLowerCase().endsWith(".jpg")) {
+  if (!(await shouldResize(attachment))) {
     return;
   }
 
@@ -62,15 +71,21 @@ browser.compose.onBeforeSend.addListener(async (tab, details) => {
   let promises = [];
   let attachments = await browser.compose.listAttachments(tab.id);
   for (let a of attachments) {
-    let file = await a.getFile();
-    let promise = beginResize(tab, file, false).then(destFile =>
-      browser.compose.updateAttachment(tab.id, a.id, { file: destFile })
-    );
-    promises.push(promise);
+    if (await shouldResize(a)) {
+      let file = await a.getFile();
+      let promise = beginResize(tab, file, false).then(destFile =>
+        browser.compose.updateAttachment(tab.id, a.id, { file: destFile })
+      );
+      promises.push(promise);
+    }
   }
 
-  showOptionsDialog(tab);
-  await Promise.all(promises);
+  if (!promises.length) {
+    return;
+  }
+
+  await showOptionsDialog(tab);
+  await Promise.allSettled(promises);
 });
 
 // Get a promise that resolves when resizing is complete.
@@ -89,21 +104,40 @@ function beginResize(tab, file, show = true) {
 
 // Notification response.
 browser.shrunked.onNotificationAccepted.addListener(tab => showOptionsDialog(tab));
-browser.shrunked.onNotificationCancelled.addListener(tab => tabMap.delete(tab.id));
+browser.shrunked.onNotificationCancelled.addListener(tab => cancelResize(tab.id));
 
-function showOptionsDialog(tab) {
+async function showOptionsDialog(tab) {
   let sourceFiles = tabMap.get(tab.id);
 
-  browser.windows.create({
+  let optionsWindow = await browser.windows.create({
     url: `content/options.xhtml?tabId=${tab.id}&count=${sourceFiles.length}`,
     type: "popup",
     width: 550,
     height: 425,
   });
+
+  let listener = windowId => {
+    if (windowId == optionsWindow.id) {
+      browser.windows.onRemoved.removeListener(listener);
+      cancelResize(tab.id);
+    }
+  };
+  browser.windows.onRemoved.addListener(listener);
 }
 
 // Actual resize operation.
 async function doResize(tabId, maxWidth, maxHeight, quality) {
+  // Remove from tabMap immediately, then cancelResize will have nothing to do.
+  let sourceFiles = tabMap.get(tabId);
+  tabMap.delete(tabId);
+
+  if (maxWidth < 0 || maxHeight < 0) {
+    for (let source of sourceFiles) {
+      source.promise.reject("User opted to not resize.");
+    }
+    return;
+  }
+
   let options = await browser.storage.local.get({
     "options.exif": true,
     "options.orientation": true,
@@ -117,7 +151,7 @@ async function doResize(tabId, maxWidth, maxHeight, quality) {
     resample: options.resample,
   };
 
-  for (let source of tabMap.get(tabId)) {
+  for (let source of sourceFiles) {
     let destFile = await browser.shrunked.resizeFile(
       source.file,
       maxWidth,
@@ -126,6 +160,16 @@ async function doResize(tabId, maxWidth, maxHeight, quality) {
       options
     );
     source.promise.resolve(destFile);
+  }
+}
+
+function cancelResize(tabId) {
+  if (!tabMap.has(tabId)) {
+    return;
+  }
+
+  for (let source of tabMap.get(tabId)) {
+    source.promise.reject("Resizing cancelled.");
   }
   tabMap.delete(tabId);
 }
