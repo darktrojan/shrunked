@@ -151,7 +151,9 @@ async function loadImage(index) {
 
   i_previewthumb.src = images[index].url;
   l_previewfilename.textContent = images[index].file.name;
-  l_previeworiginalfilesize.textContent = humanSize(images[index].file.size);
+  l_previeworiginalfilesize.textContent = browser.i18n.getMessage("preview.originalfilesize", [
+    humanSize(images[index].file.size),
+  ]);
 }
 
 i_previewthumb.addEventListener("load", updateEstimate);

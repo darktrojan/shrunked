@@ -6,10 +6,10 @@
     <link rel="stylesheet" href="options.css" type="text/css"/>
     <script src="options.js" defer=""></script>
   </head>
-  <body id="options">
-    <div id="d_content">
+  <body id="options" class="vbox">
+    <div id="d_content" class="vbox">
       <h1 data-l10n-content="maxsize.label"></h1>
-      <div id="rg_size">
+      <div id="rg_size" class="vbox">
         <label><input type="radio" name="rg_size" id="r_noresize" /><span data-l10n-content="noresize.label"></span></label>
         <label><input type="radio" name="rg_size" id="r_small" /><span data-l10n-content="small.label"></span></label>
         <label><input type="radio" name="rg_size" id="r_medium" /><span data-l10n-content="medium.label"></span></label>
@@ -29,16 +29,16 @@
         </div>
       </div>
       <h1 id="l_previewheader" data-l10n-content="preview.label"></h1>
-      <div id="b_previewbox">
-        <div id="b_previewarrows">
+      <div id="b_previewbox" class="hbox">
+        <div id="b_previewarrows" class="vbox">
           <button id="b_previous" tabindex="0" data-l10n-title="preview.previous.tooltip"></button>
           <label id="l_previewarrows" />
           <button id="b_next" tabindex="0" data-l10n-title="preview.next.tooltip"></button>
         </div>
-        <div id="d_preview">
-          <img id="i_previewthumb"/>
+        <div id="d_preview" class="vbox">
+          <img id="i_previewthumb" class="vbox"/>
         </div>
-        <div id="d_info">
+        <div id="d_info" class="vbox">
           <label id="l_previewfilename" class="header" crop="end" />
           <label id="l_previeworiginalsize" crop="end" />
           <label id="l_previeworiginalfilesize" crop="end" />
@@ -48,7 +48,7 @@
       </div>
       <label><input type="checkbox" id="cb_savedefault" /><span data-l10n-content="options.savedefault.label"></span></label>
     </div>
-    <div id="d_buttons">
+    <div id="d_buttons" class="hbox">
       <button id="b_ok" type="button" data-l10n-content="ok"></button>
       <button id="b_cancel" type="button" data-l10n-content="cancel"></button>
     </div>

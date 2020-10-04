@@ -7,13 +7,14 @@
     <script src="config.js" defer=""></script>
   </head>
   <body id="config">
-    <div id="tp_defaults" style="display: flex; flex-direction: column;">
+    <div id="tp_defaults" class="vbox">
       <div>
         <label data-l10n-content="minsize.label" />
         <input id="tb_minsize" type="number" step="10" min="0" />
         <label data-l10n-content="unit.kilobytes" />
       </div>
 
+      <h1 data-l10n-content="defaults.label"></h1>
       <label data-l10n-content="maxsize.label" />
       <label class="indent"><input type="radio" name="rg_size" id="r_noresize" /><span data-l10n-content="noresize.label"></span></label>
       <label class="indent"><input type="radio" name="rg_size" id="r_small" /><span data-l10n-content="small.label"></span></label>
@@ -34,7 +35,7 @@
       </div>
 
       <label data-l10n-content="defaults.quality.label" />
-      <div style="display: flex; align-items: center;" class="indent">
+      <div class="hbox indent">
         <label data-l10n-content="defaults.quality.smaller" />
         <input
           id="s_quality"
@@ -45,10 +46,11 @@
         <label data-l10n-content="defaults.quality.better" />
       </div>
     </div>
-    <div id="tp_advanced" style="display: flex; flex-direction: column;">
+    <div id="tp_advanced" class="vbox">
+      <h1 data-l10n-content="advanced.label"></h1>
       <label><input type="checkbox" id="cb_resample" name="options.resample" /><span data-l10n-content="advanced.resample.label"></span></label>
       <label><input type="checkbox" id="cb_exif" name="options.exif" oncommand="enableExif()" /><span data-l10n-content="advanced.exif.label"></span></label>
-      <div style="display: flex; flex-direction: column;" class="indent">
+      <div class="vbox indent">
         <label><input type="checkbox" id="cb_orient" name="options.orient" /><span data-l10n-content="advanced.orient.label"></span></label>
         <label><input type="checkbox" id="cb_gps" name="options.gps" /><span data-l10n-content="advanced.gps.label" ></span></label>
       </div>
