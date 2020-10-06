@@ -17,6 +17,8 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
     let { localeData, tabManager } = extension;
 
     if (!ready) {
+      ready = true;
+
       resProto.setSubstitution(
         "shrunked",
         Services.io.newURI("modules/", null, this.extension.rootURI)
@@ -167,8 +169,6 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
         },
         showNotification(tab, imageCount) {
           return new Promise((resolve, reject) => {
-            console.log("Showing resize notification");
-
             let question = localeData.localizeMessage(
               imageCount == 1 ? "question.single" : "question.plural"
             );
@@ -177,11 +177,18 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
             let notifyBox = nativeTab.gNotification.notificationbox;
             let notification = notifyBox.getNotificationWithValue("shrunked-notification");
             if (notification) {
-              console.log("Notification already visible");
-              notification._promises.push({ resolve, reject });
-              notification.label = question;
+              if (imageCount == 0) {
+                console.log("Removing resize notification");
+                notifyBox.removeNotification(notification);
+              } else {
+                console.log("Resize notification already visible");
+                notification._promises.push({ resolve, reject });
+                notification.label = question;
+              }
               return;
             }
+
+            console.log("Showing resize notification");
 
             let buttons = [
               {

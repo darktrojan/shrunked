@@ -110,15 +110,17 @@ browser.compose.onBeforeSend.addListener(async (tab, details) => {
 });
 
 // Get a promise that resolves when resizing is complete.
-function beginResize(tab, file, show = true) {
+function beginResize(tab, file, notification = true) {
   return new Promise((resolve, reject) => {
-    if (!tabMap.has(tab.id)) {
+    if (!notification || !tabMap.has(tab.id)) {
       tabMap.set(tab.id, []);
     }
     let sourceFiles = tabMap.get(tab.id);
     sourceFiles.push({ promise: { resolve, reject }, file });
-    if (show) {
+    if (notification) {
       browser.shrunked.showNotification(tab, sourceFiles.length);
+    } else {
+      browser.shrunked.showNotification(tab, 0);
     }
   });
 }
