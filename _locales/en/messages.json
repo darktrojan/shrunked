@@ -135,8 +135,11 @@
   "question.plural": {
     "message": "Resize these images?"
   },
-  "context.label": {
-    "message": "Resize this image…;Resize these images…"
+  "context.single": {
+    "message": "Resize this image…"
+  },
+  "context.plural": {
+    "message": "Resize these images…"
   },
   "preview.originalsize": {
     "message": "Original dimensions: $WIDTH$ px × $HEIGHT$ px",

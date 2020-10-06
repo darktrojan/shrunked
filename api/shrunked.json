@@ -114,6 +114,23 @@
             "$ref": "tabs.Tab"
           }
         ]
+      },
+      {
+        "name": "onAttachmentContextClicked",
+        "type": "function",
+        "parameters": [
+          {
+            "name": "tab",
+            "$ref": "tabs.Tab"
+          },
+          {
+            "name": "indicies",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        ]
       }
     ]
   }

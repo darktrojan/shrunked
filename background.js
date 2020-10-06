@@ -59,6 +59,27 @@ browser.compose.onAttachmentAdded.addListener(async (tab, attachment) => {
   });
 });
 
+// Attachment menu item.
+browser.shrunked.onAttachmentContextClicked.addListener(async (tab, indicies) => {
+  if (!indicies.length) {
+    return;
+  }
+
+  let attachments = await browser.compose.listAttachments(tab.id);
+
+  for (let i of indicies) {
+    let a = attachments[i];
+    if (await shouldResize(a)) {
+      let file = await a.getFile();
+      beginResize(tab, file, false).then(destFile =>
+        browser.compose.updateAttachment(tab.id, a.id, { file: destFile })
+      );
+    }
+  }
+
+  showOptionsDialog(tab);
+});
+
 // Message sending.
 browser.compose.onBeforeSend.addListener(async (tab, details) => {
   let { resizeAttachmentsOnSend } = await browser.storage.local.get({

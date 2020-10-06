@@ -119,11 +119,11 @@ function setSize() {
 
 function humanSize(size) {
   let unit = "bytes";
-  if (size >= 1000000) {
-    size = size / 1000000;
+  if (size >= 1048576) {
+    size = size / 1048576;
     unit = "megabytes";
-  } else if (size >= 1000) {
-    size = size / 1000;
+  } else if (size >= 1024) {
+    size = size / 1024;
     unit = "kilobytes";
   }
 
