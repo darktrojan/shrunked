@@ -211,9 +211,12 @@ b_ok.addEventListener("click", async () => {
     maxHeight,
     quality,
   });
-  window.close();
+
+  let thisWindow = await browser.windows.getCurrent();
+  browser.windows.remove(thisWindow.id);
 });
 
-b_cancel.addEventListener("click", function() {
-  window.close();
+b_cancel.addEventListener("click", async () => {
+  let thisWindow = await browser.windows.getCurrent();
+  browser.windows.remove(thisWindow.id);
 });

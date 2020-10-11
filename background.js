@@ -1,8 +1,11 @@
 var tabMap = new Map();
 
-async function shouldResize(attachment) {
+async function shouldResize(attachment, checkSize = true) {
   if (!attachment.name.toLowerCase().match(/\.jpe?g$/)) {
     return false;
+  }
+  if (!checkSize) {
+    return true;
   }
   let { fileSizeMinimum } = await browser.storage.local.get({ fileSizeMinimum: 100 });
   let file = await attachment.getFile();
@@ -76,7 +79,7 @@ browser.shrunked.onAttachmentContextClicked.addListener(async (tab, indicies) =>
 
   for (let i of indicies) {
     let a = attachments[i];
-    if (await shouldResize(a)) {
+    if (await shouldResize(a, false)) {
       let file = await a.getFile();
       beginResize(tab, file, false).then(destFile =>
         browser.compose.updateAttachment(tab.id, a.id, { file: destFile })
