@@ -31,17 +31,6 @@ browser.runtime.getPlatformInfo().then(({ os }) => {
 
 /* exported load */
 addEventListener("load", async () => {
-  // let width = l_measure.getBoundingClientRect().right;
-  // let element = l_measure;
-  // do {
-  // 	let style = getComputedStyle(element);
-  // 	width += parseInt(style.paddingRight, 10);
-  // 	width += parseInt(style.borderRightWidth, 10);
-  // 	width += parseInt(style.marginRight, 10);
-  // 	element = element.parentNode;
-  // } while (element && element != document);
-  // document.documentElement.style.minWidth = `${width}px`;
-
   let prefs = await browser.storage.local.get({
     "default.maxWidth": 500,
     "default.maxHeight": 500,
@@ -66,13 +55,6 @@ addEventListener("load", async () => {
   }
 
   cb_savedefault.checked = prefs["default.saveDefault"];
-
-  // if (!returnValues.isAttachment) {
-  // 	r_noresize.collapsed = true;
-  // 	if (r_noresize.selected) {
-  // 		rg_size.selectedIndex = 1;
-  // 	}
-  // }
 
   setSize();
   loadImage(0);
@@ -146,7 +128,7 @@ async function loadImage(index) {
       index,
     });
 
-    images[index] = { file, url: URL.createObjectURL(file) };
+    images[index] = { file, url: URL.createObjectURL(file), previewCache: new Map() };
   }
 
   i_previewthumb.src = images[index].url;
@@ -175,35 +157,35 @@ async function updateEstimate() {
     l_previewresized.textContent = browser.i18n.getMessage("preview.notresized");
     l_previewresizedfilesize.textContent = "";
   } else {
-    let newWidth = Math.floor(i_previewthumb.naturalWidth * scale);
-    let newHeight = Math.floor(i_previewthumb.naturalHeight * scale);
+    let newWidth = Math.floor(i_previewthumb.naturalWidth * scale + 0.01);
+    let newHeight = Math.floor(i_previewthumb.naturalHeight * scale + 0.01);
     let { "default.quality": quality } = await browser.storage.local.get({
       "default.quality": 75,
     });
-    // let cacheKey = newWidth + 'x' + newHeight + 'x' + quality;
+    let cacheKey = `${newWidth}x${newHeight}x${quality}`;
 
+    let estimate;
+    if (images[currentIndex].previewCache.has(cacheKey)) {
+      estimate = images[currentIndex].previewCache.get(cacheKey);
+    } else {
+      l_previewresizedfilesize.textContent = browser.i18n.getMessage(
+        "preview.resizedfilesize.estimating"
+      );
+      estimate = await browser.shrunked.estimateSize(
+        images[currentIndex].file,
+        maxWidth,
+        maxHeight,
+        quality
+      );
+      images[currentIndex].previewCache.set(cacheKey, estimate);
+    }
     l_previewresized.textContent = browser.i18n.getMessage("preview.resized", [
       newWidth,
       newHeight,
     ]);
-    // if (data[cacheKey] === undefined) {
-    l_previewresizedfilesize.textContent = browser.i18n.getMessage(
-      "preview.resizedfilesize.estimating"
-    );
-    let estimate = await browser.shrunked.estimateSize(
-      images[currentIndex].file,
-      maxWidth,
-      maxHeight,
-      quality
-    );
     l_previewresizedfilesize.textContent = browser.i18n.getMessage("preview.resizedfilesize", [
       humanSize(estimate),
     ]);
-    // 		data[cacheKey] = humanSize(size);
-    // 	});
-    // } else {
-    // 	setValueFromString(l_previewresizedfilesize, 'preview_resizedfilesize', data[cacheKey]);
-    // }
   }
 }
 

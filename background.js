@@ -24,7 +24,6 @@ browser.composeScripts.register({
 });
 
 browser.runtime.onMessage.addListener(async (message, sender, callback) => {
-  console.log(message);
   // Image added to body of message. Return a promise to the sender.
   if (message.type == "resizeFile") {
     return beginResize(sender.tab, message.file);
@@ -56,6 +55,14 @@ browser.compose.onAttachmentAdded.addListener(async (tab, attachment) => {
   let destFile = await beginResize(tab, file);
   await browser.compose.updateAttachment(tab.id, attachment.id, {
     file: destFile,
+  });
+});
+
+// Content context menu item.
+browser.shrunked.onComposeContextClicked.addListener(async (tab, file) => {
+  return new Promise((resolve, reject) => {
+    beginResize(tab, file, false).then(resolve, reject);
+    showOptionsDialog(tab);
   });
 });
 

@@ -118,6 +118,9 @@ input[type="range"]::-moz-range-track {
   flex: 1;
   justify-content: center;
 }
+#l_previewfilename {
+  font-weight: bold;
+}
 #l_previeworiginalsize,
 #l_previewresized {
   margin-top: 0.25em;

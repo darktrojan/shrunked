@@ -116,6 +116,21 @@
         ]
       },
       {
+        "name": "onComposeContextClicked",
+        "type": "function",
+        "parameters": [
+          {
+            "name": "tab",
+            "$ref": "tabs.Tab"
+          },
+          {
+            "type": "object",
+            "isInstanceOf": "File",
+            "additionalProperties": true
+          }
+        ]
+      },
+      {
         "name": "onAttachmentContextClicked",
         "type": "function",
         "parameters": [

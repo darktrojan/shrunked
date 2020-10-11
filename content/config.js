@@ -24,7 +24,7 @@ async function getAll() {
     "default.quality": 75,
     "default.saveDefault": true,
     fileSizeMinimum: 100,
-    "log.enabled": false,
+    // "log.enabled": false,
     "options.exif": true,
     "options.orientation": true,
     "options.gps": true,
@@ -63,7 +63,7 @@ async function getAll() {
   cb_exif.checked = prefs["options.exif"];
   cb_orient.checked = prefs["options.orient"];
   cb_gps.checked = prefs["options.gps"];
-  cb_logenabled.checked = prefs["log.enabled"];
+  // cb_logenabled.checked = prefs["log.enabled"];
   s_resizeonsend.value = prefs.resizeAttachmentsOnSend;
 
   l_width.disabled = tb_width.disabled = l_height.disabled = tb_height.disabled = !r_custom.checked;
@@ -92,7 +92,7 @@ addEventListener("load", async () => {
   });
   cb_orient.addEventListener("change", setCheckbox);
   cb_gps.addEventListener("change", setCheckbox);
-  cb_logenabled.addEventListener("change", setCheckbox);
+  // cb_logenabled.addEventListener("change", setCheckbox);
 
   s_resizeonsend.addEventListener("change", setSendOption);
 

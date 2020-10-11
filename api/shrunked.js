@@ -1,3 +1,6 @@
+// eslint-disable-next-line
+Cu.importGlobalProperties(["fetch", "File", "FileReader"]);
+
 const { ExtensionCommon } = ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm");
 const { ExtensionSupport } = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
 const {
@@ -27,17 +30,86 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
       ExtensionSupport.registerWindowListener("ext-shrunked-compose", {
         chromeURLs: ["chrome://messenger/content/messengercompose/messengercompose.xhtml"],
         onLoadWindow(window) {
+          let composeContext = window.document.getElementById("msgComposeContext");
           let attachmentContext = window.document.getElementById("msgComposeAttachmentItemContext");
           if (!attachmentContext) {
             return;
           }
 
+          let composeSeparator = composeContext.insertBefore(
+            window.document.createXULElement("menuseparator"),
+            window.document.getElementById("spellCheckSeparator")
+          );
+          composeSeparator.id = "shrunked-content-context-separator";
+          let composeMenuItem = composeContext.insertBefore(
+            window.document.createXULElement("menuitem"),
+            window.document.getElementById("spellCheckSeparator")
+          );
+          composeMenuItem.id = "shrunked-content-context-item";
+          composeMenuItem.label = localeData.localizeMessage("context.single");
+
+          composeContext.addEventListener("popupshowing", function() {
+            let target = window.document.popupNode;
+            let shouldShow = false;
+            if (target.nodeName == "IMG") {
+              console.log("Context menu on an <IMG>");
+              if (target.src.startsWith("data:image/jpeg;")) {
+                if (target.width > 500 || target.height > 500) {
+                  shouldShow = true;
+                } else {
+                  console.log("Not resizing - image is too small");
+                }
+              } else {
+                console.log("Not resizing - image is not JPEG");
+              }
+            }
+
+            composeSeparator.hidden = composeMenuItem.hidden = !shouldShow;
+          });
+
+          composeMenuItem.addEventListener("command", async () => {
+            let target = window.document.popupNode;
+            let srcName = "";
+            let nameParts = target.src.match(/;filename=([^,;]*)[,;]/);
+            if (nameParts) {
+              srcName = decodeURIComponent(nameParts[1]);
+            }
+            let response = await fetch(target.src);
+            let srcBlob = await response.blob();
+            let srcFile = new File([srcBlob], srcName);
+
+            let result = await extension.emit("shrunked-compose-context", window, srcFile);
+            if (!result || !Array.isArray(result) || !(result[0] instanceof File)) {
+              console.log("Unexpected return:", result);
+              return;
+            }
+            let [destFile] = result;
+
+            let destURL = await new Promise(resolve => {
+              let reader = new FileReader();
+              reader.onloadend = function() {
+                let dataURL = reader.result;
+                dataURL =
+                  "data:image/jpeg;filename=" +
+                  encodeURIComponent(destFile.name) +
+                  dataURL.substring(15);
+                resolve(dataURL);
+              };
+              reader.readAsDataURL(destFile);
+            });
+
+            target.setAttribute("src", destURL);
+            target.removeAttribute("width");
+            target.removeAttribute("height");
+            target.setAttribute("shrunked:resized", "true");
+          });
+
           let indicies = [];
-          let menuItem = attachmentContext.insertBefore(
+          let attachmentMenuItem = attachmentContext.insertBefore(
             window.document.createXULElement("menuitem"),
             window.document.getElementById("composeAttachmentContext_renameItem")
           );
-          menuItem.id = "shrunked-attachment-context-item";
+          attachmentMenuItem.id = "shrunked-attachment-context-item";
 
           attachmentContext.addEventListener("popupshowing", function() {
             console.log("Context menu on attachments");
@@ -50,26 +122,23 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
               let attachment = items[i].attachment;
               if (
                 attachment.url.startsWith("data:image/jpeg;") ||
-                /\.jpe?g$/i.test(
-                  attachment.url
-                ) /* &&
-                attachment.size >= Shrunked.fileSizeMinimum*/
+                /\.jpe?g$/i.test(attachment.url)
               ) {
                 indicies.push(i);
               }
             }
 
-            menuItem.hidden = !indicies.length;
+            attachmentMenuItem.hidden = !indicies.length;
             if (!indicies.length) {
               console.log("Not resizing - no attachments were JPEG and large enough");
             } else if (indicies.length == 1) {
-              menuItem.label = localeData.localizeMessage("context.single");
+              attachmentMenuItem.label = localeData.localizeMessage("context.single");
             } else {
-              menuItem.label = localeData.localizeMessage("context.plural");
+              attachmentMenuItem.label = localeData.localizeMessage("context.plural");
             }
           });
 
-          menuItem.addEventListener("command", () => {
+          attachmentMenuItem.addEventListener("command", () => {
             extension.emit("shrunked-attachment-context", window, indicies);
           });
         },
@@ -105,6 +174,21 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
             extension.on("shrunked-cancelled", callback);
             return function() {
               extension.off("shrunked-cancelled", callback);
+            };
+          },
+        }).api(),
+        onComposeContextClicked: new ExtensionCommon.EventManager({
+          context,
+          name: "shrunked.onComposeContextClicked",
+          register(fire) {
+            function callback(event, window, file) {
+              let tab = extension.tabManager.getWrapper(window);
+              return fire.async(tab.convert(), file);
+            }
+
+            extension.on("shrunked-compose-context", callback);
+            return function() {
+              extension.off("shrunked-compose-context", callback);
             };
           },
         }).api(),
@@ -176,15 +260,17 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
             let nativeTab = tabManager.get(tab.id).nativeTab;
             let notifyBox = nativeTab.gNotification.notificationbox;
             let notification = notifyBox.getNotificationWithValue("shrunked-notification");
-            if (notification) {
-              if (imageCount == 0) {
+            if (imageCount == 0) {
+              if (notification) {
                 console.log("Removing resize notification");
                 notifyBox.removeNotification(notification);
-              } else {
-                console.log("Resize notification already visible");
-                notification._promises.push({ resolve, reject });
-                notification.label = question;
               }
+              return;
+            }
+            if (notification) {
+              console.log("Resize notification already visible");
+              notification._promises.push({ resolve, reject });
+              notification.label = question;
               return;
             }
 
@@ -195,9 +281,6 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
                 accessKey: localeData.localizeMessage("yes.accesskey"),
                 callback: () => {
                   console.log("Resizing started");
-                  // for (let promise of notification._promises) {
-                  // 	promise.resolve();
-                  // }
                   extension.emit("shrunked-accepted", tab);
                 },
                 label: localeData.localizeMessage("yes.label"),
@@ -206,10 +289,6 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
                 accessKey: localeData.localizeMessage("no.accesskey"),
                 callback() {
                   console.log("Resizing cancelled");
-                  // for (let promise of notification._promises) {
-                  // 	promise.reject();
-                  // }
-                  // callbackObject.onResizeCancelled();
                   extension.emit("shrunked-cancelled", tab);
                 },
                 label: localeData.localizeMessage("no.label"),
@@ -244,9 +323,16 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
     ExtensionSupport.unregisterWindowListener("ext-shrunked-compose");
 
     for (let window of Services.wm.getEnumerator("msgcompose")) {
-      let menuItem = window.document.getElementById("shrunked-attachment-context-item");
-      if (menuItem) {
-        menuItem.remove();
+      for (let selector of [
+        "#shrunked-content-context-separator",
+        "#shrunked-content-context-item",
+        "#shrunked-attachment-context-item",
+        `notification[value="shrunked-notification"]`,
+      ]) {
+        let element = window.document.querySelector(selector);
+        if (element) {
+          element.remove();
+        }
       }
     }
   }

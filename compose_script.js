@@ -85,9 +85,15 @@ async function maybeResizeInline(target) {
         }
       }
 
+      let srcName = "";
+      let nameParts = target.src.match(/;filename=([^,;]*)[,;]/);
+      if (nameParts) {
+        srcName = decodeURIComponent(nameParts[1]);
+      }
+
       let response = await fetch(src);
       let srcBlob = await response.blob();
-      let srcFile = new File([srcBlob], "test.jpg");
+      let srcFile = new File([srcBlob], srcName);
 
       let destFile = await browser.runtime.sendMessage({
         type: "resizeFile",
