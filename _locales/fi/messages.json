@@ -1,0 +1,227 @@
+{
+  "extensionName": {
+    "message": "Shrunked Image Resizer"
+  },
+  "extensionDescription": {
+    "message": "Pienentää kuvasi sähköposteissa ja nettiin talletettaessa."
+  },
+
+
+
+  "config.title": {
+    "message": "Shrunked Image Resizer - asetukset"
+  },
+  "defaults.label": {
+    "message": "Oletusarvot"
+  },
+  "defaults.quality.label": {
+    "message": "JPEG  - laatu:"
+  },
+  "defaults.quality.smaller": {
+    "message": "Pienemmät tiedostot"
+  },
+  "defaults.quality.better": {
+    "message": "Parempi laatu"
+  },
+  "options.title": {
+    "message": "Shrunked Image Resizer - asetukset"
+  },
+  "options.savedefault.label": {
+    "message": "Talleta oletusasetuksiksi"
+  },
+  "noresize.label": {
+    "message": "Alkuperäinen"
+  },
+  "small.label": {
+    "message": "500 px"
+  },
+  "medium.label": {
+    "message": "800 px"
+  },
+  "large.label": {
+    "message": "1200 px"
+  },
+  "custom.label": {
+    "message": "Omat"
+  },
+  "width.label": {
+    "message": "Leveys:"
+  },
+  "height.label": {
+    "message": "Korkeus:"
+  },
+  "preview.label": {
+    "message": "Esikatselu:"
+  },
+  "preview.previous.tooltip": {
+    "message": "Edellinen kuva"
+  },
+  "preview.next.tooltip": {
+    "message": "Seuraava kuva"
+  },
+  "minsize.label": {
+    "message": "Pienin tiedostokoko pienennättessä:"
+  },
+  "maxsize.label": {
+    "message": "Kuvien suurin koko:"
+  },
+  "custom.pixels": {
+    "message": "px"
+  },
+  "advanced.label": {
+    "message": "Edistyneet"
+  },
+  "advanced.resample.label": {
+    "message": "Kuvan koon muuttaminen javascriptillä"
+  },
+  "advanced.exif.label": {
+    "message": "Lähetä EXIF - tiedot"
+  },
+  "advanced.orient.label": {
+    "message": "Käännä kuvat automaattisesti"
+  },
+  "advanced.gps.label": {
+    "message": "Lähetä GPS - tiedot"
+  },
+  "advanced.logenabled.label": {
+    "message": "Näytä viestit virhekonsolissa"
+  },
+  "advanced.resizeonsend.label": {
+    "message": "Ehdota liitteiden kuvien koon muuttamista:"
+  },
+  "advanced.resizeonsend.false": {
+    "message": "kun liitteenä"
+  },
+  "advanced.resizeonsend.true": {
+    "message": "kun lähetetään sähköpostia"
+  },
+
+
+
+  "ok": {
+    "message": "OK"
+  },
+  "cancel": {
+    "message": "Peruuta"
+  },
+  "dimensions": {
+    "message": "$WIDTH$ px × $HEIGHT$ px",
+    "placeholders": {
+      "width": {
+        "content": "$1",
+        "example": "800"
+      },
+      "height": {
+        "content": "$2",
+        "example": "600"
+      }
+    }
+  },
+  "yes.accesskey": {
+    "message": "K"
+  },
+  "yes.label": {
+    "message": "Kyllä"
+  },
+  "no.accesskey": {
+    "message": "E"
+  },
+  "no.label": {
+    "message": "Ei"
+  },
+  "question.single": {
+    "message": "Muuta tämän kuvan kokoa?"
+  },
+  "question.plural": {
+    "message": "Muuta kuvien kokoa?"
+  },
+  "context.single": {
+    "message": "Muuta tämän kuvan kokoa…"
+  },
+  "context.plural": {
+    "message": "Muuta näiden kuvien kokoa…"
+  },
+  "preview.originalsize": {
+    "message": "Alkuperäiset mittasuhteet: $WIDTH$ px × $HEIGHT$ px",
+    "placeholders": {
+      "width": {
+        "content": "$1",
+        "example": "800"
+      },
+      "height": {
+        "content": "$2",
+        "example": "600"
+      }
+    }
+  },
+  "preview.originalfilesize": {
+    "message": "Tiedoston alkuperäinen koko: $SIZE$",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "4.3 MB"
+      }
+    }
+  },
+  "preview.resized": {
+    "message": "Muutettu kokoon: $WIDTH$ px × $HEIGHT$ px",
+    "placeholders": {
+      "width": {
+        "content": "$1",
+        "example": "800"
+      },
+      "height": {
+        "content": "$2",
+        "example": "600"
+      }
+    }
+  },
+  "preview.resizedfilesize.estimating": {
+    "message": "Arvioidaan tiedoston uutta kokoa…"
+  },
+  "preview.resizedfilesize": {
+    "message": "Tiedoston arvioitu koko: $SIZE$",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "4.3 MB"
+      }
+    }
+  },
+  "preview.notresized": {
+    "message": "Kokoa ei muutettu"
+  },
+  "unit.bytes": {
+    "message": "B"
+  },
+  "unit.kilobytes": {
+    "message": "kB"
+  },
+  "unit.megabytes": {
+    "message": "MB"
+  },
+  "status.resizing": {
+    "message": "Muutetaan kuvan kokoa…;Muutetaan kuvien kokoa…"
+  },
+  "donate.notification": {
+    "message": "Shrunked Image Resizer on päivitetty versioon $VERSION$. Shrunked on ilmainen, muutta lahjoituksesi olisi tarpeen!",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "5.0"
+      }
+    }
+  },
+  "changelog.button.label": {
+    "message": "Mikä on muuttunut?"
+  },
+  "changelog.button.accesskey": {
+    "message": "M"
+  },
+  "donate.button.label": {
+    "message": "Lahjoita"
+  },
+  "donate.button.accesskey": {
+    "message": "L"
+  }
+}
