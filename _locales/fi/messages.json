@@ -18,10 +18,10 @@
     "message": "JPEG  - laatu:"
   },
   "defaults.quality.smaller": {
-    "message": "Pienemmät tiedostot"
+    "message": "pienemmät tiedostot"
   },
   "defaults.quality.better": {
-    "message": "Parempi laatu"
+    "message": "parempi laatu"
   },
   "options.title": {
     "message": "Shrunked Image Resizer - asetukset"
@@ -60,7 +60,7 @@
     "message": "Seuraava kuva"
   },
   "minsize.label": {
-    "message": "Pienin tiedostokoko pienennättessä:"
+    "message": "Pienin tiedostokoko pienennettäessä:"
   },
   "maxsize.label": {
     "message": "Kuvien suurin koko:"
@@ -87,13 +87,13 @@
     "message": "Näytä viestit virhekonsolissa"
   },
   "advanced.resizeonsend.label": {
-    "message": "Ehdota liitteiden kuvien koon muuttamista:"
+    "message": "Ehdota liitekuvien koon muuttamista:"
   },
   "advanced.resizeonsend.false": {
-    "message": "kun liitteenä"
+    "message": "kun liite lisätään"
   },
   "advanced.resizeonsend.true": {
-    "message": "kun lähetetään sähköpostia"
+    "message": "kun sähköposti lähetetään"
   },
 
 
