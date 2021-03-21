@@ -32,6 +32,12 @@
   "config.title": {
     "message": "Shrunked Image Resizer - Einstellungen"
   },
+  "context.plural": {
+    "message": "Skalierung dieser Bilder…"
+  },
+  "context.single": {
+    "message": "Skalierung dieses Bilds…"
+  },
   "custom.label": {
     "message": "Benutzerdefiniert"
   },
