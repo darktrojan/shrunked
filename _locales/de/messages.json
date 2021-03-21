@@ -116,6 +116,12 @@
   "preview.resizedfilesize.estimating": {
     "message": "Dateigröße neu schätzen…"
   },
+  "question.plural": {
+    "message": "Diese Bilder skalieren?"
+  },
+  "question.single": {
+    "message": "Dieses Bild skalieren?"
+  },
   "status.resizing": {
     "message": "Bild skalieren…;Bilder skalieren…"
   },
