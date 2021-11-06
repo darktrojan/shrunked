@@ -6,7 +6,8 @@
   "applications": {
     "gecko": {
       "id": "shrunked@darktrojan.net",
-      "strict_min_version": "91.0"
+      "strict_min_version": "91.0",
+      "strict_max_version": "91.*"
     }
   },
   "author": "Geoff Lankow",
