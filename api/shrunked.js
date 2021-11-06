@@ -49,7 +49,11 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
           composeMenuItem.label = localeData.localizeMessage("context.single");
 
           composeContext.addEventListener("popupshowing", function() {
-            let target = window.document.popupNode;
+            let editor = window.GetCurrentEditorElement();
+            let target = editor.contentDocument.elementFromPoint(
+              editor._contextX,
+              editor._contextY
+            );
             let shouldShow = false;
             if (target.nodeName == "IMG") {
               console.log("Context menu on an <IMG>");
@@ -68,7 +72,11 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
           });
 
           composeMenuItem.addEventListener("command", async () => {
-            let target = window.document.popupNode;
+            let editor = window.GetCurrentEditorElement();
+            let target = editor.contentDocument.elementFromPoint(
+              editor._contextX,
+              editor._contextY
+            );
             let srcName = "";
             let nameParts = target.src.match(/;filename=([^,;]*)[,;]/);
             if (nameParts) {
