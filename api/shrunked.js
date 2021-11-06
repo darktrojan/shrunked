@@ -305,10 +305,11 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
             ];
 
             notification = notifyBox.appendNotification(
-              question,
               "shrunked-notification",
-              null,
-              notifyBox.PRIORITY_INFO_HIGH,
+              {
+                label: question,
+                priority: notifyBox.PRIORITY_INFO_HIGH,
+              },
               buttons
             );
             notification._promises = [{ resolve, reject }];
