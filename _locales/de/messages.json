@@ -32,6 +32,12 @@
   "config.title": {
     "message": "Shrunked Image Resizer - Einstellungen"
   },
+  "context.plural": {
+    "message": "Skalierung dieser Bilder…"
+  },
+  "context.single": {
+    "message": "Skalierung dieses Bilds…"
+  },
   "custom.label": {
     "message": "Benutzerdefiniert"
   },
@@ -109,6 +115,12 @@
   },
   "preview.resizedfilesize.estimating": {
     "message": "Dateigröße neu schätzen…"
+  },
+  "question.plural": {
+    "message": "Diese Bilder skalieren?"
+  },
+  "question.single": {
+    "message": "Dieses Bild skalieren?"
   },
   "status.resizing": {
     "message": "Bild skalieren…;Bilder skalieren…"
