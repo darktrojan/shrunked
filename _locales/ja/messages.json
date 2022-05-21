@@ -1,0 +1,221 @@
+{
+  "advanced.exif.label": {
+    "message": "EXIFデータを維持する"
+  },
+  "advanced.gps.label": {
+    "message": "GPSデータを維持する"
+  },
+  "advanced.label": {
+    "message": "詳細設定"
+  },
+  "advanced.logenabled.label": {
+    "message": "メッセージのログをエラーコンソールへ出力"
+  },
+  "advanced.orient.label": {
+    "message": "画像を自動回転させる"
+  },
+  "advanced.resample.label": {
+    "message": "JavaScriptによる画像の再サンプリング"
+  },
+  "advanced.resizeonsend.false": {
+    "message": "添付時"
+  },
+  "advanced.resizeonsend.label": {
+    "message": "次の時に画像添付のサイズの変更を提案:"
+  },
+  "advanced.resizeonsend.true": {
+    "message": "メール送信時"
+  },
+  "cancel": {
+    "message": "キャンセル"
+  },
+  "changelog.button.accesskey": {
+    "message": "C"
+  },
+  "changelog.button.label": {
+    "message": "変更内容"
+  },
+  "config.title": {
+    "message": "Shrunked Image Resizer 設定"
+  },
+  "context.plural": {
+    "message": "この画像のサイズを変更する…"
+  },
+  "context.single": {
+    "message": "この画像のサイズを変更する…"
+  },
+  "custom.label": {
+    "message": "カスタム"
+  },
+  "custom.pixels": {
+    "message": "px"
+  },
+  "defaults.label": {
+    "message": "既定値"
+  },
+  "defaults.quality.better": {
+    "message": "画質が良い"
+  },
+  "defaults.quality.label": {
+    "message": "JPEGエンコーダの品質:"
+  },
+  "defaults.quality.smaller": {
+    "message": "ファイルサイズが小さい"
+  },
+  "dimensions": {
+    "message": "$WIDTH$ px × $HEIGHT$ px",
+    "placeholders": {
+      "height": {
+        "content": "$2",
+        "example": "600"
+      },
+      "width": {
+        "content": "$1",
+        "example": "800"
+      }
+    }
+  },
+  "donate.button.accesskey": {
+    "message": "D"
+  },
+  "donate.button.label": {
+    "message": "寄付する"
+  },
+  "donate.notification": {
+    "message": "Shrunked Image Resizerはバージョン$VERSION$に更新されました。Shrunkedはフリーですが、寄付を歓迎します！",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "5.0"
+      }
+    }
+  },
+  "extensionDescription": {
+    "message": "写真を縮小して、メールやWebサイトへのアップロードに時間がかからないようにします。"
+  },
+  "extensionName": {
+    "message": "Shrunked Image Resizer"
+  },
+  "height.label": {
+    "message": "縦幅:"
+  },
+  "large.label": {
+    "message": "1200 px"
+  },
+  "maxsize.label": {
+    "message": "写真の最大の大きさ:"
+  },
+  "medium.label": {
+    "message": "800 px"
+  },
+  "minsize.label": {
+    "message": "リサイズする最小ファイルサイズ:"
+  },
+  "no.accesskey": {
+    "message": "N"
+  },
+  "no.label": {
+    "message": "いいえ"
+  },
+  "noresize.label": {
+    "message": "大きさを変更しない"
+  },
+  "ok": {
+    "message": "OK"
+  },
+  "options.savedefault.label": {
+    "message": "デフォルト設定として保存"
+  },
+  "options.title": {
+    "message": "Shrunked - 画像サイズの変更"
+  },
+  "preview.label": {
+    "message": "プレビュー:"
+  },
+  "preview.next.tooltip": {
+    "message": "次の画像"
+  },
+  "preview.notresized": {
+    "message": "大きさは変更されません"
+  },
+  "preview.originalfilesize": {
+    "message": "元のファイルのサイズ: $SIZE$",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "4.3 MB"
+      }
+    }
+  },
+  "preview.originalsize": {
+    "message": "元の大きさ: $WIDTH$ px × $HEIGHT$ px",
+    "placeholders": {
+      "height": {
+        "content": "$2",
+        "example": "600"
+      },
+      "width": {
+        "content": "$1",
+        "example": "800"
+      }
+    }
+  },
+  "preview.previous.tooltip": {
+    "message": "前の画像"
+  },
+  "preview.resized": {
+    "message": "次の大きさに変更します: $WIDTH$ px × $HEIGHT$ px",
+    "placeholders": {
+      "height": {
+        "content": "$2",
+        "example": "600"
+      },
+      "width": {
+        "content": "$1",
+        "example": "800"
+      }
+    }
+  },
+  "preview.resizedfilesize": {
+    "message": "大きさ変更後のファイルサイズ: $SIZE$",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "4.3 MB"
+      }
+    }
+  },
+  "preview.resizedfilesize.estimating": {
+    "message": "大きさ変更後のファイルサイズを計算中…"
+  },
+  "question.plural": {
+    "message": "この画像のサイズを変更しますか？"
+  },
+  "question.single": {
+    "message": "この画像のサイズを変更しますか？"
+  },
+  "small.label": {
+    "message": "500 px(ピクセル)"
+  },
+  "status.resizing": {
+    "message": "画像のサイズを変更中…;画像のサイズを変更中…"
+  },
+  "unit.bytes": {
+    "message": "B"
+  },
+  "unit.kilobytes": {
+    "message": "kB"
+  },
+  "unit.megabytes": {
+    "message": "MB"
+  },
+  "width.label": {
+    "message": "横幅:"
+  },
+  "yes.accesskey": {
+    "message": "Y"
+  },
+  "yes.label": {
+    "message": "はい"
+  }
+}
