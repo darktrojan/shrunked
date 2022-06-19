@@ -6,7 +6,7 @@
   "applications": {
     "gecko": {
       "id": "shrunked@darktrojan.net",
-      "strict_min_version": "95.0",
+      "strict_min_version": "98.0",
       "strict_max_version": "102.*"
     }
   },

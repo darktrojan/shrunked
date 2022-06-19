@@ -8,7 +8,7 @@ async function shouldResize(attachment, checkSize = true) {
     return true;
   }
   let { fileSizeMinimum } = await browser.storage.local.get({ fileSizeMinimum: 100 });
-  let file = await attachment.getFile();
+  let file = await browser.compose.getAttachmentFile(attachment.id);
   return file.size >= fileSizeMinimum * 1024;
 }
 
@@ -54,7 +54,7 @@ browser.compose.onAttachmentAdded.addListener(async (tab, attachment) => {
     return;
   }
 
-  let file = await attachment.getFile();
+  let file = await browser.compose.getAttachmentFile(attachment.id);
   let destFile = await beginResize(tab, file);
   if (destFile === null) {
     return;
@@ -84,7 +84,7 @@ browser.shrunked.onAttachmentContextClicked.addListener(async (tab, indicies) =>
   for (let i of indicies) {
     let a = attachments[i];
     if (await shouldResize(a, false)) {
-      let file = await a.getFile();
+      let file = await browser.compose.getAttachmentFile(a.id);
       beginResize(tab, file, false).then(destFile => {
         if (destFile === null) {
           return;
@@ -112,7 +112,7 @@ browser.compose.onBeforeSend.addListener(async (tab, details) => {
   let attachments = await browser.compose.listAttachments(tab.id);
   for (let a of attachments) {
     if (await shouldResize(a)) {
-      let file = await a.getFile();
+      let file = await browser.compose.getAttachmentFile(a.id);
       let promise = beginResize(tab, file, false).then(async destFile => {
         if (destFile === null) {
           return;
