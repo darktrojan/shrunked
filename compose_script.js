@@ -58,8 +58,8 @@ async function maybeResizeInline(target) {
         console.log("Not resizing - image already has shrunked attribute");
         return;
       }
-      if (!imageIsJPEG(target)) {
-        console.log("Not resizing - image is not JPEG");
+      if (!imageIsAccepted(target)) {
+        console.log("Not resizing - image is not JPEG / PNG");
         return;
       }
       if (target.width < 500 && target.height < 500) {
@@ -106,9 +106,10 @@ async function maybeResizeInline(target) {
         let reader = new FileReader();
         reader.onloadend = function() {
           let dataURL = reader.result;
-          dataURL =
-            "data:image/jpeg;filename=" + encodeURIComponent(destFile.name) + dataURL.substring(15);
-          resolve(dataURL);
+                    let headerIndexEnd = dataURL.indexOf(";");
+                    dataURL =
+                        reader.result.substring(0, headerIndexEnd) + ";filename=" + encodeURIComponent(destFile.name) + dataURL.substring(headerIndexEnd);
+                    resolve(dataURL);
         };
         reader.readAsDataURL(destFile);
       });
@@ -128,7 +129,9 @@ async function maybeResizeInline(target) {
   }
 }
 
-function imageIsJPEG(image) {
-  let src = image.src.toLowerCase();
-  return src.startsWith("data:image/jpeg") || src.endsWith(".jpg");
+function imageIsAccepted(image) {
+    let src = image.src.toLowerCase();
+    let isJPEG = src.startsWith("data:image/jpeg") || src.endsWith(".jpg") || src.endsWith(".jpeg");
+    let isPNG = src.startsWith("data:image/png") || src.endsWith(".png");
+    return isJPEG | isPNG;
 }

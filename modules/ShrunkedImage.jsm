@@ -11,6 +11,7 @@ var XHTMLNS = "http://www.w3.org/1999/xhtml";
 function ShrunkedImage(source, maxWidth, maxHeight, quality, options) {
   this.maxWidth = maxWidth;
   this.maxHeight = maxHeight;
+  this.imageFormat="image/jpeg";
   this.quality = quality;
   this.options = {
     exif: true,
@@ -38,7 +39,7 @@ function ShrunkedImage(source, maxWidth, maxHeight, quality, options) {
       if (match) {
         this.basename = match[1];
       } else {
-        match = /\/([\w.-]+\.jpg)$/i.exec(this.sourceURI.spec);
+        match = /\/([\w.-]+\.((png)|(jpe?g)))$/i.exec(this.sourceURI.spec);
         if (match) {
           this.basename = match[1];
         }
@@ -53,6 +54,10 @@ function ShrunkedImage(source, maxWidth, maxHeight, quality, options) {
     this.basename = source.name;
   }
 
+  if(this.basename.endsWith(".png"))
+  {
+    this.imageFormat="image/png";
+  }
   if (!this.sourceURI) {
     throw new Error("Unexpected source passed to ShrunkedImage");
   }
@@ -75,7 +80,7 @@ ShrunkedImage.prototype = {
     }
 
     let blob = await this.getBytes(canvas);
-    return new File([blob], this.basename, { type: "image/jpeg" });
+    return new File([blob], this.basename, { type: this.imageFormat });
   },
   async readExifData() {
     try {
@@ -186,8 +191,8 @@ ShrunkedImage.prototype = {
             reject(ex);
           }
         },
-        "image/jpeg",
-        this.quality / 100
+        this.imageFormat,
+        (this.imageFormat=="image/jpeg")?(this.quality / 100):null
       );
     });
   },
