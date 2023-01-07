@@ -57,14 +57,14 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
             let shouldShow = false;
             if (target.nodeName == "IMG") {
               console.log("Context menu on an <IMG>");
-              if (target.src.startsWith("data:image/jpeg;")) {
+              if (imageIsAccepted(target.src)) {
                 if (target.width > 500 || target.height > 500) {
                   shouldShow = true;
                 } else {
                   console.log("Not resizing - image is too small");
                 }
               } else {
-                console.log("Not resizing - image is not JPEG");
+                console.log("Not resizing - image is not JPEG / PNG");
               }
             }
 
@@ -97,10 +97,8 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
               let reader = new FileReader();
               reader.onloadend = function() {
                 let dataURL = reader.result;
-                dataURL =
-                  "data:image/jpeg;filename=" +
-                  encodeURIComponent(destFile.name) +
-                  dataURL.substring(15);
+                let headerIndexEnd = dataURL.indexOf(";");
+                dataURL = reader.result.substring(0, headerIndexEnd) + ";filename=" + encodeURIComponent(destFile.name) + dataURL.substring(headerIndexEnd);
                 resolve(dataURL);
               };
               reader.readAsDataURL(destFile);
@@ -129,16 +127,15 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
               }
               let attachment = items[i].attachment;
               if (
-                attachment.url.startsWith("data:image/jpeg;") ||
-                /\.jpe?g$/i.test(attachment.url)
+                imageIsAccepted(attachment.url)
               ) {
+
                 indicies.push(i);
               }
             }
-
             attachmentMenuItem.hidden = !indicies.length;
             if (!indicies.length) {
-              console.log("Not resizing - no attachments were JPEG and large enough");
+              console.log("Not resizing - no attachments were JPEG/PNG and large enough");
             } else if (indicies.length == 1) {
               attachmentMenuItem.label = localeData.localizeMessage("context.single");
             } else {
@@ -347,3 +344,10 @@ var shrunked = class extends ExtensionCommon.ExtensionAPI {
     }
   }
 };
+
+function imageIsAccepted(url) {
+  let src = url.toLowerCase();
+  let isJPEG = src.startsWith("data:image/jpeg") || src.endsWith(".jpg") || src.endsWith(".jpeg");
+  let isPNG = src.startsWith("data:image/png") || src.endsWith(".png");
+  return isJPEG | isPNG;
+}

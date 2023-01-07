@@ -1,7 +1,7 @@
 var tabMap = new Map();
 
 async function shouldResize(attachment, checkSize = true) {
-  if (!attachment.name.toLowerCase().match(/\.jpe?g$/)) {
+  if (!attachment.name.toLowerCase().match(/((\.jpe?g)|(\.png))$/)) {
     return false;
   }
   if (!checkSize) {
