@@ -1,6 +1,3 @@
-api
-api/shrunked.js
-api/shrunked.json
 background.js
 compose_script.js
 content
@@ -16,6 +13,5 @@ content/options.xhtml
 _locales/*
 manifest.json
 modules
-modules/ExifData.jsm
-modules/ShrunkedImage.jsm
-modules/worker.js
+modules/ExifData.js
+modules/ShrunkedImage.js

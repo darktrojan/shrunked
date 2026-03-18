@@ -1,22 +1,21 @@
-var EXPORTED_SYMBOLS = ["ExifData"];
+class ExifData {
+  exif1 = null;
+  exif2 = null;
+  gps = null;
+  littleEndian = false;
+  orientation = 0;
 
-/* globals Shrunked */
-ChromeUtils.defineModuleGetter(this, "Shrunked", "resource://shrunked/Shrunked.jsm");
-
-function ExifData() {}
-ExifData.prototype = {
-  exif1: null,
-  exif2: null,
-  gps: null,
-  littleEndian: false,
-  orientation: 0,
+  constructor(keepGPS) {
+    this.keepGPS = keepGPS;
+  }
 
   _getShort(bytes, index = 0) {
     if (this.littleEndian) {
       return (bytes[index + 1] << 8) + bytes[index];
     }
     return (bytes[index] << 8) + bytes[index + 1];
-  },
+  }
+
   _getInt(bytes, index = 0) {
     if (this.littleEndian) {
       return (
@@ -26,7 +25,8 @@ ExifData.prototype = {
     return (
       (bytes[index] << 24) + (bytes[index + 1] << 16) + (bytes[index + 2] << 8) + bytes[index + 3]
     );
-  },
+  }
+
   async _readSection() {
     let fieldLengths = [null, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8];
     let section = {};
@@ -49,7 +49,8 @@ ExifData.prototype = {
       section[field.code.toString(16)] = field;
     }
     return section;
-  },
+  }
+
   async read(readable) {
     try {
       this.readable = readable;
@@ -102,7 +103,8 @@ ExifData.prototype = {
     } finally {
       this.readable.close();
     }
-  },
+  }
+
   _countSection(section) {
     if (!section) {
       return [0, 0];
@@ -118,14 +120,16 @@ ExifData.prototype = {
       }
     }
     return [count, size];
-  },
+  }
+
   _get2Bytes(short) {
     let bytes = [(short & 0xff00) >> 8, short & 0x00ff];
     if (this.littleEndian) {
       bytes.reverse();
     }
     return bytes;
-  },
+  }
+
   _get4Bytes(int) {
     let bytes = [
       (int & 0xff000000) >> 24,
@@ -137,7 +141,8 @@ ExifData.prototype = {
       bytes.reverse();
     }
     return bytes;
-  },
+  }
+
   _writeSection(section, buffer, index, count) {
     buffer.set(this._get2Bytes(count), index);
 
@@ -159,14 +164,15 @@ ExifData.prototype = {
       index += 12;
     }
     return dataindex;
-  },
+  }
+
   async write(file) {
     let [e1count, e1size] = this._countSection(this.exif1);
     let [e2count, e2size] = this._countSection(this.exif2);
     this.exif1["8769"].value = 8 + e1size;
 
     let [gpscount, gpssize] = this._countSection(this.gps);
-    if (Shrunked.options.gps && this.gps) {
+    if (this.keepGPS && this.gps) {
       this.exif1["8825"].value = 8 + e1size + e2size;
     } else {
       delete this.exif1["8825"];
@@ -189,10 +195,10 @@ ExifData.prototype = {
     let index = 20;
     index = this._writeSection(this.exif1, buffer, index, e1count);
     index = this._writeSection(this.exif2, buffer, index, e2count);
-    if (Shrunked.options.gps && this.gps) {
+    if (this.keepGPS && this.gps) {
       this._writeSection(this.gps, buffer, index, gpscount);
     }
 
     await file.write(buffer);
-  },
-};
+  }
+}

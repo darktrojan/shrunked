@@ -117,6 +117,7 @@ input[type="range"]::-moz-range-track {
 #d_info {
   flex: 1;
   justify-content: center;
+  padding-inline-end: 10px;
 }
 #l_previewfilename {
   font-weight: bold;

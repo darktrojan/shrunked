@@ -5,9 +5,7 @@
    l_previeworiginalfilesize, l_previewresized, l_previewresizedfilesize, cb_savedefault,
    b_ok, b_cancel */
 
-var params = new URL(location.href).searchParams;
-var tabId = parseInt(params.get("tabId"), 10);
-var count = parseInt(params.get("count"), 10);
+var count = 0;
 
 var images = [];
 var currentIndex = 0;
@@ -57,7 +55,25 @@ addEventListener("load", async () => {
   cb_savedefault.checked = prefs["default.saveDefault"];
 
   setSize();
-  loadImage(0);
+
+  let currentTab = await browser.tabs.getCurrent();//.query({ active: true, currentWindow: true });
+  let inlineImages = await browser.tabs.sendMessage(currentTab.id, { type: "listInlineImages" });
+  for (let i of inlineImages) {
+    images.push({ ...i, url: URL.createObjectURL(i.file), previewCache: new Map(), tabId: currentTab.id });
+  }
+
+  let attachments = await browser.compose.listAttachments(currentTab.id);
+  for (let a of attachments) {
+    if (await shouldResizeAttachment(a)) {
+      let file = await browser.compose.getAttachmentFile(a.id);
+      images.push({ file, url: URL.createObjectURL(file), previewCache: new Map(), tabId: currentTab.id, attachmentId: a.id });
+    }
+  }
+
+  count = images.length;
+  if (count > 0) {
+    loadImage(0);
+  }
 });
 
 r_noresize.addEventListener("change", setSize);
@@ -110,6 +126,18 @@ function humanSize(size) {
   }
 
   return size.toFixed(size >= 9.95 ? 0 : 1) + "\u2006" + browser.i18n.getMessage(`unit.${unit}`);
+}
+
+async function shouldResizeAttachment(attachment, checkSize = true) {
+  if (!attachment.name.toLowerCase().match(/\.jpe?g$/)) {
+    return false;
+  }
+  if (!checkSize) {
+    return true;
+  }
+  let { fileSizeMinimum } = await browser.storage.local.get({ fileSizeMinimum: 100 });
+  let file = await browser.compose.getAttachmentFile(attachment.id);
+  return file.size >= fileSizeMinimum * 1024;
 }
 
 async function loadImage(index) {
@@ -171,12 +199,12 @@ async function updateEstimate() {
       l_previewresizedfilesize.textContent = browser.i18n.getMessage(
         "preview.resizedfilesize.estimating"
       );
-      estimate = await browser.shrunked.estimateSize(
+      estimate = await new ShrunkedImage(
         images[currentIndex].file,
         maxWidth,
         maxHeight,
         quality
-      );
+      ).estimateSize();
       images[currentIndex].previewCache.set(cacheKey, estimate);
     }
     l_previewresized.textContent = browser.i18n.getMessage("preview.resized", [
@@ -204,19 +232,41 @@ b_ok.addEventListener("click", async () => {
   let { "default.quality": quality } = await browser.storage.local.get({
     "default.quality": 75,
   });
-  await browser.runtime.sendMessage({
-    type: "doResize",
-    tabId,
-    maxWidth,
-    maxHeight,
-    quality,
+  let options = await browser.storage.local.get({
+    "options.exif": true,
+    "options.orientation": true,
+    "options.gps": true,
+    "options.resample": true,
   });
+  options = {
+    exif: options["options.exif"],
+    orientation: options["options.orientation"],
+    gps: options["options.gps"],
+    resample: options["options.resample"],
+  };
 
-  let thisWindow = await browser.windows.getCurrent();
-  browser.windows.remove(thisWindow.id);
+  let resized = [];
+  for (let i of images) {
+    let image = new ShrunkedImage(i.file, maxWidth, maxHeight, quality, options);
+    if (i.attachmentId) {
+      await browser.compose.updateAttachment(i.tabId, i.attachmentId, {
+        file: await image.resizeAsFile(),
+        name: i.file.name,
+      });
+    } else {
+      let destURL = await image.resizeAsDataURL();
+      resized.push({ shrunkedId: i.shrunkedId, destURL });
+    }
+  }
+  if (resized.length > 0) {
+    let file = await browser.tabs.sendMessage(images[0].tabId, { type: "resizeInlineImages", resized });
+  }
+
+  await browser.runtime.sendMessage({ type: "completeSend" });
+  window.close();
 });
 
 b_cancel.addEventListener("click", async () => {
-  let thisWindow = await browser.windows.getCurrent();
-  browser.windows.remove(thisWindow.id);
+  await browser.runtime.sendMessage({ type: "cancelSend" });
+  window.close();
 });

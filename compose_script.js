@@ -6,10 +6,18 @@ let config = {
 };
 let observer = new MutationObserver(function(mutations) {
   for (let mutation of mutations) {
-    if (mutation.addedNodes && mutation.addedNodes.length) {
+    if (mutation.addedNodes?.length) {
       console.log("Nodes added to message: " + mutation.addedNodes.length);
       for (let target of mutation.addedNodes) {
         maybeResizeInline(target);
+      }
+    }
+    if (mutation.removedNodes?.length) {
+      console.log("Nodes removed from message: " + mutation.addedNodes.length);
+      for (let target of mutation.removedNodes) {
+        if (target.matches("img") || target.querySelector("img")) {
+          browser.runtime.sendMessage({ type: "updateEnabledState" });
+        }
       }
     }
   }
@@ -19,11 +27,7 @@ observer.observe(document.body, config);
 async function maybeResizeInline(target) {
   if (target.nodeName == "IMG") {
     try {
-      console.log(
-        "<IMG> found, source is " +
-          target.src.substring(0, 100) +
-          (target.src.length <= 100 ? "" : "\u2026")
-      );
+      console.log("<IMG> found, source is " + target.src.substring(0, 100) + (target.src.length <= 100 ? "" : "\u2026"));
       let parent = target.parentNode;
       while (parent && "classList" in parent) {
         if (parent.classList.contains("moz-signature")) {
@@ -62,7 +66,7 @@ async function maybeResizeInline(target) {
         console.log("Not resizing - image is not JPEG");
         return;
       }
-      if (target.width < 500 && target.height < 500) {
+      if (target.naturalWidth < 500 && target.naturalHeight < 500) {
         console.log("Not resizing - image is too small");
         return;
       }
@@ -85,38 +89,11 @@ async function maybeResizeInline(target) {
         }
       }
 
-      let srcName = "";
-      let nameParts = target.src.match(/;filename=([^,;]*)[,;]/);
-      if (nameParts) {
-        srcName = decodeURIComponent(nameParts[1]);
-      }
-
-      let response = await fetch(src);
-      let srcBlob = await response.blob();
-      let srcFile = new File([srcBlob], srcName);
-
+      // All we have to do is open the pop-up, it'll do the rest.
+      console.log("Requesting resize");
       let destFile = await browser.runtime.sendMessage({
-        type: "resizeFile",
-        file: srcFile,
+        type: "beginResize",
       });
-      if (destFile === null) {
-        return;
-      }
-      let destURL = await new Promise(resolve => {
-        let reader = new FileReader();
-        reader.onloadend = function() {
-          let dataURL = reader.result;
-          dataURL =
-            "data:image/jpeg;filename=" + encodeURIComponent(destFile.name) + dataURL.substring(15);
-          resolve(dataURL);
-        };
-        reader.readAsDataURL(destFile);
-      });
-
-      target.setAttribute("src", destURL);
-      target.removeAttribute("width");
-      target.removeAttribute("height");
-      target.setAttribute("shrunked:resized", "true");
     } catch (ex) {
       console.error(ex);
     }
@@ -131,4 +108,63 @@ async function maybeResizeInline(target) {
 function imageIsJPEG(image) {
   let src = image.src.toLowerCase();
   return src.startsWith("data:image/jpeg") || src.endsWith(".jpg");
+}
+
+let nextShrunkedId = 1;
+
+browser.runtime.onMessage.addListener(async function(message, sender, sendResponse) {
+  // Pop-up requesting images to resize.
+  if (message.type == "listInlineImages") {
+    return listInlineImages(message.ignoreResized);
+  }
+  // Pop-up returning resized images.
+  if (message.type == "resizeInlineImages") {
+    return resizeInlineImages(message.resized);
+  }
+});
+
+async function listInlineImages(ignoreResized) {
+  let inlineImages = [];
+  for (let img of document.body.querySelectorAll("img")) {
+    if (!imageIsJPEG(img)) {
+      continue;
+    }
+    if (img._shrunkedOriginalFile) {
+      if (ignoreResized) {
+        continue;
+      }
+    } else {
+      let src = img.getAttribute("src");
+      let response = await fetch(src);
+      let srcBlob = await response.blob();
+
+      let srcName = "";
+      let nameParts = img.src.match(/;filename=([^,;]*)[,;]/);
+      if (nameParts) {
+        srcName = decodeURIComponent(nameParts[1]);
+      }
+      img._shrunkedOriginalFile = new File([srcBlob], srcName);
+    }
+    if (!img._shrunkedId) {
+      img._shrunkedId = nextShrunkedId++;
+    }
+    inlineImages.push({
+      file: img._shrunkedOriginalFile,
+      shrunkedId: img._shrunkedId,
+    });
+  }
+  return inlineImages;
+}
+
+async function resizeInlineImages(resized) {
+  for (let resizedImage of resized) {
+    for (let img of document.body.querySelectorAll("img")) {
+      if (img._shrunkedId == resizedImage.shrunkedId) {
+        img.src = resizedImage.destURL;
+        img.removeAttribute("width");
+        img.removeAttribute("height");
+        break;
+      }
+    }
+  }
 }
