@@ -58,7 +58,7 @@ async function updateEnabledState(tab, showPopup, ignoreResized) {
     }
   }
 
-  console.log(`found ${inlineImages.length} inline images and ${attachments.length} image attachments`);
+  console.debug(`found ${inlineImages.length} inline images and ${attachments.length} image attachments`);
   if (inlineImages.length > 0 || attachments.length > 0) {
     await browser.composeAction.enable(tab.id);
     if (showPopup) {

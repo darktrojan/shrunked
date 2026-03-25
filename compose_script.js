@@ -7,13 +7,13 @@ let config = {
 let observer = new MutationObserver(function(mutations) {
   for (let mutation of mutations) {
     if (mutation.addedNodes?.length) {
-      console.log("Nodes added to message: " + mutation.addedNodes.length);
+      console.debug("Nodes added to message: " + mutation.addedNodes.length);
       for (let target of mutation.addedNodes) {
         maybeResizeInline(target);
       }
     }
     if (mutation.removedNodes?.length) {
-      console.log("Nodes removed from message: " + mutation.addedNodes.length);
+      console.debug("Nodes removed from message: " + mutation.addedNodes.length);
       for (let target of mutation.removedNodes) {
         if (target.matches("img") || target.querySelector("img")) {
           browser.runtime.sendMessage({ type: "updateEnabledState" });
@@ -24,73 +24,75 @@ let observer = new MutationObserver(function(mutations) {
 });
 observer.observe(document.body, config);
 
+async function canResize(target) {
+  console.debug("<IMG> found, source is " + target.src.substring(0, 100) + (target.src.length <= 100 ? "" : "\u2026"));
+  if (target.closest(".moz-signature")) {
+    console.debug("Not resizing - image is part of signature");
+    return false;
+  }
+  if (target.closest("cite")) {
+    console.debug("Not resizing - image is part of message being replied to");
+    return false;
+  }
+  if (target.closest(".moz-forward-container")) {
+    console.debug("Not resizing - image is part of forwarded message");
+    return false;
+  }
+  if (target.hasAttribute("shrunked:resized")) {
+    console.debug("Not resizing - image already has shrunked attribute");
+    return false;
+  }
+  if (target.naturalWidth < 500 && target.naturalHeight < 500) {
+    console.debug("Not resizing - image is too small");
+    return false;
+  }
+
+  let src = target.getAttribute("src").toLowerCase();
+  if (!src.startsWith("data:image/jpeg") && !src.endsWith(".jpg")) {
+    console.debug("Not resizing - image is not JPEG");
+    return false;
+  }
+  if (/^data:/.test(src)) {
+    let srcSize = ((src.length - src.indexOf(",") - 1) * 3) / 4;
+    if (src.endsWith("=")) {
+      srcSize--;
+      if (src.endsWith("==")) {
+        srcSize--;
+      }
+    }
+    let { fileSizeMinimum } = await browser.storage.local.get({
+      fileSizeMinimum: 100,
+    });
+    if (srcSize < fileSizeMinimum * 1024) {
+      console.debug("Not resizing - image file size is too small");
+      return false;
+    }
+  }
+
+  return true;
+}
+
 async function maybeResizeInline(target) {
   if (target.nodeName == "IMG") {
     try {
-      console.log("<IMG> found, source is " + target.src.substring(0, 100) + (target.src.length <= 100 ? "" : "\u2026"));
-      let parent = target.parentNode;
-      while (parent && "classList" in parent) {
-        if (parent.classList.contains("moz-signature")) {
-          console.log("Not resizing - image is part of signature");
-          return;
-        }
-        if (parent.getAttribute("type") == "cite") {
-          console.log("Not resizing - image is part of message being replied to");
-          return;
-        }
-        if (parent.classList.contains("moz-forward-container")) {
-          console.log("Not resizing - image is part of forwarded message");
-          return;
-        }
-        parent = parent.parentNode;
-      }
-
       if (!target.complete) {
         target.addEventListener(
           "load",
           () => {
-            console.log("Image now loaded, calling maybeResizeInline");
+            console.debug("Image now loaded, calling maybeResizeInline");
             maybeResizeInline(target);
           },
           { once: true }
         );
-        console.log("Image not yet loaded");
+        console.debug("Image not yet loaded");
         return;
       }
-
-      if (target.hasAttribute("shrunked:resized")) {
-        console.log("Not resizing - image already has shrunked attribute");
+      if (!(await canResize(target))) {
         return;
-      }
-      if (!imageIsJPEG(target)) {
-        console.log("Not resizing - image is not JPEG");
-        return;
-      }
-      if (target.naturalWidth < 500 && target.naturalHeight < 500) {
-        console.log("Not resizing - image is too small");
-        return;
-      }
-
-      let src = target.getAttribute("src");
-      if (/^data:/.test(src)) {
-        let srcSize = ((src.length - src.indexOf(",") - 1) * 3) / 4;
-        if (src.endsWith("=")) {
-          srcSize--;
-          if (src.endsWith("==")) {
-            srcSize--;
-          }
-        }
-        let { fileSizeMinimum } = await browser.storage.local.get({
-          fileSizeMinimum: 100,
-        });
-        if (srcSize < fileSizeMinimum * 1024) {
-          console.log("Not resizing - image file size is too small");
-          return;
-        }
       }
 
       // All we have to do is open the pop-up, it'll do the rest.
-      console.log("Requesting resize");
+      console.debug("Requesting resize");
       let destFile = await browser.runtime.sendMessage({
         type: "beginResize",
       });
@@ -98,16 +100,11 @@ async function maybeResizeInline(target) {
       console.error(ex);
     }
   } else if (target.nodeType == Node.ELEMENT_NODE) {
-    console.log("<" + target.nodeName + "> found, checking children");
+    console.debug("<" + target.nodeName + "> found, checking children");
     for (let child of target.children) {
       maybeResizeInline(child);
     }
   }
-}
-
-function imageIsJPEG(image) {
-  let src = image.src.toLowerCase();
-  return src.startsWith("data:image/jpeg") || src.endsWith(".jpg");
 }
 
 let nextShrunkedId = 1;
@@ -126,7 +123,10 @@ browser.runtime.onMessage.addListener(async function(message, sender, sendRespon
 async function listInlineImages(ignoreResized) {
   let inlineImages = [];
   for (let img of document.body.querySelectorAll("img")) {
-    if (!imageIsJPEG(img)) {
+    if (!img.complete) {
+      continue;
+    }
+    if (!(await canResize(img))) {
       continue;
     }
     if (img._shrunkedOriginalFile) {
