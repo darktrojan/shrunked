@@ -1,0 +1,221 @@
+{
+  "advanced.exif.label": {
+    "message": "Kopiuj dane EXIF"
+  },
+  "advanced.gps.label": {
+    "message": "Kopiuj dane GPS"
+  },
+  "advanced.label": {
+    "message": "Zaawansowane"
+  },
+  "advanced.logenabled.label": {
+    "message": "Loguj do Konsoli Błedów"
+  },
+  "advanced.orient.label": {
+    "message": "Automatycznie obróć obrazki"
+  },
+  "advanced.resample.label": {
+    "message": "Ponowne próbkowanie obrazów za pomocą javascript"
+  },
+  "advanced.resizeonsend.false": {
+    "message": "przy dodawaniu załącznika"
+  },
+  "advanced.resizeonsend.label": {
+    "message": "Proponuj zmianę rozmiaru obrazów:"
+  },
+  "advanced.resizeonsend.true": {
+    "message": "przy wysyłaniu wiadomości"
+  },
+  "cancel": {
+    "message": "Anuluj"
+  },
+  "changelog.button.accesskey": {
+    "message": "A"
+  },
+  "changelog.button.label": {
+    "message": "Co się zmieniło?"
+  },
+  "config.title": {
+    "message": "Shrunked Image Resizer - konfiguracja"
+  },
+  "context.plural": {
+    "message": "Zmień rozmiar tych obrazów…"
+  },
+  "context.single": {
+    "message": "Zmień rozmiar tego obrazu…"
+  },
+  "custom.label": {
+    "message": "Niestandardowy"
+  },
+  "custom.pixels": {
+    "message": "px"
+  },
+  "defaults.label": {
+    "message": "Domyślne ustawienia"
+  },
+  "defaults.quality.better": {
+    "message": "Lepsza jakość"
+  },
+  "defaults.quality.label": {
+    "message": "Ustawienia enkodera JPEG:"
+  },
+  "defaults.quality.smaller": {
+    "message": "Mniejszy rozmiar pliku"
+  },
+  "dimensions": {
+    "message": "$WIDTH$ px × $HEIGHT$ px",
+    "placeholders": {
+      "height": {
+        "content": "$2",
+        "example": "600"
+      },
+      "width": {
+        "content": "$1",
+        "example": "800"
+      }
+    }
+  },
+  "donate.button.accesskey": {
+    "message": "W"
+  },
+  "donate.button.label": {
+    "message": "Wesprzyj"
+  },
+  "donate.notification": {
+    "message": "Shrunked Image Resizer został zaktualizowany do wersji $VERSION$. Shrunked jest darmowy, ale twoje wsparcie jest mile widziane!",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "5.0"
+      }
+    }
+  },
+  "extensionDescription": {
+    "message": "Zmniejsz rozmiar obrazów, żeby szybciej je wysłać w wiadomości lub wgrać na serwer."
+  },
+  "extensionName": {
+    "message": "Shrunked Image Resizer"
+  },
+  "height.label": {
+    "message": "Wysokość:"
+  },
+  "large.label": {
+    "message": "1200 px"
+  },
+  "maxsize.label": {
+    "message": "Maksymalny rozmiar obrazów:"
+  },
+  "medium.label": {
+    "message": "800 px"
+  },
+  "minsize.label": {
+    "message": "Nie modyfikuj obrazów o rozmiarze pliku mniejszym niż:"
+  },
+  "no.accesskey": {
+    "message": "N"
+  },
+  "no.label": {
+    "message": "Nie"
+  },
+  "noresize.label": {
+    "message": "Oryginał"
+  },
+  "ok": {
+    "message": "OK"
+  },
+  "options.savedefault.label": {
+    "message": "Zapisz jako domyślne ustawienia"
+  },
+  "options.title": {
+    "message": "Shrunked Image Resizer - ustawienia"
+  },
+  "preview.label": {
+    "message": "Podgląd:"
+  },
+  "preview.next.tooltip": {
+    "message": "Następny obraz"
+  },
+  "preview.notresized": {
+    "message": "Obraz niezmieniony"
+  },
+  "preview.originalfilesize": {
+    "message": "Oryginalny rozmiar pliku: $SIZE$",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "4.3 MB"
+      }
+    }
+  },
+  "preview.originalsize": {
+    "message": "Oryginalne wymiary obrazu: $WIDTH$ px × $HEIGHT$ px",
+    "placeholders": {
+      "height": {
+        "content": "$2",
+        "example": "600"
+      },
+      "width": {
+        "content": "$1",
+        "example": "800"
+      }
+    }
+  },
+  "preview.previous.tooltip": {
+    "message": "Poprzedni obraz"
+  },
+  "preview.resized": {
+    "message": "Nowe wymiary obrazu: $WIDTH$ px × $HEIGHT$ px",
+    "placeholders": {
+      "height": {
+        "content": "$2",
+        "example": "600"
+      },
+      "width": {
+        "content": "$1",
+        "example": "800"
+      }
+    }
+  },
+  "preview.resizedfilesize": {
+    "message": "Szacowany nowy rozmiar pliku: $SIZE$",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "4.3 MB"
+      }
+    }
+  },
+  "preview.resizedfilesize.estimating": {
+    "message": "Szacowanie nowego rozmiaru pliku…"
+  },
+  "question.plural": {
+    "message": "Zmienić rozmiar tych obrazów?"
+  },
+  "question.single": {
+    "message": "Zmienić rozmiar tego obrazu?"
+  },
+  "small.label": {
+    "message": "500 px"
+  },
+  "status.resizing": {
+    "message": "Zmieniam rozmiar obrazu…;Zmieniam rozmiar obrazów…"
+  },
+  "unit.bytes": {
+    "message": "B"
+  },
+  "unit.kilobytes": {
+    "message": "kB"
+  },
+  "unit.megabytes": {
+    "message": "MB"
+  },
+  "width.label": {
+    "message": "Szerokość:"
+  },
+  "yes.accesskey": {
+    "message": "T"
+  },
+  "yes.label": {
+    "message": "Tak"
+  }
+}
